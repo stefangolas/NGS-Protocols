@@ -1,0 +1,69 @@
+<?xml version='1.0' encoding='utf-8'?>
+<MethodSet>
+  <PreMethod methodName="PreMethod" creator="10x_genomics" dateTime="2025-09-22T12:07:39.209027">
+    <TargetBlockTemperature>4</TargetBlockTemperature>
+    <TargetLidTemp>65</TargetLidTemp>
+  </PreMethod>
+  <Method methodName="Method" creator="10x_genomics" dateTime="2025-09-22T12:07:39.209087">
+    <Variant>960000</Variant>
+    <PlateType>0</PlateType>
+    <FluidQuantity>50</FluidQuantity>
+    <PostHeating>true</PostHeating>
+    <StartBlockTemperature>4</StartBlockTemperature>
+    <StartLidTemperature>65</StartLidTemperature>
+    <Step>
+      <Number>1</Number>
+      <Slope>1</Slope>
+      <PlateauTemperature>32</PlateauTemperature>
+      <PlateauTime>300</PlateauTime>
+      <OverShootSlope1>0.1</OverShootSlope1>
+      <OverShootTemperature>0</OverShootTemperature>
+      <OverShootTime>0</OverShootTime>
+      <OverShootSlope2>0.1</OverShootSlope2>
+      <GotoNumber>0</GotoNumber>
+      <LoopNumber>0</LoopNumber>
+      <PIDNumber>1</PIDNumber>
+      <LidTemp>65</LidTemp>
+    </Step>
+    <Step>
+      <Number>2</Number>
+      <Slope>1</Slope>
+      <PlateauTemperature>65</PlateauTemperature>
+      <PlateauTime>1800</PlateauTime>
+      <OverShootSlope1>0.1</OverShootSlope1>
+      <OverShootTemperature>0</OverShootTemperature>
+      <OverShootTime>0</OverShootTime>
+      <OverShootSlope2>0.1</OverShootSlope2>
+      <GotoNumber>0</GotoNumber>
+      <LoopNumber>0</LoopNumber>
+      <PIDNumber>1</PIDNumber>
+      <LidTemp>65</LidTemp>
+    </Step>
+    <Step>
+      <Number>3</Number>
+      <Slope>1</Slope>
+      <PlateauTemperature>4</PlateauTemperature>
+      <PlateauTime>600</PlateauTime>
+      <OverShootSlope1>0.1</OverShootSlope1>
+      <OverShootTemperature>0</OverShootTemperature>
+      <OverShootTime>0</OverShootTime>
+      <OverShootSlope2>0.1</OverShootSlope2>
+      <GotoNumber>0</GotoNumber>
+      <LoopNumber>0</LoopNumber>
+      <PIDNumber>1</PIDNumber>
+      <LidTemp>65</LidTemp>
+    </Step>
+    <PIDSet>
+      <PID number="1">
+        <PHeating>60</PHeating>
+        <PCooling>80</PCooling>
+        <IHeating>250</IHeating>
+        <ICooling>100</ICooling>
+        <DHeating>10</DHeating>
+        <DCooling>10</DCooling>
+        <PLid>100</PLid>
+        <ILid>70</ILid>
+      </PID>
+    </PIDSet>
+  </Method>
+</MethodSet>

@@ -1,0 +1,31 @@
+{
+  "units_default": "uL",
+  "rgt_cont_60ml_BC_A00_0001": {
+    "0": {
+      "reagent": "MagBeads",
+      "volume": 400.0,
+      "unit": "uL"
+    }
+  },
+  "rgt_cont_60ml_BC_A00_0002": {
+    "0": {
+      "reagent": "ElutionBuffer",
+      "volume": 204.0,
+      "unit": "uL"
+    }
+  },
+  "CPAC_HSP_0001": {
+    "0": {
+      "reagent": "ER_Mix",
+      "volume": 44.0,
+      "unit": "uL"
+    }
+  },
+  "RGT_Ethanol": {
+    "0": {
+      "reagent": "Ethanol",
+      "volume": 19200,
+      "unit": "uL"
+    }
+  }
+}

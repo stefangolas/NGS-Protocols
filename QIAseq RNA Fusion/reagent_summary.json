@@ -1,0 +1,10 @@
+{
+  "units_default": "uL",
+  "CAR_VIALS_SMALL": {
+    "10": {
+      "reagent": "UniversalPCR",
+      "volume": 1280.0,
+      "unit": "uL"
+    }
+  }
+}

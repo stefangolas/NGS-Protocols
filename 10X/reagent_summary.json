@@ -1,0 +1,44 @@
+{
+  "units_default": "uL",
+  "SMP_CAR_24_15x75_A00_0001": {
+    "0": {
+      "reagent": "FragmentationBuffer",
+      "volume": 40,
+      "unit": "uL"
+    },
+    "1": {
+      "reagent": "LigationMix",
+      "volume": 320,
+      "unit": "uL"
+    },
+    "2": {
+      "reagent": "BufferEB",
+      "volume": 766.0,
+      "unit": "uL"
+    }
+  },
+  "CPAC_HSP_0001": {
+    "0": {
+      "reagent": "FragmentationEnzyme",
+      "volume": 80,
+      "unit": "uL"
+    },
+    "1": {
+      "reagent": "DNALigase",
+      "volume": 80,
+      "unit": "uL"
+    },
+    "2": {
+      "reagent": "LibraryAmpMix",
+      "volume": 50,
+      "unit": "uL"
+    }
+  },
+  "rgt_cont_60ml_BC_A00_0002": {
+    "0": {
+      "reagent": "SPRIselect",
+      "volume": 1288,
+      "unit": "uL"
+    }
+  }
+}
