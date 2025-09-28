@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 4/2/2021 10:26:00 AM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace NGSSTARTEACHING {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function AdjustLabware( device & ML_STAR, sequence & io_seqLabware, variable i_fltDeltaX, variable i_fltDeltaY, variable i_fltDeltaZ ) void { }
+function TeachLabware( device & io_device, sequence & io_seqTeachingTips, sequence & io_seqLabware, variable & io_arrPositionIDs[], variable i_blnAllowManualChannelAdjustment, variable & o_arrDeltaX[], variable & o_arrDeltaY[], variable & o_arrDeltaZ[] ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Orr_B$$valid=0$$time=2022-08-02 15:42$$checksum=cdbb255e$$length=082$$

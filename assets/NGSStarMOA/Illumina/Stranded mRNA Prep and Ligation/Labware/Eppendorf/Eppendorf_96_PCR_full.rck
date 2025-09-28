@@ -1,0 +1,69 @@
+HxCfgFile,3;
+
+ConfigIsValid,Y;
+
+DataDef,RECTRACK,3,default,
+{
+BackgrndClr, "16777215",
+Barcode.Unique, "0",
+Barcode.Value, "",
+Bitmap, "VeriSeqNIPT\\bitmaps\\96_l.bmp",
+BitmapRel, "..\\..\\..\\VeriSeqNIPT\\bitmaps\\96_l.bmp",
+BndryX, "14",
+BndryY, "11.5",
+CategoryCnt, "0",
+Clearance, "15.7",
+Cntr.1.base, "0.5",
+Cntr.1.file, "veriseqdx\\sbs_plates\\eppendorf\\eppendorf_96_pcr_full.ctr",
+Cntr.1.fileRel, ".\\eppendorf_96_pcr_full.ctr",
+Cntr.1.offsetx, "0",
+Cntr.1.offsety, "0",
+Columns, "12",
+ConnectedCtr, "0",
+DataType, "1",
+Description, "Eppendorf, Lo-bind PCR-Plate",
+Dim.Dx, "127",
+Dim.Dy, "86",
+Dim.Dz, "15.7",
+Dx, "9",
+Dy, "9",
+GrpCnt, "0",
+Hole.Shape, "0",
+Hole.X, "5.5",
+Hole.Y, "5.5",
+Hole.Z, "5.5",
+IX.First, "1",
+IX.Inc, "0",
+IX.Index, "1",
+IX.Start, "0",
+Options, "0",
+Rows, "8",
+Seg_x.0.LowerWidth, "124",
+Seg_x.0.SegmentHeight, "10.5",
+Seg_x.0.UpperWidth, "123.6",
+Seg_x.1.LowerWidth, "127.76",
+Seg_x.1.SegmentHeight, "5.2",
+Seg_x.1.UpperWidth, "127.76",
+Seg_y.0.LowerWidth, "82.4",
+Seg_y.0.SegmentHeight, "10.5",
+Seg_y.0.UpperWidth, "82",
+Seg_y.1.LowerWidth, "86.47",
+Seg_y.1.SegmentHeight, "5.2",
+Seg_y.1.UpperWidth, "86.47",
+SegmentCount_x, "2",
+SegmentCount_y, "2",
+Shape, "1",
+SingleCntr, "1",
+StackHt, "12.9",
+Stagger, "0",
+UseBndry, "1",
+ViewName, "Eppendorf_96_PCR_full",
+Visible, "0"
+};
+
+DataDef,HxPars,3,AuditTrailData,
+[
+")"
+];
+
+* $$author=Orr_B$$valid=0$$time=2021-04-26 13:29$$checksum=fafcc8ee$$length=081$$

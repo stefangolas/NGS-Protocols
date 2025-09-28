@@ -1,0 +1,57 @@
+HxCfgFile,3;
+
+ConfigIsValid,Y;
+
+DataDef,CONTAINER,3,default,
+{
+1.DX, "5.4",
+1.DY, "2",
+1.DZ, "9",
+1.EqnOfVol, "h*63.6173",
+1.Max, "45.8",
+1.Min, "4",
+1.Shape, "0",
+2.DX, "8.7",
+2.DY, "2",
+2.DZ, "8.4",
+2.EqnOfVol, "h*25.4181",
+2.Max, "4",
+2.Min, "0",
+2.Shape, "3",
+3DModel, "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\NewEnglandBioLabs\\NEBNextDirectCancerHotSpotPanel\\Labware\\eppendorf_2ml.hxx",
+3DModelRel, ".\\eppendorf_2ml.hxx",
+3DxOffset, "0",
+3DyOffset, "0",
+3DzOffset, "0",
+Barcode.Unique, "0",
+Barcode.Value, "",
+BaseMM, "1.5",
+CategoryCnt, "0",
+Clearance, "52",
+Depth, "45.8",
+Description, "",
+Dim.Dx, "9",
+Dim.Dy, "9",
+Dim.Dz, "0",
+LS, "1",
+LSHt, "45",
+MaxDepth, "0.1",
+Property.1, "Version",
+PropertyCnt, "1",
+PropertyValue.1, "1.2",
+Segments, "2",
+Shape, "0",
+TchBase, "0",
+TchOff, "0",
+UseBndry, "0",
+ViewName, "",
+Visible, "0",
+cLLD, "1"
+};
+
+DataDef,HxPars,3,AuditTrailData,
+[
+")"
+];
+
+* $$author=Orr_B$$valid=0$$time=2021-04-26 13:29$$checksum=5fc8dc9f$$length=081$$

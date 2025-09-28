@@ -1,0 +1,21 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 4/23/2025 9:45:24 AM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace REAGENTPLATING_CONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function ReagentPlateCreation_SpecifyNumberOfSourceTubes( variable i_intNumberOfSamples, variable i_intNumberOfIntermediatePlateWells, variable i_intNumberOfTubes, variable i_fltVolumePerSample, variable i_fltDeadVolumeOfTube, variable i_fltDeadVolumeOfIntermediatePlate, variable i_fltDeadVolumeOfLiquidTransfer, sequence & i_seqTemplate, variable i_intStartPosition, variable i_blnCreateMultiDispensePattern, sequence & o_seqAspiration, variable & o_arr_fltVolumeAspiration[], variable & o_arr_fltVolumeDispense[], variable & o_arr_fltVolumePerTube[], variable & o_arr_intNumberOfReactionsPerTube[], variable & o_arr_intNumberOfReactionsPerWell[] ) void { }
+function ReagentPlateCreation_WithPartialSourceTubes( variable i_intNumberOfSamples, variable i_intNumberOfIntermediatePlateWells, variable i_fltVolumePerSample, variable i_fltVolumeOfPartialTube, variable i_fltVolumeOfFullTube, variable i_fltDeadVolumeOfTube, variable i_fltDeadVolumeOfIntermediatePlate, variable i_fltDeadVolumeOfLiquidTransfer, sequence i_seqTemplate, variable i_intStartPosition, variable i_blnCreateMultiDispensePattern, sequence & o_arr_seqAspiration[], variable & o_arr_fltVolumeAspiration[], variable & o_arr_fltVolumeDispense[], variable & o_arr_blnConsecutiveAspiration[], variable & o_arr_intNumberOfReactionsPerTube[], variable & o_arr_intNumberOfReactionsPerWell[] ) void { }
+function ReagentPlateLoadInformation_SpecifyNumberOfSourceTubes( variable i_strReagentName, variable i_strTubeType, variable i_intStartPosition, variable & i_arr_fltVolumes[], variable & o_arr_strReagentName[], variable & o_arr_strVolume[], variable & o_arr_strTubeType[] ) void { }
+function ReagentPlateLoadInformation_WithPartialSourceTubes( variable i_strReagentName, variable i_fltPartialTubeVolume, variable i_fltPartialTubeDeadVolume, variable i_strTubeType, variable i_intStartPosition, variable i_intNumberOfTubes, variable & o_arr_strReagentName[], variable & o_arr_strVolume[], variable & o_arr_strTubeType[] ) void { }
+function ReagentPlateSequences( device & i_instrument, sequence i_seqTemplateAspirate, sequence i_seqTemplateDispense, variable i_intAspirateStartPosition, variable i_intNumberOfSamples, variable i_intNumberOfIntermediateWells, sequence & o_seqFormatAspirate, sequence & o_seqChannelsAspirate, sequence & o_seqChannelsDispense, sequence & o_seqMPHAspirate, sequence & o_seqMPHDispense ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=orr_b$$valid=0$$time=2025-04-23 09:45$$checksum=da72d66c$$length=082$$

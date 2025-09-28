@@ -1,0 +1,3 @@
+"AnswerStartPoint";"AnswerStopPoint";"File_SampleSheet";"AnswerOdtcIswap"
+1;1;"C:\NGSStarInputFiles\NEB\NEBNextUltraIIdirectionalRNA_PolyA\InputFile_2samples_DblIndex.xls";1
+

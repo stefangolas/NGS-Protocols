@@ -1,0 +1,26 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 09.03.2021 11:33:33
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace HHSCONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Clamps_Close( device & ML_STAR, variable i_intDeviceNumber ) variable {  return (0); }
+function Clamps_Open( device & ML_STAR, variable i_intDeviceNumber ) variable {  return (0); }
+function GetTemperature( variable & o_fltTemperature, variable i_intDeviceNumber ) variable {  return (0); }
+function Init( device & ML_STAR, variable i_intUsedNode, variable i_intDeviceNumber ) variable {  return (0); }
+function Shake( device & ML_STAR, variable i_intRPM, variable i_intTime, variable i_intDeviceNumber ) variable {  return (0); }
+function StartHeater( device & ML_STAR, variable i_fltTemperature, variable i_intDeviceNumber ) variable {  return (0); }
+function StartShaker( device & ML_STAR, variable i_intRPM, variable i_intTime, variable i_intDeviceNumber ) variable {  return (0); }
+function StopHeater( device & ML_STAR, variable i_intDeviceNumber ) variable {  return (0); }
+function StopShaker( device & ML_STAR, variable i_intDeviceNumber ) variable {  return (0); }
+function Terminate( device & ML_STAR, variable i_intDeviceNumber1, variable i_intDeviceNumber2 ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Windows10$$valid=0$$time=2021-06-30 15:19$$checksum=57f1c472$$length=086$$

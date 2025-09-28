@@ -1,0 +1,52 @@
+HxCfgFile,3;
+
+ConfigIsValid,Y;
+
+DataDef,CONTAINER,3,default,
+{
+1.DX, "8.3",
+1.DY, "6.5",
+1.DZ, "0",
+1.EqnOfVol, "h*43.2205",
+1.Max, "24.5",
+1.Min, "11",
+1.Shape, "3",
+2.DX, "0",
+2.DY, "0",
+2.DZ, "6.5",
+2.EqnOfVol, "h*11.0610",
+2.Max, "11",
+2.Min, "0",
+2.Shape, "5",
+Barcode.Unique, "0",
+Barcode.Value, "",
+BaseMM, "19.5",
+CategoryCnt, "0",
+Clearance, "30",
+Depth, "24.5",
+Description, "",
+Dim.Dx, "8.3",
+Dim.Dy, "8.3",
+Dim.Dz, "0",
+LS, "1",
+LSHt, "25",
+MaxDepth, "0.1",
+Property.1, "Version",
+PropertyCnt, "1",
+PropertyValue.1, "1.2",
+Segments, "2",
+Shape, "0",
+TchBase, "0",
+TchOff, "0",
+UseBndry, "0",
+ViewName, "",
+Visible, "0",
+cLLD, "1"
+};
+
+DataDef,HxPars,3,AuditTrailData,
+[
+")"
+];
+
+* $$author=Orr_B$$valid=0$$time=2021-04-26 13:29$$checksum=3dd4cccf$$length=081$$

@@ -1,1 +1,3 @@
-"**/*.log" 
+**/reagent_summary.json
+**/tip_summary.json
+**/*.log

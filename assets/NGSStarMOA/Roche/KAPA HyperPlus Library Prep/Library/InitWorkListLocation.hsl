@@ -1,0 +1,17 @@
+#pragma global
+
+#ifndef __InitWorkListLocation_hsl__
+#define __InitWorkListLocation_hsl__ 1
+
+namespace INIT_WORKLIST_LOCATION
+{
+      function LockLibrary();
+
+      function LockLibrary()
+      {
+         Trace("C:\\NGSStarInputFiles\\");
+      }
+}
+
+#endif
+// $$author=Hutchens_W$$valid=0$$time=2023-01-31 13:48$$checksum=abc560fb$$length=087$$

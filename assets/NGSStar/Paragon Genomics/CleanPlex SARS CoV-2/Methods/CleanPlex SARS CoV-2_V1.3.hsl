@@ -1,0 +1,148 @@
+ namespace _Method { #include "HSLML_STARLib.hsl" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Library\\Executing Layer\\DialogController.hs_" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Library\\Executing Layer\\HHSController.hs_" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Library\\Executing Layer\\ODTCController.hs_" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Library\\Executing Layer\\TransportController.hs_" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Library\\Executing Layer\\PipettingController.hs_" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Library\\Executing Layer\\SequenceController.hs_" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Library\\Executing Layer\\TipLoadingController.hs_" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Library\\Executing Layer\\IOController.hs_" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Library\\Executing Layer\\iSwapController.hs_" } 
+ namespace _Method { #include "C:\\Program Files (x86)\\Hamilton\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Library\\Executing Layer\\CpacControllerSTC.hs_" } 
+#include "C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Methods\\CleanPlex SARS CoV-2_V1.0.res"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+variable _strWorklistPath;
+global device ML_STAR ("C:\\Program Files (x86)\\HAMILTON\\NGSStar\\Paragon Genomics\\CleanPlex SARS CoV-2\\Methods\\CleanPlex SARS CoV-2_V1.0.lay", "ML_STAR", hslTrue);
+variable _fltStopBufferVol;
+variable _fltRT_PrimerMixVol;
+variable _fltRT_EnzymeMixVol;
+variable _fltBeads1Vol;
+variable _fltMultiplexMixVol;
+variable _fltETOH1Vol;
+variable _fltTE1Vol;
+variable _blnShortODTC;
+variable _blnSkipODTC;
+variable _blnAirDryOnODTC;
+variable _intSampleNumber;
+variable _intNeededTips1000;
+variable _intNeededTips300;
+variable _intNeededTips50;
+variable _fltOnMagnet1Timer;
+variable _fltElution1Timer;
+variable _fltBinding1Timer;
+variable _fltDrying1Timer;
+variable _fltBeads2Vol;
+variable _fltOnMagnet2Timer;
+variable _fltElution2Timer;
+variable _fltETOH2Vol;
+variable _fltTE2Vol;
+variable _fltBinding2Timer;
+variable _fltDrying2Timer;
+variable _fltBeads3Vol;
+variable _fltOnMagnet3Timer;
+variable _fltDigestionMixVol;
+variable _fltElution3Timer;
+variable _fltETOH3Vol;
+variable _fltTE3Vol;
+variable _fltBinding3Timer;
+variable _fltDrying3Timer;
+variable _blnSimulation;
+variable _fltOnMagnet4Timer;
+variable _fltIndexVol;
+variable _fltIndexingMixVol;
+variable _fltElution4Timer;
+variable _fltETOH4Vol;
+variable _fltTE4Vol;
+variable _fltBinding4Timer;
+variable _fltDrying4Timer;
+variable _fltBeads4Vol;
+variable _arr_strIndexPosID[];
+variable _blnPostDigestionCleanup;
+variable _blnPostAmplification1Cleanup;
+variable _blnRT;
+variable _blnPostAmplification2Cleanup;
+variable _blnPostRTCleanup;
+variable _blnDigestion;
+variable _blnAmplification1;
+variable _intSampleNumberFromDialog;
+variable _blnAmplification2;
+variable _arr_strSamplePosID[];
+variable _intBeadsMigrationTime;
+variable _blnExtendBufferRemoval;
+variable _blnVersionLID;
+variable _fltDeltaXLidReturn;
+variable _fltDeltaXLidMove;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+ namespace _Method { #include "HSLMETEDLib.hs_" } 
+ namespace _Method { #include "HSLMECCLib.hs_" } 
+ namespace _Method { #include "HSLPTLLib.hsl" } 
+// }} ""
+// {{{ 2 "LocalSubmethodInclude" ""
+ namespace _Method {  #include __filename__ ".sub"  } 
+// }} ""
+/* {{ 2 "ProcessInsertLine" "" */ // }} ""
+// {{{ 5 "main" "Begin"
+namespace _Method { method main(  ) void {
+// }} ""
+// {{ 5 "main" "InitLocals"
+// }} ""
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+DIALOGCONTROLLER::_InitLibrary();
+HHSCONTROLLER::_InitLibrary();
+ODTCCONTROLLER::_InitLibrary();
+TRANSPORTCONTROLLER::_InitLibrary();
+PIPETTINGCONTROLLER::_InitLibrary();
+SEQUENCECONTROLLER::_InitLibrary();
+TIPLOADINGCONTROLLER::_InitLibrary();
+IOCONTROLLER::_InitLibrary();
+ISWAPCONTROLLER::_InitLibrary();
+CPACCONTROLLERSTC::_InitLibrary();
+::RegisterAbortHandler( "OnAbort");
+// }} ""
+// {{ 1 1 0 "fd2178c2_3811_49f6_90fd1805867f1c52" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("*************************************************************************************************************************************\nMethod:  CleanPlex® SARS-CoV-2 FLEX Research and Surveillance Panels\nBy:          Pietro Ariani, Hamilton Italy \nVersion:  1.3\nBased on  Reference Guide (UG4002-02 November 2020)\nVersioning : see at tab \"_VersionHistory\"\n\n*************************************************************************************************************************************"));
+// }} ""
+// {{{ 2 1 0 "f74f3945_9a21_4709_8f3fbb6094abfec3" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+Init();
+// }} ""
+// {{{ 3 1 0 "49f892b9_3451_4f46_bf9d5279b5dd60d4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+Loading();
+// }} ""
+// {{{ 4 1 0 "1ffbf224_ac6b_4cdd_9ff072e6f410b7d4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+LibraryWorkflow();
+// }} ""
+// {{{ 5 1 0 "ef950054_0558_4988_927b4ae7f4287958" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+DIALOGCONTROLLER::MethodComplete();
+// }} ""
+// {{{ 6 1 0 "b2efe085_89c2_4fbe_9aa343b3fa1e92bf" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+Terminate();
+// }} ""
+// {{ 2 "AutoExitBlock" ""
+DIALOGCONTROLLER::_ExitLibrary();
+HHSCONTROLLER::_ExitLibrary();
+ODTCCONTROLLER::_ExitLibrary();
+TRANSPORTCONTROLLER::_ExitLibrary();
+PIPETTINGCONTROLLER::_ExitLibrary();
+SEQUENCECONTROLLER::_ExitLibrary();
+TIPLOADINGCONTROLLER::_ExitLibrary();
+IOCONTROLLER::_ExitLibrary();
+ISWAPCONTROLLER::_ExitLibrary();
+CPACCONTROLLERSTC::_ExitLibrary();
+// }} ""
+// {{{ 5 "main" "End"
+} }
+// }} ""
+// $$author=Stefan.Golas$$valid=0$$time=2025-09-17 12:10$$checksum=92ae76be$$length=091$$

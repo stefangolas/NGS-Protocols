@@ -1,0 +1,69 @@
+HxCfgFile,3;
+
+ConfigIsValid,Y;
+
+DataDef,RECTRACK,3,default,
+{
+3DModel, "C:\\Program Files (x86)\\Hamilton\\NGSStarMOA\\10x Genomics\\Chromium GEM-X Single Cell\\Labware\\Greiner Clear Lid.hxx",
+3DModelRel, ".\\Greiner Clear Lid.hxx",
+3DxOffset, "0",
+3DyOffset, "0",
+3DzOffset, "0",
+BackgrndClr, "12632256",
+Barcode.Unique, "0",
+Barcode.Value, "",
+Bitmap, "C:\\Program Files (x86)\\Hamilton\\NGSStarMOA\\KitProvider\\KitName\\Labware\\HamiltonComfortlid.bmp",
+BitmapRel, ".\\HamiltonComfortlid.bmp",
+BndryX, "63.5",
+BndryY, "43",
+CategoryCnt, "0",
+Clearance, "9",
+Cntr.1.base, "4",
+Cntr.1.file, "C:\\Program Files (x86)\\Hamilton\\NGSStarMOA\\10x Genomics\\Chromium GEM-X Single Cell\\Labware\\ham_1_nb_lid_odtc_v1.0.ctr",
+Cntr.1.fileRel, ".\\ham_1_nb_lid_odtc_v1.0.ctr",
+Cntr.1.offsetx, "0",
+Cntr.1.offsety, "0",
+Columns, "1",
+ConnectedCtr, "0",
+DataType, "2",
+Description, "PCR ComfortLid (Hamilton)",
+Dim.Dx, "127",
+Dim.Dy, "86",
+Dim.Dz, "8.5",
+Dx, "0",
+Dy, "0",
+Hole.Shape, "0",
+Hole.X, "0",
+Hole.Y, "0",
+Hole.Z, "1",
+IX.First, "1",
+IX.Inc, "0",
+IX.Index, "0",
+IX.Start, "0",
+Image3D, "C:\\Program Files (x86)\\Hamilton\\NGSStarMOA\\10x Genomics\\Chromium GEM-X Single Cell\\Labware\\Ham_1_NB_Lid_ODTC_V1.0.png",
+ImageRel, ".\\Ham_1_NB_Lid_ODTC_V1.0.png",
+Options, "0",
+Rows, "1",
+Seg_x.0.LowerWidth, "127.5",
+Seg_x.0.SegmentHeight, "8.5",
+Seg_x.0.UpperWidth, "127.5",
+Seg_y.0.LowerWidth, "85.3",
+Seg_y.0.SegmentHeight, "8.5",
+Seg_y.0.UpperWidth, "85.3",
+SegmentCount_x, "1",
+SegmentCount_y, "1",
+Shape, "1",
+SingleCntr, "1",
+StackHt, "6.7",
+Stagger, "9",
+UseBndry, "1",
+ViewName, "Lid",
+Visible, "0"
+};
+
+DataDef,HxPars,3,AuditTrailData,
+[
+")"
+];
+
+* $$author=orr_b$$valid=0$$time=2024-10-04 07:18$$checksum=2e874980$$length=081$$

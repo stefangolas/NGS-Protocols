@@ -1,0 +1,22 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 3/25/2021 1:52:48 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace ISWAPCONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Init( variable i_fltGripHeight, variable i_fltGripOpen, variable i_fltGripWidth, variable i_fltGripOpenLargePCR, variable i_fltGripWidthLargePCR, variable i_fltGripHeightLID, variable i_fltGripOpenLID, variable i_fltGripWidthLID, variable i_fltGripOpenLargeLID, variable i_fltGripWidthLargeLID ) void { }
+function MoveConfortLid_Large( device & ML_STAR, sequence & i_seqFrom, sequence & i_seqTo, variable i_blnInverseGrip, variable i_blnPark ) void { }
+function MoveConfortLid_Small( device & ML_STAR, sequence & i_seqFrom, sequence & i_seqTo, variable i_blnInverseGrip, variable i_blnPark, variable i_fltXAdjustTo ) void { }
+function MovePCRPlate_Large( device & ML_STAR, sequence & i_seqFrom, sequence & i_seqTo, variable i_blnInverseGrip, variable i_blnPark ) void { }
+function MovePCRPlate_Small( device & ML_STAR, sequence & i_seqFrom, sequence & i_seqTo, variable i_blnInverseGrip, variable i_blnPark ) void { }
+function ParkiSWAP( device & ML_STAR ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Windows10$$valid=0$$time=2021-06-30 15:19$$checksum=8d8063c8$$length=086$$

@@ -1,0 +1,952 @@
+/***************************************************************************************************************
+****************************************************************************************************************
+*
+*  Library: HSL Library Extensions - Printing
+*
+*  Author: William Cunningham
+*
+*  Changelog:
+*     - Version 01.00 Oct 18, 2018: Library first draft
+*     - Version 01.01 Dec 03, 2018: Added Excel and default printer printing
+*     - Version 01.02 Aug 28, 2019: Added Excel printer and single sheet printing
+*     - Version 01.03 Sep 03, 2019: Fixed issue with formatting only applying to first sheet of Excel document
+*     - Version 01.04 Sep 03, 2019: Fixed broken PrintThisTraceToPrinter
+*
+****************************************************************************************************************
+***************************************************************************************************************/
+#pragma global
+
+#ifndef __HSLLIBRARYEXTENSIONS_PRINTING__
+#define __HSLLIBRARYEXTENSIONS_PRINTING__ 1
+
+//============================== includes ==============================
+#ifndef __HSLEXTENSIONS_DIRECTORY__
+   #include "HSLExtensions/Directory.hsl"
+#endif
+#ifndef __HSLEXTENSIONS_FILE__
+   #include "HSLExtensions/File.hsl"
+#endif
+#ifndef __HSLSTRLIB__
+   #include "HSLStrLib.hsl"
+#endif
+
+namespace HSLLEPrinting
+{
+
+   function PrintTextFileToPrinter(variable i_strFileName) variable
+   {
+      variable strFunctionName(GetFunctionName());
+      variable blnExists;
+      object objWord;		
+      object objDocuments;
+      object objDocument;
+
+      //register exception handler 
+      onerror goto ExceptionHandler;
+
+      //Trace inputs
+      Trace(strFunctionName, " - Text File name and path: ", i_strFileName);
+
+      //Check the inputs
+      blnExists = HSLExtensions::File::Exists(i_strFileName);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The source file does not exist.");
+         return(-1);
+      }
+      
+      objWord.CreateObject("Word.Application");
+      objDocuments = objWord.Documents;
+      objDocument = objDocuments.Open(i_strFileName,hslFalse,hslTrue);
+
+      objDocument.PrintOut;
+
+      objDocument.Close();
+      objWord.Quit();
+
+      // - clean up
+      objDocument.ReleaseObject();
+      objDocuments.ReleaseObject();
+      objWord.ReleaseObject();
+
+      Trace(strFunctionName, ": Completed successfully.");
+
+      return(1);
+
+      //exception
+      ExceptionHandler:
+      {  
+         objWord.Quit();
+
+         objDocument.ReleaseObject();
+         objDocuments.ReleaseObject();
+         objWord.ReleaseObject();
+
+         Trace(strFunctionName, ": Print function error");
+
+         return(-11);
+      }
+   }
+
+   function PrintTextFileToPDF(variable i_strFileName, variable i_strTargetFileName) variable
+   {
+      variable strFunctionName(GetFunctionName());
+      variable blnExists;
+      variable strTargetDirectory;
+      variable strTargetFileExtension;
+      object objWord;		
+      object objDocuments;
+      object objDocument;
+
+      //register exception handler 
+      onerror goto ExceptionHandler;
+
+      //Trace inputs
+      Trace(strFunctionName, " - Text File name and path: ", i_strFileName, ", Target Filename and Path: ", i_strTargetFileName);
+
+      //Check the inputs
+      blnExists = HSLExtensions::File::Exists(i_strFileName);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The source file does not exist.");
+         return(-1);
+      }
+
+      blnExists = HSLExtensions::File::Exists(i_strTargetFileName);
+      if(blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The target file already exists.");
+         return(-2);
+      }
+      
+      strTargetDirectory = HSLExtensions::File::GetDirectoryName(i_strTargetFileName);
+      blnExists = HSLExtensions::Directory::Exists(strTargetDirectory);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The target directory does not exist.");
+         return(-3);
+      }
+
+      strTargetFileExtension = HSLExtensions::File::GetFileExtension(i_strTargetFileName);
+      strTargetFileExtension = StrMakeUpper(strTargetFileExtension);
+      if(strTargetFileExtension != "PDF")
+      {
+         Trace(strFunctionName, ": Print function error - The target file name or extension is invalid.");
+         return(-4);
+      }
+
+      objWord.CreateObject("Word.Application");
+      objDocuments = objWord.Documents;
+      objDocument = objDocuments.Open(i_strFileName,hslFalse,hslTrue);
+
+      objDocument.SaveAs(i_strTargetFileName,17);
+
+      objDocument.Close();
+      objWord.Quit();
+
+      // - clean up
+      objDocument.ReleaseObject();
+      objDocuments.ReleaseObject();
+      objWord.ReleaseObject();
+
+      Trace(strFunctionName, ": Completed successfully.");
+
+      return(1);
+
+      //exception
+      ExceptionHandler:
+      {  
+         objWord.Quit();
+
+         objDocument.ReleaseObject();
+         objDocuments.ReleaseObject();
+         objWord.ReleaseObject();
+
+         Trace(strFunctionName, ": Print function error");
+
+         return(-11);
+      }
+   }
+
+   function PrintThisTraceToPrinter() variable
+   {
+      variable strFunctionName(GetFunctionName());
+      variable blnExists;
+      variable strFileName;
+      object objFSO;
+      object objWord;		
+      object objDocuments;
+      object objDocument;
+
+      //register exception handler 
+      onerror goto ExceptionHandler;
+
+      objFSO.CreateObject("Scripting.FileSystemObject");
+
+      strFileName = GetLogFilesPath() + "\\" + objFSO.GetBaseName(GetMethodFileName()) + "_" + GetUniqueRunId() + "_Trace.trc"; 
+
+      //Trace inputs
+      Trace(strFunctionName, " - Text File name and path: ", strFileName);
+
+      blnExists = HSLExtensions::File::Exists(strFileName);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The source file does not exist.");
+         return(-1);
+      }
+
+      objWord.CreateObject("Word.Application");
+      objDocuments = objWord.Documents;
+      objDocument = objDocuments.Open(strFileName,hslFalse,hslTrue);
+
+      objDocument.PrintOut;
+
+      objDocument.Close();
+      objWord.Quit();
+
+      // - clean up
+      objDocument.ReleaseObject();
+      objDocuments.ReleaseObject();
+      objWord.ReleaseObject();
+      objFSO.ReleaseObject();
+
+      Trace(strFunctionName, ": Completed successfully.");
+
+      return(1);
+
+      //exception
+      ExceptionHandler:
+      {
+         objWord.Quit();
+
+         objDocument.ReleaseObject();
+         objDocuments.ReleaseObject();
+         objWord.ReleaseObject();
+         objFSO.ReleaseObject();
+
+         Trace(strFunctionName, ": Print function error");
+
+         return(-11);
+      }
+   }
+
+   function PrintThisTraceToPDF(variable i_strTargetFileName) variable
+   {
+      variable strFunctionName(GetFunctionName());
+      variable blnExists;
+      variable strTargetDirectory;
+      variable strFileName;
+      variable strTargetFileExtension;
+      variable strLastCharacter;
+      variable intIndex;
+      object objFSO;
+      object objWord;		
+      object objDocuments;
+      object objDocument;
+
+      //register exception handler 
+      onerror goto ExceptionHandler;
+
+      objFSO.CreateObject("Scripting.FileSystemObject");
+
+      //Check the inputs
+      //Assign the source file name based on the current run GUID and the LogFiles path
+      strFileName =  GetLogFilesPath() + "\\" + objFSO.GetBaseName(GetMethodFileName()) + "_" + GetUniqueRunId() + "_Trace.trc";
+      if(i_strTargetFileName == "")
+      {
+         //If the target filename/path was left blank, use LogFiles and the Trace File name for the PDF filename
+         i_strTargetFileName =  GetLogFilesPath() + "\\" + objFSO.GetBaseName(GetMethodFileName()) + "_" + GetUniqueRunId() + "_Trace.pdf";
+      }
+      else
+      {
+         //If the target filename/path was not left blank, check to see if they provided a filename or a filepath or both
+         strTargetFileExtension = HSLExtensions::File::GetFileExtension(i_strTargetFileName);
+         if(strTargetFileExtension == "")
+         {
+            //The file has no extension, assume they provided a filepath
+            strLastCharacter = StrRight(i_strTargetFileName, 1);
+            if(strLastCharacter != "\\")
+            {
+               //Add a backslash to the end of the provided filepath if missing
+               i_strTargetFileName = i_strTargetFileName + "\\";
+            }
+            //Generate the target file using the provided filepath and the Trace File name
+            i_strTargetFileName = i_strTargetFileName + objFSO.GetBaseName(GetMethodFileName()) + "_" + GetUniqueRunId() + "_Trace.pdf";
+         }
+         else
+         {
+            //The file has an extension, check to see if there is a provided path (contains at least one backslash)
+            intIndex = StrFind(i_strTargetFileName, "\\");
+            if(intIndex == -1)
+            {
+               //No path was provided, this is a standalone file name, so generate the target file using the provided filename and the LogFiles path
+               i_strTargetFileName = GetLogFilesPath() + "\\" + i_strTargetFileName;
+            }
+         }
+      }
+
+      //Trace inputs
+      Trace(strFunctionName, " - Text File name and path: ", strFileName, ", Target Filename and Path: ", i_strTargetFileName);
+
+      blnExists = HSLExtensions::File::Exists(strFileName);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The source file does not exist.");
+         return(-1);
+      }
+
+      blnExists = HSLExtensions::File::Exists(i_strTargetFileName);
+      if(blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The target file already exists.");
+         return(-2);
+      }
+      
+      strTargetDirectory = HSLExtensions::File::GetDirectoryName(i_strTargetFileName);
+      blnExists = HSLExtensions::Directory::Exists(strTargetDirectory);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The target directory does not exist.");
+         return(-3);
+      }
+
+      strTargetFileExtension = HSLExtensions::File::GetFileExtension(i_strTargetFileName);
+      strTargetFileExtension = StrMakeUpper(strTargetFileExtension);
+      if(strTargetFileExtension != "PDF")
+      {
+         Trace(strFunctionName, ": Print function error - The target file name or extension is invalid.");
+         return(-4);
+      }
+
+      objWord.CreateObject("Word.Application");
+      objDocuments = objWord.Documents;
+      objDocument = objDocuments.Open(strFileName,hslFalse,hslTrue);
+
+      objDocument.SaveAs(i_strTargetFileName,17);
+
+      objDocument.Close();
+      objWord.Quit();
+
+      // - clean up
+      objDocument.ReleaseObject();
+      objDocuments.ReleaseObject();
+      objWord.ReleaseObject();
+      objFSO.ReleaseObject();
+
+      Trace(strFunctionName, ": Completed successfully.");
+
+      return(1);
+
+      //exception
+      ExceptionHandler:
+      {
+         objWord.Quit();
+
+         objDocument.ReleaseObject();
+         objDocuments.ReleaseObject();
+         objWord.ReleaseObject();
+         objFSO.ReleaseObject();
+
+         Trace(strFunctionName, ": Print function error");
+
+         return(-11);
+      }
+   }
+
+   function PrintExcelFileToPrinter(variable i_strFileName, variable i_boolLandscapeMode, variable i_boolAutoFitColumns) variable
+   {
+      variable strFunctionName(GetFunctionName());
+      variable blnExists;
+      variable strDataType;
+      variable intNumberOfSheets;
+      variable intCounter;
+      object objExcel;		
+      object objWorkBooks;
+      object objWorkBook;
+      object objActiveSheet;
+      object objRange;
+      object objPageSetup;
+      object objColumn;
+      object objSheets;
+
+      //register exception handler 
+      onerror goto ExceptionHandler;
+
+      //Trace inputs
+      Trace(strFunctionName, " - Excel File name and path: ", i_strFileName, ", Landscape: ", i_boolLandscapeMode, ", Autofit: ", i_boolAutoFitColumns);
+
+      //Check the inputs
+      blnExists = HSLExtensions::File::Exists(i_strFileName);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The source file does not exist.");
+         return(-1);
+      }
+      
+      strDataType = GetType(i_boolLandscapeMode);
+      if(strDataType == "i")
+      {
+         if(i_boolLandscapeMode != 1 && i_boolLandscapeMode != 0)
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No other values permitted.");
+            return(-7);            
+         }
+      }
+      else
+      {
+         if(strDataType == "s")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No strings permitted.");
+         }
+         if(strDataType == "f")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No floats permitted.");
+         }
+         return(-6);
+      }
+
+      strDataType = GetType(i_boolAutoFitColumns);
+      if(strDataType == "i")
+      {
+         if(i_boolAutoFitColumns != 1 && i_boolAutoFitColumns != 0)
+         {
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No other values permitted.");
+            return(-7);            
+         }
+      }
+      else
+      {
+         if(strDataType == "s")
+         { 
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No strings permitted.");
+         }
+         if(strDataType == "f")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No floats permitted.");
+         }
+         return(-6);
+      }
+
+      objExcel.CreateObject("Excel.Application");
+      objExcel.Visible = hslFalse;
+      objWorkBooks = objExcel.Workbooks;
+      objWorkBook = objWorkBooks.Open(i_strFileName);
+      objSheets = objWorkBook.Sheets;
+      intNumberOfSheets = objSheets.Count(); 
+      for(intCounter = 1; intCounter <= intNumberOfSheets ; intCounter++)
+      {
+         objSheets = objWorkBook.Sheets(intCounter);
+         objSheets.Select();
+         objActiveSheet = objExcel.ActiveSheet;
+         objPageSetup = objActiveSheet.PageSetup;
+         if(i_boolLandscapeMode == hslTrue)
+         {
+            objPageSetup.Orientation = 2;
+         }
+         objRange = objActiveSheet.UsedRange;
+         objColumn = objRange.EntireColumn;
+         if(i_boolAutoFitColumns == hslTrue)
+         {
+            objColumn.AutoFit();
+         }
+      }
+      objSheets = objWorkBook.Sheets;
+      objSheets.Select();
+      objActiveSheet = objExcel.ActiveSheet;
+      objPageSetup = objActiveSheet.PageSetup;
+      if(i_boolLandscapeMode == hslTrue)
+      {
+         objPageSetup.Orientation = 2;
+      }
+      objRange = objActiveSheet.UsedRange;
+      objColumn = objRange.EntireColumn;
+      if(i_boolAutoFitColumns == hslTrue)
+      {
+         objColumn.AutoFit();
+      }
+      objWorkBook.PrintOut;
+      objWorkBook.Close(hslFalse);
+      objExcel.Quit;  
+
+      objExcel.ReleaseObject();
+      objWorkBooks.ReleaseObject();
+      objWorkBook.ReleaseObject();
+
+      return(1);
+
+      //exception
+      ExceptionHandler:
+      {
+         objExcel.Quit();
+         objExcel.ReleaseObject();
+         objWorkBooks.ReleaseObject();
+         objWorkBook.ReleaseObject();
+
+         Trace(strFunctionName, ": Print function error");
+
+         return(-11);
+      }
+   }
+
+   function PrintExcelSheetToPrinter(variable i_strFileName, variable i_strSheetName, variable i_boolLandscapeMode, variable i_boolAutoFitColumns) variable
+   {
+      variable strFunctionName(GetFunctionName());
+      variable blnExists;
+      variable strDataType;
+      object objExcel;		
+      object objWorkBooks;
+      object objWorkBook;
+      object objActiveSheet;
+      object objRange;
+      object objPageSetup;
+      object objColumn;
+      object objSheets;
+
+      //register exception handler 
+      onerror goto ExceptionHandler;
+
+      //Trace inputs
+      Trace(strFunctionName, " - Excel File name and path: ", i_strFileName, ", Sheet Name: ", i_strSheetName, ", Landscape: ", i_boolLandscapeMode, ", Autofit: ", i_boolAutoFitColumns);
+
+      //Check the inputs
+      blnExists = HSLExtensions::File::Exists(i_strFileName);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The source file does not exist.");
+         return(-1);
+      }
+      
+      strDataType = GetType(i_boolLandscapeMode);
+      if(strDataType == "i")
+      {
+         if(i_boolLandscapeMode != 1 && i_boolLandscapeMode != 0)
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No other values permitted.");
+            return(-7);            
+         }
+      }
+      else
+      {
+         if(strDataType == "s")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No strings permitted.");
+         }
+         if(strDataType == "f")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No floats permitted.");
+         }
+         return(-6);
+      }
+
+      strDataType = GetType(i_boolAutoFitColumns);
+      if(strDataType == "i")
+      {
+         if(i_boolAutoFitColumns != 1 && i_boolAutoFitColumns != 0)
+         {
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No other values permitted.");
+            return(-7);            
+         }
+      }
+      else
+      {
+         if(strDataType == "s")
+         { 
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No strings permitted.");
+         }
+         if(strDataType == "f")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No floats permitted.");
+         }
+         return(-6);
+      }
+
+      objExcel.CreateObject("Excel.Application");
+      objExcel.Visible = hslFalse;
+      objWorkBooks = objExcel.Workbooks;
+      objWorkBook = objWorkBooks.Open(i_strFileName);
+      objSheets = objWorkBook.Sheets(i_strSheetName);
+      objSheets.Select();
+      objActiveSheet = objExcel.ActiveSheet;
+      objPageSetup = objActiveSheet.PageSetup;
+      if(i_boolLandscapeMode == hslTrue)
+      {
+         objPageSetup.Orientation = 2;
+      }
+      objRange = objActiveSheet.UsedRange;
+      objColumn = objRange.EntireColumn;
+      if(i_boolAutoFitColumns == hslTrue)
+      {
+         objColumn.AutoFit();
+      }
+      objWorkBook.PrintOut;
+      objWorkBook.Close(hslFalse);
+      objExcel.Quit;  
+
+      objExcel.ReleaseObject();
+      objWorkBooks.ReleaseObject();
+      objWorkBook.ReleaseObject();
+
+      return(1);
+
+      //exception
+      ExceptionHandler:
+      {
+         objExcel.Quit();
+         objExcel.ReleaseObject();
+         objWorkBooks.ReleaseObject();
+         objWorkBook.ReleaseObject();
+
+         Trace(strFunctionName, ": Print function error");
+
+         return(-11);
+      }
+   }
+
+   function PrintExcelFileToPDF(variable i_strFileName, variable i_strTargetFileName, variable i_boolLandscapeMode, variable i_boolAutoFitColumns, variable i_boolOpenPDFAfterPrint) variable
+   {
+      variable strFunctionName(GetFunctionName());
+      object objExcel;		
+      object objWorkBooks;
+      object objWorkBook;
+      object objSheets;
+      object objActiveSheet;
+      object objPageSetup;
+      object objRange;
+      object objColumn;
+      variable intNumberOfSheets;
+      variable intCounter;
+      variable strPrintOrientation;
+      variable blnExists;
+      variable strDataType;
+      variable strTargetFileExtension;
+      variable strTargetDirectory;
+
+      //register exception handler 
+      onerror goto ExceptionHandler;
+
+      //Trace inputs
+      Trace(strFunctionName, " - Excel File name and path: ", i_strFileName, ", Target Filename and Path: ", i_strTargetFileName, ", Landscape: ", i_boolLandscapeMode, ", Autofit: ", i_boolAutoFitColumns, ", Open: ", i_boolOpenPDFAfterPrint);
+
+      //Check the inputs
+      blnExists = HSLExtensions::File::Exists(i_strFileName);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The source file does not exist.");
+         return(-1);
+      }
+
+      blnExists = HSLExtensions::File::Exists(i_strTargetFileName);
+      if(blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The target file already exists.");
+         return(-2);
+      }
+      
+      strTargetDirectory = HSLExtensions::File::GetDirectoryName(i_strTargetFileName);
+      blnExists = HSLExtensions::Directory::Exists(strTargetDirectory);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The target directory does not exist.");
+         return(-3);
+      }
+
+      strTargetFileExtension = HSLExtensions::File::GetFileExtension(i_strTargetFileName);
+      strTargetFileExtension = StrMakeUpper(strTargetFileExtension);
+      if(strTargetFileExtension != "PDF")
+      {
+         Trace(strFunctionName, ": Print function error - The target file name or extension is invalid.");
+         return(-4);
+      }
+
+      strDataType = GetType(i_boolLandscapeMode);
+      if(strDataType == "i")
+      {
+         if(i_boolLandscapeMode != 1 && i_boolLandscapeMode != 0)
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No other values permitted.");
+            return(-7);            
+         }
+      }
+      else
+      {
+         if(strDataType == "s")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No strings permitted.");
+         }
+         if(strDataType == "f")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No floats permitted.");
+         }
+         return(-6);
+      }
+
+      strDataType = GetType(i_boolAutoFitColumns);
+      if(strDataType == "i")
+      {
+         if(i_boolAutoFitColumns != 1 && i_boolAutoFitColumns != 0)
+         {
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No other values permitted.");
+            return(-7);            
+         }
+      }
+      else
+      {
+         if(strDataType == "s")
+         { 
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No strings permitted.");
+         }
+         if(strDataType == "f")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No floats permitted.");
+         }
+         return(-6);
+      }
+
+      strDataType = GetType(i_boolOpenPDFAfterPrint);
+      if(strDataType == "i")
+      {
+         if(i_boolOpenPDFAfterPrint != 1 && i_boolOpenPDFAfterPrint != 0)
+         {
+            Trace(strFunctionName, ": Print function error - i_boolOpenPDFAfterPrint only accepts hslTrue/hslFalse or the integers 1 and 0. No other values permitted.");
+            return(-7);            
+         }
+      }
+      else
+      {
+         if(strDataType == "s")
+         { 
+            Trace(strFunctionName, ": Print function error - i_boolOpenPDFAfterPrint only accepts hslTrue/hslFalse or the integers 1 and 0. No strings permitted.");
+         }
+         if(strDataType == "f")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolOpenPDFAfterPrint only accepts hslTrue/hslFalse or the integers 1 and 0. No floats permitted.");
+         }
+         return(-6);
+      }
+
+      objExcel.CreateObject("Excel.Application");
+      objExcel.Visible = hslFalse;
+      objWorkBooks = objExcel.Workbooks;
+      objWorkBook = objWorkBooks.Open(i_strFileName);
+      objSheets = objWorkBook.Sheets;
+      intNumberOfSheets = objSheets.Count(); 
+      for(intCounter = 1; intCounter <= intNumberOfSheets ; intCounter++)
+      {
+         objSheets = objWorkBook.Sheets(intCounter);
+         objSheets.Select();
+         objActiveSheet = objExcel.ActiveSheet;
+         objPageSetup = objActiveSheet.PageSetup;
+         if(i_boolLandscapeMode == hslTrue)
+         {
+            objPageSetup.Orientation = 2;
+         }
+         objRange = objActiveSheet.UsedRange;
+         objColumn = objRange.EntireColumn;
+         if(i_boolAutoFitColumns == hslTrue)
+         {
+            objColumn.AutoFit();
+         }
+      }
+      objSheets = objWorkBook.Sheets;
+      objSheets.Select();
+      objActiveSheet = objExcel.ActiveSheet;
+      objPageSetup = objActiveSheet.PageSetup;
+      if(i_boolLandscapeMode == hslTrue)
+      {
+         objPageSetup.Orientation = 2;
+      }
+      objRange = objActiveSheet.UsedRange;
+      objColumn = objRange.EntireColumn;
+      if(i_boolAutoFitColumns == hslTrue)
+      {
+         objColumn.AutoFit();
+      }
+      objActiveSheet.ExportAsFixedFormat(0,i_strTargetFileName,0,1,0,1,99999,i_boolOpenPDFAfterPrint);
+      objWorkBook.Close(hslFalse);
+      objExcel.Quit;  
+
+      objExcel.ReleaseObject();
+      objWorkBooks.ReleaseObject();
+      objWorkBook.ReleaseObject();
+
+      return(1);
+
+      //exception
+      ExceptionHandler:
+      {
+         objExcel.Quit();
+         objExcel.ReleaseObject();
+         objWorkBooks.ReleaseObject();
+         objWorkBook.ReleaseObject();
+
+         Trace(strFunctionName, ": Print function error");
+
+         return(-11);
+      }
+   }
+
+   function PrintExcelSheetToPDF(variable i_strFileName, variable i_strTargetFileName,variable i_strSheetName, variable i_boolLandscapeMode,  variable i_boolAutoFitColumns, variable i_boolOpenPDFAfterPrint) variable
+   {
+      variable strFunctionName(GetFunctionName());
+      object objExcel;		
+      object objWorkBooks;
+      object objWorkBook;
+      object objSheets;
+      object objActiveSheet;
+      object objPageSetup;
+      object objRange;
+      object objColumn;
+      variable strPrintOrientation;
+      variable blnExists;
+      variable strDataType;
+      variable strTargetFileExtension;
+      variable strTargetDirectory;
+
+      //register exception handler 
+      onerror goto ExceptionHandler;
+
+      //Trace inputs
+      Trace(strFunctionName, " - Excel File name and path: ", i_strFileName, ", Target Filename and Path: ", i_strTargetFileName, ", Sheet Name: ", i_strSheetName, ", Landscape: ", i_boolLandscapeMode, ", Autofit: ", i_boolAutoFitColumns, ", Open: ", i_boolOpenPDFAfterPrint);
+
+      //Check the inputs
+      blnExists = HSLExtensions::File::Exists(i_strFileName);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The source file does not exist.");
+         return(-1);
+      }
+
+      blnExists = HSLExtensions::File::Exists(i_strTargetFileName);
+      if(blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The target file already exists.");
+         return(-2);
+      }
+      
+      strTargetDirectory = HSLExtensions::File::GetDirectoryName(i_strTargetFileName);
+      blnExists = HSLExtensions::Directory::Exists(strTargetDirectory);
+      if(!blnExists)
+      {
+         Trace(strFunctionName, ": Print function error - The target directory does not exist.");
+         return(-3);
+      }
+
+      strTargetFileExtension = HSLExtensions::File::GetFileExtension(i_strTargetFileName);
+      strTargetFileExtension = StrMakeUpper(strTargetFileExtension);
+      if(strTargetFileExtension != "PDF")
+      {
+         Trace(strFunctionName, ": Print function error - The target file name or extension is invalid.");
+         return(-4);
+      }
+
+      strDataType = GetType(i_boolLandscapeMode);
+      if(strDataType == "i")
+      {
+         if(i_boolLandscapeMode != 1 && i_boolLandscapeMode != 0)
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No other values permitted.");
+            return(-7);            
+         }
+      }
+      else
+      {
+         if(strDataType == "s")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No strings permitted.");
+         }
+         if(strDataType == "f")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolLandscapeMode only accepts hslTrue/hslFalse or the integers 1 and 0. No floats permitted.");
+         }
+         return(-6);
+      }
+
+      strDataType = GetType(i_boolAutoFitColumns);
+      if(strDataType == "i")
+      {
+         if(i_boolAutoFitColumns != 1 && i_boolAutoFitColumns != 0)
+         {
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No other values permitted.");
+            return(-7);            
+         }
+      }
+      else
+      {
+         if(strDataType == "s")
+         { 
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No strings permitted.");
+         }
+         if(strDataType == "f")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolAutoFitColumns only accepts hslTrue/hslFalse or the integers 1 and 0. No floats permitted.");
+         }
+         return(-6);
+      }
+
+      strDataType = GetType(i_boolOpenPDFAfterPrint);
+      if(strDataType == "i")
+      {
+         if(i_boolOpenPDFAfterPrint != 1 && i_boolOpenPDFAfterPrint != 0)
+         {
+            Trace(strFunctionName, ": Print function error - i_boolOpenPDFAfterPrint only accepts hslTrue/hslFalse or the integers 1 and 0. No other values permitted.");
+            return(-7);            
+         }
+      }
+      else
+      {
+         if(strDataType == "s")
+         { 
+            Trace(strFunctionName, ": Print function error - i_boolOpenPDFAfterPrint only accepts hslTrue/hslFalse or the integers 1 and 0. No strings permitted.");
+         }
+         if(strDataType == "f")
+         {
+            Trace(strFunctionName, ": Print function error - i_boolOpenPDFAfterPrint only accepts hslTrue/hslFalse or the integers 1 and 0. No floats permitted.");
+         }
+         return(-6);
+      }
+
+      objExcel.CreateObject("Excel.Application");
+      objExcel.Visible = hslFalse;
+      objWorkBooks = objExcel.Workbooks;
+      objWorkBook = objWorkBooks.Open(i_strFileName);
+      objSheets = objWorkBook.Sheets(i_strSheetName);
+      objSheets.Select();
+      objActiveSheet = objExcel.ActiveSheet;
+      objPageSetup = objActiveSheet.PageSetup;
+      if(i_boolLandscapeMode == hslTrue)
+      {
+         objPageSetup.Orientation = 2;
+      }
+      objRange = objActiveSheet.UsedRange;
+      objColumn = objRange.EntireColumn;
+      if(i_boolAutoFitColumns == hslTrue)
+      {
+         objColumn.AutoFit();
+      }
+      objActiveSheet.ExportAsFixedFormat(0,i_strTargetFileName,0,1,0,1,99999,i_boolOpenPDFAfterPrint);
+      objWorkBook.Close(hslFalse);
+      objExcel.Quit;    
+
+      objExcel.ReleaseObject();
+      objWorkBooks.ReleaseObject();
+      objWorkBook.ReleaseObject();
+
+      return(1);
+
+      //exception
+      ExceptionHandler:
+      {
+         objWorkBooks.ReleaseObject();
+         objWorkBook.ReleaseObject();
+         objExcel.Quit();
+         objExcel.ReleaseObject();
+
+         Trace(strFunctionName, ": Print function error");
+
+         return(-11);
+      }
+   }
+} 
+
+#endif 
+// $$author=Cunningham_W$$valid=0$$time=2019-09-03 16:35$$checksum=0917bf16$$length=089$$

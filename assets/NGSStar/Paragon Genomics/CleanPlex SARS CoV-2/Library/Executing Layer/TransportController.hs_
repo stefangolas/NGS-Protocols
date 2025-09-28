@@ -1,0 +1,24 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 3/31/2021 8:20:32 AM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace TRANSPORTCONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function InitCOREgripper( variable i_fltGripHeight, variable i_fltGripWidth, variable i_fltGripOpen, variable i_fltGripHeightLid, variable i_fltGripWidthLid, variable i_fltGripOpenLid, sequence i_seqCOREgripper ) void { }
+function MoveMIDIPlate( device & ML_STAR, sequence i_seqFrom, sequence i_seqTo, variable i_blnCheckPlate, variable i_blnEjectGripper ) void { }
+function MovePCRLid( device & ML_STAR, sequence i_seqFrom, sequence i_seqTo, variable i_blnCheckPlate, variable i_blnEjectGripper ) void { }
+function MovePCRPlate( device & ML_STAR, sequence i_seqFrom, sequence i_seqTo, variable i_blnCheckPlate, variable i_blnEjectGripper ) void { }
+function MovePCRPlateToOrbit( device & ML_STAR, sequence i_seqFrom, sequence i_seqOrbit, sequence i_seqTo, variable i_blnCheckPlate, variable i_blnEjectGripper ) void { }
+function ShakePCRPlateByMove( device & ML_STAR, sequence i_seq, variable i_intCycles, variable i_intDelay, variable i_blnCheckPlate, variable i_blnEjectGripper ) void { }
+function ShakePCRPlateByMoveDx( device & ML_STAR, sequence i_seq, variable i_intCycles, variable i_intDelay, variable i_blnCheckPlate, variable i_blnEjectGripper ) void { }
+function ShakePCRPlateByMoveSx( device & ML_STAR, sequence i_seq, variable i_intCycles, variable i_intDelay, variable i_blnCheckPlate, variable i_blnEjectGripper ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Windows10$$valid=0$$time=2021-06-30 15:19$$checksum=34a1df4d$$length=086$$

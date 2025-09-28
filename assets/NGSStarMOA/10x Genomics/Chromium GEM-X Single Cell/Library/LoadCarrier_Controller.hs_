@@ -1,0 +1,24 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 28/03/2024 14:44:28
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace LOADCARRIER_CONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Init( device & ML_STAR, variable i_strFullPathReportFile, variable i_blnDeactivateLoadingCarrierSteps, variable i_blnActivateIntegratedAbortHandler, variable i_intAutoloadParkingPosition, variable & o_strControllerNameAndVersion ) void { }
+function LoadCarrierByCarrierID( device & ML_STAR, variable i_strCarrierIDToBeLoaded, variable i_strPositionsToBeScanned ) void { }
+function LoadCarrierBySequence( device & ML_STAR, sequence i_SequenceToBeLoaded, variable i_strPositionsToBeScanned ) void { }
+function LoadTipCarrierByTipCounterNames( device & ML_STAR, variable & i_arrTipcounterNames[], variable i_blnBarcodeReadingActivated ) void { }
+function UnloadAllCarriers( device & ML_STAR ) void { }
+function UnloadCarrierByCarrierID( device & ML_STAR, variable i_strCarrierIDToBeUnloaded ) void { }
+function UnloadCarrierBySequence( device & ML_STAR, sequence i_SequenceToBeUnloaded ) void { }
+function UnloadTipCarrierByTipCounterNames( device & ML_STAR, variable & i_arrTipcounterNames[] ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=orr_b$$valid=0$$time=2024-10-04 07:18$$checksum=c4cf0e6d$$length=082$$

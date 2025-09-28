@@ -1,0 +1,61 @@
+HxCfgFile,3;
+
+ConfigIsValid,Y;
+
+DataDef,RECTRACK,3,default,
+{
+BackgrndClr, "16777215",
+Barcode.Unique, "0",
+Barcode.Value, "",
+Bitmap, "bitmaps\\rt_l.bmp",
+BitmapRel, "..\\..\\..\\bitmaps\\rt_l.bmp",
+BndryX, "14",
+BndryY, "11.5",
+Category.0.Id, "1019",
+Category.1.Id, "1008",
+CategoryCnt, "2",
+Clearance, "47",
+Cntr.1.base, "0",
+Cntr.1.file, "veriseqdx\\reservoirs\\axygen\\axygen_dw_96_res.ctr",
+Cntr.1.fileRel, ".\\axygen_dw_96_res.ctr",
+Cntr.1.offsetx, "0",
+Cntr.1.offsety, "0",
+Columns, "12",
+ConnectedCtr, "0",
+DataType, "1",
+Description, "",
+Dim.Dx, "127",
+Dim.Dy, "86",
+Dim.Dz, "47",
+Dx, "9",
+Dy, "9",
+GrpCnt, "0",
+Hole.Shape, "1",
+Hole.X, "9",
+Hole.Y, "9",
+Hole.Z, "9",
+IX.First, "1",
+IX.Inc, "0",
+IX.Index, "1",
+IX.Start, "0",
+Image3D, "hamilton\\ham_dw_rgt_96.png",
+ImageRel, "..\\..\\..\\hamilton\\ham_dw_rgt_96.png",
+Options, "0",
+Rows, "8",
+SegmentCount_x, "0",
+SegmentCount_y, "0",
+Shape, "1",
+SingleCntr, "1",
+StackHt, "0",
+Stagger, "0",
+UseBndry, "1",
+ViewName, "",
+Visible, "0"
+};
+
+DataDef,HxPars,3,AuditTrailData,
+[
+")"
+];
+
+* $$author=Windows10$$valid=0$$time=2024-09-27 15:42$$checksum=b9fd4d22$$length=085$$

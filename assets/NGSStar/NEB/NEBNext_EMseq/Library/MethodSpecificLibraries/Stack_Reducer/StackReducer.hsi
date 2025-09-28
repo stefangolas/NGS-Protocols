@@ -1,0 +1,107 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLSeqLib.hsl"
+#include "HSLTrcLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace STACKREDUCER {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function StackReducer( variable NumberOfPlatesOnStacker, sequence originalDeStackSeq, sequence & adjustedDeStackSeq, variable maxPlatesPerStack, device & ML_STAR ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "StackReducer" "Begin"
+function StackReducer( variable NumberOfPlatesOnStacker, sequence originalDeStackSeq, sequence & adjustedDeStackSeq, variable maxPlatesPerStack, device & ML_STAR ) void {
+// }} ""
+private variable posToRemoveFromStackSeq;
+private variable lastStackModuleLoaded;
+private variable posTopOfLastLoadedStackModule;
+private variable loopCounter1;
+private variable total;
+// {{ 5 "StackReducer" "InitLocals"
+{ sequence __temp; adjustedDeStackSeq = __temp; }
+// }} ""
+// {{{ 1 1 0 "9a825820_9860_4ade_89da8c237690d40f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqCopySequence(adjustedDeStackSeq, originalDeStackSeq);
+// }} ""
+// {{{ 2 1 0 "7329fc9b_16f6_4f1d_85f45177da271cc0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+total = SeqGetTotal(originalDeStackSeq);
+// }} ""
+// {{ 3 1 0 "e0a176cf_d412_43f1_b0dbfdeb7cd20658" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (NumberOfPlatesOnStacker < total)
+{
+// }} ""
+// {{ 4 1 0 "4706b1c1_3cce_4724_918df42e0e12f973" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+lastStackModuleLoaded = NumberOfPlatesOnStacker / maxPlatesPerStack;
+// }} ""
+// {{ 5 1 0 "eee8bb59_4e0b_4059_8de35b2ced9b5ade" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+lastStackModuleLoaded = lastStackModuleLoaded + 1;
+// }} ""
+// {{ 6 1 0 "20456f07_4f43_4d16_8e6dd99b7cf04ea1" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+posToRemoveFromStackSeq = NumberOfPlatesOnStacker % maxPlatesPerStack;
+// }} ""
+// {{ 7 1 0 "f568ac18_1416_4fc6_a2a2657d3ff9f65a" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+posToRemoveFromStackSeq = maxPlatesPerStack - posToRemoveFromStackSeq;
+// }} ""
+// {{ 8 1 0 "e1f5ced7_48bc_4bb3_a16669de705307fa" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+posTopOfLastLoadedStackModule = lastStackModuleLoaded - 1;
+// }} ""
+// {{ 9 1 0 "88424a9a_f7ff_46ab_93c164651d754c36" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+posTopOfLastLoadedStackModule = posTopOfLastLoadedStackModule * maxPlatesPerStack;
+// }} ""
+// {{ 10 1 0 "4fd98ae6_fa40_497c_965282410743d72b" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+posTopOfLastLoadedStackModule = posTopOfLastLoadedStackModule + 1;
+// }} ""
+// {{ 11 1 0 "44ccb282_a36a_459a_82cd52972aea693a" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < posToRemoveFromStackSeq;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 12 1 0 "04abbd9b_db52_41c9_b78e3c4ab065a838" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqRemoveAt(adjustedDeStackSeq, posTopOfLastLoadedStackModule);
+// }} ""
+// {{ 13 1 0 "44ccb282_a36a_459a_82cd52972aea693a" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 14 1 0 "3a7882b0_83bf_468b_93135ba531d52542" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqEdit(adjustedDeStackSeq, ML_STAR, Translate(""), Translate(""), 0, 0, 1, NumberOfPlatesOnStacker, 0, Translate(""));
+// }} ""
+// {{ 15 1 0 "e0a176cf_d412_43f1_b0dbfdeb7cd20658" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "StackReducer" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Administrator$$valid=0$$time=2019-01-22 02:19$$checksum=d66a33f9$$length=092$$

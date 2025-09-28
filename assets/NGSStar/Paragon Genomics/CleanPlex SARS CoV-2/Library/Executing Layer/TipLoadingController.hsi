@@ -1,0 +1,365 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "HSLTipCountingLib.hsl"
+#include "HSLSeqLib.hsl"
+#include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace TIPLOADINGCONTROLLER {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function TipLoading_1TipType( device & ML_STAR, sequence & i_seqTip1, variable i_strTipCounter1 ) void ;
+function TipLoading_1TipType_CheckAvailableTips( device & ML_STAR, sequence & i_seqTip1, variable i_strTipCounter1, variable i_intNeededTips, variable i_strTipType ) void ;
+function TipLoading_2TipTypes( device & ML_STAR, sequence & i_seqTip1, sequence & i_seqTip2, variable i_strTipCounter1, variable i_strTipCounter2 ) void ;
+function TipLoading_3TipTypes( device & ML_STAR, sequence & i_seqTip1, sequence & i_seqTip2, sequence & i_seqTip3, variable i_strTipCounter1, variable i_strTipCounter2, variable i_strTipCounter3 ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "TipLoading_1TipType" "Begin"
+function TipLoading_1TipType( device & ML_STAR, sequence & i_seqTip1, variable i_strTipCounter1 ) void {
+// }} ""
+private dialog dialogHandleE2A714D64B1B44d98E6D0241E8839D38;
+private variable intEnd1;
+// {{ 5 "TipLoading_1TipType" "InitLocals"
+// }} ""
+// {{ 1 1 0 "a662ab3e_5819_450f_9130291bea22f4d4" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (1 == 1)
+{
+// }} ""
+// {{{ 2 1 0 "a3f68170_6e10_4e2d_89f1009b6af4f612" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Edit2(i_seqTip1, i_strTipCounter1, ML_STAR, 1000);
+// }} ""
+// {{ 3 1 0 "4ebf43d5_5d31_4816_99988cd9518e4026" "{B31F353D-5D80-11d4-A5EB-0050DA737D89}"
+intEnd1 = i_seqTip1.GetCount();
+// }} ""
+// {{ 4 1 0 "e6a432f1_22ce_49eb_9adae3f4791a3dbf" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intEnd1 != 0)
+{
+// }} ""
+// {{ 5 1 0 "b7cadb61_c940_432a_9921b1c6fd01c8ac" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 6 1 0 "e6a432f1_22ce_49eb_9adae3f4791a3dbf" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 7 1 0 "2efd8bb5_81d9_4387_98df200854113de6" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleE2A714D64B1B44d98E6D0241E8839D38.SetOutput(Translate("0 value was set as end position, please correct."));
+dialogHandleE2A714D64B1B44d98E6D0241E8839D38.ShowOutput("", hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 8 1 0 "a662ab3e_5819_450f_9130291bea22f4d4" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 5 "TipLoading_1TipType" "End"
+}
+// }} ""
+// {{{ 5 "TipLoading_2TipTypes" "Begin"
+function TipLoading_2TipTypes( device & ML_STAR, sequence & i_seqTip1, sequence & i_seqTip2, variable i_strTipCounter1, variable i_strTipCounter2 ) void {
+// }} ""
+private dialog dialogHandleD53152A945774a15971BAE8489FC55A2;
+private dialog dialogHandle5EF454B82680453194A1B6BEC3E1470C;
+private variable intEnd1;
+private variable intEnd2;
+// {{ 5 "TipLoading_2TipTypes" "InitLocals"
+// }} ""
+// {{ 41 1 0 "cc37ade3_6056_40d7_88adcc9af2e1fef3" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (1 == 1)
+{
+// }} ""
+// {{{ 42 1 0 "ed3b14c2_0c04_4fed_88c83ce52ae77af2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Edit2(i_seqTip1, i_strTipCounter1, ML_STAR, 1000);
+// }} ""
+// {{ 43 1 0 "00935f18_9ac0_4763_a3b93dc49bc16d1e" "{B31F353D-5D80-11d4-A5EB-0050DA737D89}"
+intEnd1 = i_seqTip1.GetCount();
+// }} ""
+// {{ 44 1 0 "d24a2ae9_b726_469f_95974b843368f58f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intEnd1 != 0)
+{
+// }} ""
+// {{ 45 1 0 "5c70e624_5172_4c45_a6d1c62853b56c02" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 46 1 0 "d24a2ae9_b726_469f_95974b843368f58f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 47 1 0 "f356ecbe_41c5_4a1a_8ea879230211e3bc" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle5EF454B82680453194A1B6BEC3E1470C.SetOutput(Translate("0 value was set as end position, please correct."));
+dialogHandle5EF454B82680453194A1B6BEC3E1470C.ShowOutput("", hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 48 1 0 "cc37ade3_6056_40d7_88adcc9af2e1fef3" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 49 1 0 "ede4b83a_16ae_4412_82ad0db3e46365c0" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (1 == 1)
+{
+// }} ""
+// {{{ 50 1 0 "d10c34f0_b891_45a7_b2711231759cf20a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Edit2(i_seqTip2, i_strTipCounter2, ML_STAR, 1000);
+// }} ""
+// {{ 51 1 0 "2b6a338e_58d1_4534_8caca2b8f4a0703a" "{B31F353D-5D80-11d4-A5EB-0050DA737D89}"
+intEnd2 = i_seqTip2.GetCount();
+// }} ""
+// {{ 52 1 0 "7801ae20_4ac8_4b93_b981f86a086962b0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intEnd2 != 0)
+{
+// }} ""
+// {{ 53 1 0 "b559d100_ee20_4178_a9e656d91c752b94" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 54 1 0 "7801ae20_4ac8_4b93_b981f86a086962b0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 55 1 0 "efd43fb2_b1d6_4016_a0d3857c164a3026" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleD53152A945774a15971BAE8489FC55A2.SetOutput(Translate("0 value was set as end position, please correct."));
+dialogHandleD53152A945774a15971BAE8489FC55A2.ShowOutput("", hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 56 1 0 "ede4b83a_16ae_4412_82ad0db3e46365c0" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 5 "TipLoading_2TipTypes" "End"
+}
+// }} ""
+// {{{ 5 "TipLoading_3TipTypes" "Begin"
+function TipLoading_3TipTypes( device & ML_STAR, sequence & i_seqTip1, sequence & i_seqTip2, sequence & i_seqTip3, variable i_strTipCounter1, variable i_strTipCounter2, variable i_strTipCounter3 ) void {
+// }} ""
+private dialog dialogHandleEAEDEA7FE07B45a8A16CC0E402937730;
+private dialog dialogHandleED53E44B2C21493cBB893F3E772880FB;
+private dialog dialogHandle9FC634E347704fa497BFB746A67359ED;
+private variable intEnd1;
+private variable intEnd2;
+private variable intEnd3;
+// {{ 5 "TipLoading_3TipTypes" "InitLocals"
+// }} ""
+// {{ 58 1 0 "54b78ee1_8d95_44f3_a064091e1acd6296" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (1 == 1)
+{
+// }} ""
+// {{{ 59 1 0 "e19ebe48_075e_4dd0_bc8bed3655437020" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Edit2(i_seqTip1, i_strTipCounter1, ML_STAR, 1000);
+// }} ""
+// {{ 60 1 0 "bcfc946a_e809_4b47_8bb1b7355fff9bd7" "{B31F353D-5D80-11d4-A5EB-0050DA737D89}"
+intEnd1 = i_seqTip1.GetCount();
+// }} ""
+// {{ 61 1 0 "07949d8e_02d2_4d4a_a5cf57a17b7d2d01" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intEnd1 != 0)
+{
+// }} ""
+// {{ 62 1 0 "a2f31803_85b0_4152_a2695f7f6218101d" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 63 1 0 "07949d8e_02d2_4d4a_a5cf57a17b7d2d01" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 64 1 0 "c4686bc9_4711_4bf0_8875778cbeba65de" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandle9FC634E347704fa497BFB746A67359ED.SetOutput(Translate("0 value was set as end position, please correct."));
+dialogHandle9FC634E347704fa497BFB746A67359ED.ShowOutput("", hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 65 1 0 "54b78ee1_8d95_44f3_a064091e1acd6296" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 66 1 0 "df1110ca_9599_4b57_ba9ba627746e768c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (1 == 1)
+{
+// }} ""
+// {{{ 67 1 0 "386f0479_3a05_4abc_957ff8dc8067c5b2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Edit2(i_seqTip2, i_strTipCounter2, ML_STAR, 1000);
+// }} ""
+// {{ 68 1 0 "05fa315b_7c5e_4190_999d56d22404bf83" "{B31F353D-5D80-11d4-A5EB-0050DA737D89}"
+intEnd2 = i_seqTip2.GetCount();
+// }} ""
+// {{ 69 1 0 "3cc9ccc1_902a_4bd9_958c0613a6b0606c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intEnd2 != 0)
+{
+// }} ""
+// {{ 70 1 0 "b28c6a81_ff04_4059_bf7d3213ae2c0b47" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 71 1 0 "3cc9ccc1_902a_4bd9_958c0613a6b0606c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 72 1 0 "e5a6562a_b076_4546_93cb750aeb0e127f" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleED53E44B2C21493cBB893F3E772880FB.SetOutput(Translate("0 value was set as end position, please correct."));
+dialogHandleED53E44B2C21493cBB893F3E772880FB.ShowOutput("", hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 73 1 0 "df1110ca_9599_4b57_ba9ba627746e768c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 74 1 0 "b8ebe5a1_4da9_46bb_a1f406e1c2a72135" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (1 == 1)
+{
+// }} ""
+// {{{ 75 1 0 "7f61d677_4f82_422c_83d7e51db75cb962" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Edit2(i_seqTip3, i_strTipCounter3, ML_STAR, 1000);
+// }} ""
+// {{ 76 1 0 "cd2f6445_ffdf_4f77_a1aa20f7887dd7d9" "{B31F353D-5D80-11d4-A5EB-0050DA737D89}"
+intEnd3 = i_seqTip3.GetCount();
+// }} ""
+// {{ 77 1 0 "5a933c98_c957_406b_9373eb836e673a81" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intEnd3 != 0)
+{
+// }} ""
+// {{ 78 1 0 "df9827a0_e63b_41ab_80a8542d62ea1407" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 79 1 0 "5a933c98_c957_406b_9373eb836e673a81" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 80 1 0 "0f74ae3e_1057_43a5_a8ce5e7c42014dc3" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleEAEDEA7FE07B45a8A16CC0E402937730.SetOutput(Translate("0 value was set as end position, please correct."));
+dialogHandleEAEDEA7FE07B45a8A16CC0E402937730.ShowOutput("", hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 81 1 0 "b8ebe5a1_4da9_46bb_a1f406e1c2a72135" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 5 "TipLoading_3TipTypes" "End"
+}
+// }} ""
+// {{{ 5 "TipLoading_1TipType_CheckAvailableTips" "Begin"
+function TipLoading_1TipType_CheckAvailableTips( device & ML_STAR, sequence & i_seqTip1, variable i_strTipCounter1, variable i_intNeededTips, variable i_strTipType ) void {
+// }} ""
+private dialog dialogHandleB914FDA7CC6D4c38B1E9D6949A252208;
+private dialog dialogHandleFF7EC61C9A6549c5AFA666CC9B0CCD62;
+private dialog dialogHandleF84095E01DF0479891C74EFDE760CDE3;
+private variable retVal;
+private variable intEnd1;
+private variable intAvailableTips;
+private variable intCurrent1;
+// {{ 5 "TipLoading_1TipType_CheckAvailableTips" "InitLocals"
+// }} ""
+// {{{ 10 1 0 "5ecc244c_6372_4669_af2d7f30f43176ed" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Read2(i_seqTip1, i_strTipCounter1, ML_STAR);
+// }} ""
+// {{{ 11 1 0 "fcd433f4_3b38_42fe_b43b6f463a36440e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intAvailableTips = SeqGetTotal(i_seqTip1);
+// }} ""
+// {{ 12 1 0 "32cf0b9a_8598_4057_ae19dd714e3accdd" "{B31F353B-5D80-11d4-A5EB-0050DA737D89}"
+intCurrent1 = i_seqTip1.GetCurrentPosition();
+// }} ""
+// {{ 13 1 0 "61f52d9d_4dcf_4099_815b547be6c8a26f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intCurrent1 == 0)
+{
+// }} ""
+// {{ 14 1 0 "bf4ed08e_4b7a_4a2f_958ca083f318d455" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intAvailableTips = 0;
+// }} ""
+// {{ 15 1 0 "61f52d9d_4dcf_4099_815b547be6c8a26f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 16 1 0 "62917f76_24e7_4e89_9681578dd6730c7e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceSequenceParameter(TRACE_LEVEL_DEBUG, i_seqTip1);
+// }} ""
+// {{{ 17 1 0 "7d13c222_0a54_4b1f_9b44b1b8872a1222" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("intAvailableTips_____"), intAvailableTips);
+// }} ""
+// {{ 18 1 0 "b1002923_b97b_4d3d_ba283d1d71317914" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intAvailableTips < i_intNeededTips)
+{
+// }} ""
+// {{ 19 1 0 "adf0a8a6_b082_40d7_ad9c3d3d689f98c6" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleF84095E01DF0479891C74EFDE760CDE3.SetOutput(Translate("Insufficient number of tips, please load at least "), i_intNeededTips, Translate(" "), i_strTipType, Translate(".\nPress 'CANCEL' to continue anyway."), "\n");
+retVal = dialogHandleF84095E01DF0479891C74EFDE760CDE3.ShowOutput("", hslOKCancel | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 20 1 0 "97c9499f_543d_4f89_a782b785ee66f1a7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (retVal != 2)
+{
+// }} ""
+// {{ 21 1 0 "17d75df0_e3ed_46cf_a7e1cc65fed2f359" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (1 == 1)
+{
+// }} ""
+// {{{ 22 1 0 "5a4d5041_47e1_41d0_9764721286b00b39" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TipCount::Edit2(i_seqTip1, i_strTipCounter1, ML_STAR, 1000);
+// }} ""
+// {{ 23 1 0 "512ecab8_69c7_4d48_9de24d3792416981" "{B31F353D-5D80-11d4-A5EB-0050DA737D89}"
+intEnd1 = i_seqTip1.GetCount();
+// }} ""
+// {{ 24 1 0 "b9d6a653_f19c_4bc1_b68d5fdd436159fc" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intEnd1 != 0)
+{
+// }} ""
+// {{{ 25 1 0 "d7d0a5f7_c492_4848_bb19a191b24f75e9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intAvailableTips = SeqGetTotal(i_seqTip1);
+// }} ""
+// {{ 26 1 0 "1144929e_79a8_40c9_be6f911cbb317c16" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intAvailableTips >= i_intNeededTips)
+{
+// }} ""
+// {{ 27 1 0 "a49b55e6_608e_4577_9a3e9b0110aee464" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 28 1 0 "1144929e_79a8_40c9_be6f911cbb317c16" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 29 1 0 "522a63dd_4a4a_4d02_a56d3189a63ee634" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleB914FDA7CC6D4c38B1E9D6949A252208.SetOutput(Translate("Insufficient number of tips, please load at least "), i_intNeededTips, Translate(" "), i_strTipType, Translate(".\nPress 'CANCEL' to continue anyway."), "\n");
+retVal = dialogHandleB914FDA7CC6D4c38B1E9D6949A252208.ShowOutput("", hslOKCancel | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 30 1 0 "6a00ba41_e728_4f38_806bc82ef8355977" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (retVal == 2)
+{
+// }} ""
+// {{ 31 1 0 "efcec80a_1044_4922_86b9c82711719c22" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 32 1 0 "6a00ba41_e728_4f38_806bc82ef8355977" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 33 1 0 "1144929e_79a8_40c9_be6f911cbb317c16" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 34 1 0 "b9d6a653_f19c_4bc1_b68d5fdd436159fc" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 35 1 0 "1811ba28_0ba3_4866_962b6c0238c5c1f8" "{21E07B31-8D2E-11d4-A3B8-002035848439}"
+dialogHandleFF7EC61C9A6549c5AFA666CC9B0CCD62.SetOutput(Translate("0 value was set as end position, please correct."));
+dialogHandleFF7EC61C9A6549c5AFA666CC9B0CCD62.ShowOutput("", hslOKOnly | hslInformation | hslDefButton1, hslInfinite);
+// }} ""
+// {{ 36 1 0 "b9d6a653_f19c_4bc1_b68d5fdd436159fc" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 37 1 0 "17d75df0_e3ed_46cf_a7e1cc65fed2f359" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 38 1 0 "97c9499f_543d_4f89_a782b785ee66f1a7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 39 1 0 "b1002923_b97b_4d3d_ba283d1d71317914" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "TipLoading_1TipType_CheckAvailableTips" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Windows10$$valid=0$$time=2021-06-30 15:19$$checksum=eb990ade$$length=088$$

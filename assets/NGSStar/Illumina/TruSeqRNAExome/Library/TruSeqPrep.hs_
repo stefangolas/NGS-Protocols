@@ -1,0 +1,33 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 23.11.2020 13:07:38
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace TRUSEQPREP {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CheckCPACTemperature( variable var_CPACTemp, variable var_SimOn ) void { }
+function CheckPlatesInStacks( device & ML_STAR, sequence & seq_Stack1, sequence & seq_Stack2, sequence & seq_Stack3, sequence & seq_Stack4, variable var_Stack1Expected, variable var_Stack2Expected, variable var_Stack3Expected, variable var_Stack4Expected, variable & var_Result, variable & msg_Result ) void { }
+function GenerateTipCarrierBarcodeStrings( device & ML_STAR, sequence & seq_Tips50, sequence & seq_Tips300, sequence & seq_Tips1000, variable & var_50TipLoadString_2, variable & var_50TipLoadString_1, variable & var_300TipLoadString_2, variable & var_300TipLoadString_1, variable & var_1000TipLoadString ) void { }
+function GetHHSTemperature( variable var_HHS ) void { }
+function InitCPAC( variable var_SimMode ) void { }
+function InitHHSs( variable & var_HHSDeviceNo1, variable & var_HHSDeviceNo2, variable & var_HHSDeviceNo3, variable & var_HHSDeviceNo4, variable & var_HHSDeviceNo5, variable var_SimulationMode ) void { }
+function InitHHSs_StarDevice( device & ML_STAR, variable & var_HHSDeviceNo1, variable & var_HHSDeviceNo2, variable var_SimulationMode ) void { }
+function InitLiquidWasteSensor(  ) void { }
+function ReadSamplePlateFile( variable & var_SourceFile, variable & var_NumberOfSamples, variable & var_IndexesUsed, variable & arr_Index1SeqPositions[], variable & arr_Index2SeqPositions[], variable & arr_ALPseqPositions[] ) void { }
+function ReadSampleSheet( variable & var_SourceFile, variable & var_NumberOfSamples, variable & var_IndexesUsed, variable & arr_Index1SeqPositions[], variable & arr_Index2SeqPositions[], variable & arr_ALPseqPositions[] ) void { }
+function SetCPACTemperature( variable var_CPACTemp ) void { }
+function SetHHSTemperature( variable var_HHS_ID, variable var_Temperature ) void { }
+function Shake( variable var_HHS_ID, variable var_Speed, variable var_ShakingDuration ) void { }
+function TerminateCPAC(  ) void { }
+function TerminateHHSs(  ) void { }
+function TipCounterRead( device & ML_STAR, sequence & seq_Tips50, sequence & seq_Tips300, sequence & seq_Tips1000, variable var_Tip50_required, variable var_Tip300_required, variable var_Tip1000_required ) void { }
+function TipCounterWrite( device & ML_STAR, sequence & seq_Tips50, sequence & seq_Tips300, sequence & seq_Tips1000 ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Hamilton$$valid=0$$time=2020-11-23 13:07$$checksum=da640e0f$$length=085$$

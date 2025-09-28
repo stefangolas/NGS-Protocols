@@ -1,0 +1,20 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 22.01.2019 02:19:56
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace ARRAYTOOLS {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Update_Value_in_Array( variable & i_array[], variable & i_value, variable i_index ) void { }
+function get_distinct_from_array( variable & i_arr[], variable & o_arr[] ) void { }
+function mergeArrays( variable & array1[], variable & array2[], variable & array3[] ) void { }
+function removeValueFromArray_basedOnIndex( variable & i_array_elements[], variable i_index_to_remove ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Administrator$$valid=0$$time=2019-01-22 02:19$$checksum=49a407e8$$length=090$$

@@ -1,0 +1,43 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 4/7/2021 1:50:36 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace MOVEMENT_CONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Abstract(  ) void { }
+function CheckIfTipsPresent( device & ML_STAR, variable & o_str_ChannelPatternOfTips ) variable {  return (0); }
+function CheckPlateWithTwoChannels( device & ML_STAR, variable i_str_LabwareToCheck, variable & o_flt_PlateHeight ) variable {  return (0); }
+function CreateMaximumYForWorkingChannel( device & ML_STAR ) void { }
+function EjectTeachingTip( device & ML_STAR, sequence & io_seqTeachingTips ) void { }
+function FindWellCenter( device & ML_STAR, variable i_flt_MinSearchZ, variable i_flt_SafeHeight, variable i_flt_WellWidth, variable & o_flt_XCenter, variable & o_flt_YCenter, variable & o_flt_ContainerZMax, variable & o_flt_XWidth, variable & o_flt_YWidth ) void { }
+function GetCLLDStatus( device & ML_STAR, variable & o_int_CLLDStatus ) void { }
+function GetChannelPosition( device & ML_STAR, variable & o_flt_XCoord, variable & o_flt_YCoord, variable & o_flt_ZCoord ) void { }
+function GetStopDiskZCoord( device & ML_STAR, variable & o_flt_ZCoord ) void { }
+function GetTeachingTips( device & ML_STAR, variable i_str_ChannelPattern, sequence i_seq_TipPosition ) void { }
+function GetXArmRange( device & ML_STAR, variable & o_flt_LeftXMin, variable & o_flt_LeftXMax, variable & o_flt_RightXMin, variable & o_flt_RightXMax ) void { }
+function LockDoors( device & ML_STAR, variable i_bln_LockDoor ) void { }
+function ManuallyMoveChannel( device & ML_STAR, variable i_str_TeachLabware, variable i_str_TeachPosition ) void { }
+function ManuallyMoveChannel_WithDescription( device & ML_STAR, variable i_str_TeachLabware, variable i_str_TeachPosition, variable i_str_Instruction ) void { }
+function ManuallyMoveChannel_WithDescription_Config( device & ML_STAR, variable i_str_TeachLabware, variable i_str_TeachPosition, variable i_str_Instruction, variable i_bool_XMovementValid, variable i_bool_YMovementValid, variable i_bool_ZMovementValid ) void { }
+function MoveChannelToPosition( device & ML_STAR, variable i_flt_TraverseHeight, variable i_flt_XCoord, variable i_flt_YCoord, variable i_flt_ZCoord ) void { }
+function MoveChannelToXCoord( device & ML_STAR, variable i_flt_XCoord ) void { }
+function MoveChannelToYCoord( device & ML_STAR, variable i_flt_YCoord ) void { }
+function MoveChannelToZCoord( device & ML_STAR, variable i_flt_ZCoord ) void { }
+function MoveChannelsToPosition( device & ML_STAR, variable i_str_ChannelPattern, variable i_flt_TraverseHeight, variable i_flt_XCoord, variable & i_arr_YCoords[], variable & i_arr_ZCoords[] ) void { }
+function MoveMPH96ToBack( device & ML_STAR ) void { }
+function MoveRightArmToXCoord( device & ML_STAR, variable i_flt_XCoord ) void { }
+function SearchForCLLD_X( device & ML_STAR, variable i_flt_DistanceToSearch, variable i_int_DirectionToSearch, variable & o_flt_XCoordinateFound ) variable {  return (0); }
+function SearchForCLLD_Y( device & ML_STAR, variable i_flt_DistanceToSearch, variable i_int_DirectionToSearch, variable & o_flt_YCoordinateFound ) variable {  return (0); }
+function SearchForCLLD_Z( device & ML_STAR, variable i_flt_ZMin, variable i_flt_LLDSearchHeight, variable i_flt_ImmersionDepth, variable i_int_ImmersionDirection, variable & o_flt_ZCoordinateFound ) void { }
+function SearchZHeight( device & ML_STAR, variable i_bool_UseSlowSpeed, variable i_flt_MinZHeight, variable & o_flt_ZHeightFound ) variable {  return (0); }
+function TurnCLLDOnOff( device & ML_STAR, variable i_bln_TurnOn ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Orr_B$$valid=0$$time=2022-08-02 15:42$$checksum=17480998$$length=082$$

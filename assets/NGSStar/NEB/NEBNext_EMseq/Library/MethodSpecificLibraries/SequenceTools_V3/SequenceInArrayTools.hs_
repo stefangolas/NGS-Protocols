@@ -1,0 +1,22 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 17.01.2019 09:42:09
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace SEQUENCEINARRAYTOOLS {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function ConcatArraySequences( sequence & arrFinalSequences[], sequence & arrToConcatenate[] ) void { }
+function Remove_Sequence_from_Array( variable i_index_of_element_to_remove, sequence & iArrOfInterest[] ) void { }
+function SequenceFromArray( variable & i_arr_lab_Id[], variable & i_arr_pos_Id[], sequence & o_seq_template ) void { }
+function SequenceFromArray_LabIDFromTemplateSeq( sequence & i_seqTemplate, variable & i_arr_pos_Id[], sequence & o_seq_template ) void { }
+function Trace_Arr_of_Sequences( sequence & i_arr_seq[] ) void { }
+function Update_Sequence_in_Array( sequence & i_arr[], sequence & i_value_seq, variable i_index ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Administrator$$valid=0$$time=2019-01-17 09:42$$checksum=97d567d7$$length=090$$

@@ -1,0 +1,17 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 11/03/2024 12:20:30
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace LIQUIDWASTE_CONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Init( device & ML_STAR, variable i_blnSimulationModeON, variable i_intComPortSensor, variable i_ActivateIntegratedAbortHandler, variable & o_strNameAndVersion ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=orr_b$$valid=0$$time=2024-10-04 07:18$$checksum=b62dbee1$$length=082$$

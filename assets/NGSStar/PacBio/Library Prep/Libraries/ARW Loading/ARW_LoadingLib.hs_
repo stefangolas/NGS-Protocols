@@ -1,0 +1,34 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 10/18/2024 3:33:11 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace ARW_LOADINGLIB {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function ARW_LoadingLib_START( device & i_instrument, variable i_strPlatformName, variable i_strKitProvider, variable i_strKitName ) void { }
+function Add_Labware( device & Instrument, variable i_strLabwareType, variable i_strLabwareName, variable i_intNumberOfUnits, sequence i_seqTemplate ) void { }
+function Add_ReagentInTrough( device & Instrument, variable i_strReagentName, variable i_intNumberOfSamples, variable i_strLabwareTypeId, variable i_fltMaximumContainerVolume, variable i_fltDeadVolumeLabware, variable i_fltDeadVolumeReagent, variable i_fltExtraVolume, sequence i_seqTemplate, variable & o_arrVolumePerTrough[] ) void { }
+function Add_ReagentInTubes( device & Instrument, variable i_strReagentName, variable i_intNumberOfSamples, variable i_strLabwareTypeId, variable i_fltMaximumContainerVolume, variable i_fltDeadVolumeLabware, variable i_fltDeadVolumeReagent, variable i_fltExtraVolume, sequence i_seqTemplate, variable i_intMinimumNumberOfContainers, variable & o_arrVolumePerTube[] ) void { }
+function Add_SampleTubeCarriers( device & Instrument, variable i_intNumberOfSamples, sequence i_seqSampleTubeCarriers, variable i_strSampleTubeType ) void { }
+function Calculate_TotalVolumeAndSequenceToAspirate( device & Instrument, variable i_strReagentName, variable i_intNumberOfSamples, variable i_strLabwareTypeId, variable i_fltMaximumContainerVolume, variable i_fltDeadVolumeLabware, variable i_fltDeadVolumeReagent, variable i_fltExtraVolume, sequence & i_seqTemplate, variable i_intStartingPoint, variable i_intMinimumNumberOfContainers, variable l_blnAdjustSequenceToNumberOfSamples, variable & o_arrVolumePerContainer[] ) void { }
+function Define_VolumePerWell( variable i_strLiquidName, variable i_fltVolumePerSample ) variable {  return (0); }
+function Define_VolumePerWell_MastermixComponent( variable i_strMastermixLiquidName, variable i_strComponentLiquidName, variable i_fltVolumePerSample ) variable {  return (0); }
+function Display_Mastermix_Dialog( variable i_strMastermixToDisplay ) void { }
+function Display_SelectProcesses_Dialog( variable i_intMethodSelection, variable & i_arrProcessId[], variable & i_arrProcessCombinations[], variable & i_arrProcessDeactivatedStartPoints[], variable & i_arrProcessDeactivatedStopPoints[], variable & o_int_StartProcess, variable & o_int_StopProcess, variable & o_arr_blnProcessActivationStatus[] ) void { }
+function Evaluate_ResourcesByCarrier(  ) void { }
+function Load_Carrier( device & Instrument, variable i_strCarrierID, variable i_strMainImageName, variable i_strSubImageName ) void { }
+function Load_SampleTubeCarriers( device & Instrument, variable i_intNumberOfSamples, variable i_strMainImageName, variable i_strSubImageName ) variable {  return (0); }
+function Load_StackCarrier( device & Instrument, variable i_strCarrierID, variable i_strMainImageName, variable i_strSubImageName, variable & o_arrNumberOfUnitsInEachStack[] ) void { }
+function Load_Tips( device & Instrument, variable i_strTipType, variable i_strMainImageName, variable i_strSubImageName, variable & o_intNumberOfTipsRequired ) void { }
+function RetrieveCarrierPresence( variable i_strCarrierID, variable & o_blnIsPresent ) void { }
+function Retrieve_50mlTrough_ReagentsVolumesAndSequences( variable & o_arrReagentNames[], variable & o_arrReagentTotalVolumes[], sequence & o_arrReagentSequences[] ) void { }
+function _NumberOfContainers_VolumePerContainer_BasedOnNumberOfSamples( variable i_flt_MaximumVolumePerContainer, variable i_flt_VolumePerSample, variable i_int_NumberOfSamples, variable i_flt_DeadVolumeReagent, variable i_flt_DeadVolumeLabware, variable i_flt_ExtraVolume, variable i_int_DesiredNumberOfContainers, variable & o_int_NumberOfContainers, variable & o_flt_TotalVolumeNeeded, variable & o_arr_fltVolumePerContainer[] ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=PacificBio$$valid=0$$time=2024-10-18 15:33$$checksum=c2c08e71$$length=087$$

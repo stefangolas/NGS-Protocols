@@ -1,0 +1,29 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 6/11/2025 11:37:14 AM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace DATA_CONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CalculateTipConsumption( variable i_intNumberOfPositionIDs, variable i_intNumberOfTransfersChannels, variable i_intNumberOfExtraTips, variable i_intNumberOfTransfersMPH, variable & o_intScheduledTipConsumption ) variable {  return (0); }
+function Init( device & ML_STAR, variable i_blnUseShortTimers, variable & o_strFullPathReportFile, variable & o_strNameAndVersion, variable & o_intPlatformType, variable & o_strKitProvider, variable & o_strKitName, variable & o_strMethodName, variable & o_strMethodDirectory ) variable {  return (0); }
+function Read_InputWorklist_ExcelOrCSVFormat( variable i_strInputWorklist, variable & o_intNumberOfSamples, variable & o_intIndexesUsedSetting, variable & o_arrIndex1SeqPositions[], variable & o_arrIndex1IDs[], variable & o_arrIndex2SeqPositions[], variable & o_arrIndex2IDs[], variable & o_arrSamplePlatePositionID[], variable & o_arrSampleIDs[], variable & o_strIndexLabwareFormat ) variable {  return (0); }
+function Reportfile_UpdateData( variable i_strInformationToUpdateReportList, variable i_blnUpdateInformationToStatusWindow ) variable {  return (0); }
+function Sequence_CalculateAndDefineBatchProcess( variable i_intNumberOfColumnsWithinOneBatch, sequence & i_seqMagneticStandPosition, sequence & o_arrSeqMagneticStandPositionBatchwiseSorted[], variable & o_intNumberOfCalculatedBatchesToBeProcessed ) variable {  return (0); }
+function Sequence_CreateNewPipettingOrTransportSequences( sequence i_sequenceTemplate, variable & i_arrPositionIDs[], sequence & o_seqCreated, variable i_intSequenceType ) variable {  return (0); }
+function Sequence_DefineStacks( device & ML_STAR, sequence i_seqOriginalInputLabware, variable i_intRequestedNumberOfUnitsPerStack, variable i_intMaximumNumberOfUnitsPerStackAllowed, sequence & o_trpStackDescending, sequence & o_trpStackAscending ) variable {  return (0); }
+function Sequence_ReformatToMatchNumberOfSamples( device & ML_STAR, sequence i_seq_Template, variable i_int_StartingPoint, variable i_int_NumberOfSamples, sequence & o_seqCreated ) variable {  return (0); }
+function Show_PropertiesArray( variable & i_arrayToBeAnalyzed[], variable i_intPresentationMode ) variable {  return (0); }
+function Show_PropertiesSequence( sequence & i_seqCheckSequence, variable i_intPresentationMode ) variable {  return (0); }
+function Show_PropertiesVariable( variable i_strVariableName, variable i_varVariable, variable i_intPresentationMode ) variable {  return (0); }
+function Start_Function( variable & io_strFunctionName, variable i_blnUpdateReportFile ) variable {  return (0); }
+function Timer_Incubation( timer & i_strIncubationTimerName, variable i_intTime, variable i_intTimerMode ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=orr_b$$valid=0$$time=2025-06-11 11:37$$checksum=4da473e0$$length=082$$

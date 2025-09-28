@@ -1,0 +1,133 @@
+// This library contains the correct definition for resources and reagents.
+//
+// Modification History
+// 2020-01-20  Enrique Bayo: Creation of this lib.
+
+#ifndef __ARW_Global_hsl__
+#define __ARW_Global_hsl__	1
+
+namespace ARW_Global
+{
+   namespace ReagentType
+   {
+      const variable Mastermix("Mastermix");
+	  const variable MastermixComponent("MastermixComponent");
+	  const variable Reagent("Reagent");
+
+      
+   }
+
+   namespace LabwareType
+   {
+      const variable HamiltonTrough50mL("50mL Trough");
+	  const variable Tube5mL("tube 4ml Sarstedt");
+	  const variable Sarstedt_Tube_2mL("vial 2mL Sarstedt");
+	  const variable Sarstedt_Tube_1500uL("Vial 1.5ml Eppendorf");
+	  const variable Sarstedt_Tube_500uL("Vial 0.5ml Sarsdtedt");
+     const variable MIDI_Plate("MIDI Plate");
+     const variable HSP_Plate("HSP Plate");
+     const variable Comfortlid("Comfortlid");
+     const variable TIP50("50µL Tips");
+     const variable TIP300("300µL Tips");
+     const variable TIP1000("1000µL Tips");
+     const variable TIPAdapter("Tip Adapter");
+
+
+   }
+
+         namespace StackDefinition
+   {
+
+     const variable NumberOfUnitsStack_MIDI_Plate(4);
+     const variable NumberOfUnitsStack_HSP_Plate(4);
+     const variable NumberOfUnitsStack_Comfortlid(8);
+   }
+         namespace TipLocations
+   {
+
+     const variable NumberOfSlotsFor1000(1);
+     const variable NumberOfSlotsFor300(9);
+     const variable NumberOfSlotsFor50(9);
+     const variable NumberOfSlotsForTipAdapter(1);
+
+   }
+// Below List of Carriers For NGSStar
+//   namespace CarrierType
+//   {
+//   const variable CPAC("MFX_CAR_2HHSF30MTP_HHSF30DWP_CPAC_0001");
+//	  const variable RGT1("RGT_CAR_1");
+//	  const variable RGT2("RGT_CAR_2");
+//	  const variable Tube_Carrier24("CAR_VIALS_LARGE");
+//	  const variable Vial_Carrier32_01("CAR_VIALS_SMALL");
+//   const variable Vial_Carrier32_02("CAR_Adapter_Tubes");
+//	  const variable ODTC("MFX_CAR_ODTC_MTP_0001");
+//	  const variable PLT_Stack("PLT_CAR_L4ST_0001");
+//	  const variable TIP50_01("TIP_CAR_480BC_TIP_50F_PINK_0001");
+//	  const variable TIP50_02("TIP_CAR_480BC_TIP_50F_PINK_0002");
+//	  const variable TIP300_01("TIP_CAR_480BC_TIP_STF_YELLOW_0001");
+//	  const variable TIP300_02("TIP_CAR_480BC_TIP_STF_YELLOW_0002");
+//	  const variable PLT_TIP1000("PLT_CAR_2TIP_2PCR_MTP");
+//   const variable HHSx2_PLT("PLT_CAR_2HHSs_2PLATES_0001");
+  
+//   }
+// Below List of Carriers For NGSStar MPH
+//    namespace CarrierType
+//   {
+//   const variable CPAC("MFX_CAR_2HHSF30MTP_HHSF30DWP_CPAC_0001");
+//	  const variable RGT1("RGT_CAR_1");
+//	  const variable RGT2("RGT_CAR_2");
+//	  const variable Tube_Carrier24("CAR_VIALS_LARGE");
+//	  const variable Vial_Carrier32_01("CAR_VIALS_SMALL");
+//	  const variable Vial_Carrier32_02("CAR_Adapter_Tubes");
+//	  const variable ODTC("MFX_CAR_ODTC_MTP_0001");
+//	  const variable PLT_Stack("PLT_CAR_L4ST_0001");
+//	  const variable TIP50_01("TIP_CAR_480BC_TIP_50F_PINK_0001");
+//	  const variable TIP50_02("TIP_CAR_480BC_TIP_50F_PINK_0002");
+//	  const variable TIP300_01("TIP_CAR_480BC_TIP_STF_YELLOW_0001");
+//	  const variable TIP300_02("TIP_CAR_480BC_TIP_STF_YELLOW_0002");
+//	  const variable PLT_TIP1000("MFX_CAR_2TipBC_DWP_PCR96_DWP_NestRB_0001");
+//   const variable HHSx2_PLT("MFX_CAR_2HHS30NuncDWP_Empty_PCR96_0001");
+     
+//   }
+// Below List of Carriers For NGSStar MOA
+     namespace CarrierType
+     {
+     const variable CPAC("MFX_CAR_2HHSF30MTP_HHSF30DWP_CPAC_0001");
+	  const variable RGT1("RGT_CAR_1");
+	  const variable RGT2("RGT_CAR_2");
+	  const variable Tube_Carrier24("CAR_VIALS_LARGE");
+	  const variable Vial_Carrier32_01("CAR_VIALS_SMALL");
+	  const variable Vial_Carrier32_02("CAR_Adapter_Tubes");
+	  const variable ODTC("MFX_CAR_ODTC_MTP_0001");
+	  const variable PLT_Stack("PLT_CAR_L4ST_0001");
+	  const variable TIP50_01("TIP_CAR_480BC_TIP_50F_PINK_0001");
+	  const variable TIP50_02("TIP_CAR_480BC_TIP_50F_PINK_0002");
+	  const variable TIP300_01("TIP_CAR_480BC_TIP_STF_YELLOW_0001");
+	  const variable TIP300_02("TIP_CAR_480BC_TIP_STF_YELLOW_0002");
+	  const variable PLT_TIP1000("MFX_CAR_2MTP_HPTab_MIDI_HPTab_2DWP_HPTab_0001");
+     const variable HHSx2_PLT("MFX_CAR_2HHS30NuncDWP_Empty_PCR96_0001");
+     
+     }
+// Below List of Carriers For ClinicalNGSSTARLet
+//   namespace CarrierType
+//   {
+//   const variable CPAC("MFX_CAR_HHS30NuncDWP_DWP_NestRB_CPAC_Empty_0001");
+//	  const variable RGT1("MFX_CAR_RGT_0001");
+//	  const variable RGT2("RGT_CAR_2");
+//	  const variable Tube_Carrier24("SMP_CAR_24_A00_2ML_0001");
+//	  const variable Vial_Carrier32_01("CAR_VIALS_SMALL");
+//	  const variable Vial_Carrier32_02("CAR_Adapter_Tubes");
+//	  const variable ODTC("MFX_CAR_ODTC_MTP_0001");
+//	  const variable PLT_Stack("MFX_CAR_5Stack_0001");
+//   const variable TIP50_01("TIP_CAR_480BC_A00_0001");
+//	  const variable TIP50_02("");
+//	  const variable TIP300_01("TIP_CAR_480BC_A00_0002");
+//	  const variable TIP300_02("");
+//   const variable PLT_TIP1000("MFX_CAR_2TIPBC_DWP_2PCR96_0001");
+//   const variable HHSx2_PLT("MFX_CAR_2HHS30NuncDWP_Empty_PCR96_0001");
+	  
+//   }
+   
+}
+#endif
+// $$author=Windows10$$valid=0$$time=2024-09-27 15:42$$checksum=ac00b632$$length=086$$

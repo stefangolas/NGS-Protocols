@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 29/03/18 01:04:19
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace TIP_PRESENT_CHECK_5ML_1ML {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Check_Tips_Present_1ml( device & ML_STAR, variable & ChannelPatternWithTips_1ml, variable NumberOfChannels_1ml ) variable {  return (0); }
+function Check_Tips_Present_5ml( device & ML_STAR, variable & ChannelPatternWithTips_5ml, variable NumberOfChannels_5ml ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Orr_B$$valid=0$$time=2022-08-02 15:42$$checksum=b6f4fc1b$$length=082$$

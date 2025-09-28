@@ -1,0 +1,20 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 18.05.2020 11:57:07
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace TIPLOADINGCONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function TipLoading_1TipType( device & ML_STAR, sequence & i_seqTip1, variable i_strTipCounter1 ) void { }
+function TipLoading_1TipType_CheckAvailableTips( device & ML_STAR, sequence & i_seqTip1, variable i_strTipCounter1, variable i_intNeededTips, variable i_strTipType ) void { }
+function TipLoading_2TipTypes( device & ML_STAR, sequence & i_seqTip1, sequence & i_seqTip2, variable i_strTipCounter1, variable i_strTipCounter2 ) void { }
+function TipLoading_3TipTypes( device & ML_STAR, sequence & i_seqTip1, sequence & i_seqTip2, sequence & i_seqTip3, variable i_strTipCounter1, variable i_strTipCounter2, variable i_strTipCounter3 ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Windows10$$valid=0$$time=2021-06-30 15:19$$checksum=45fea2a9$$length=086$$

@@ -1,0 +1,17 @@
+#pragma global
+
+#ifndef __InitWorkListLocation_hsl__
+#define __InitWorkListLocation_hsl__ 1
+
+namespace INIT_WORKLIST_LOCATION
+{
+      function LockLibrary();
+
+      function LockLibrary()
+      {
+         Trace("C:\\NGSStarInputFiles\\");
+      }
+}
+
+#endif
+// $$author=Windows10$$valid=0$$time=2024-09-27 15:42$$checksum=3b29568d$$length=086$$

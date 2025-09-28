@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 02/12/2019 15:55:24
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace REFORMATSTRING {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function ExtractNumberOfTipsFromString( variable i_str_NumberOfTipsByTipType, variable & o_int_NumberOf50ulTips, variable & o_int_NumberOf300ulTips, variable & o_int_NumberOf300ulMPHTips, variable & o_int_NumberOf1000ulTips ) void { }
+function ReformatStringFloatDecimalPoints( variable i_strValueToReformat, variable & o_strValueReformatted ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Windows10$$valid=0$$time=2019-12-02 15:55$$checksum=af76f510$$length=086$$

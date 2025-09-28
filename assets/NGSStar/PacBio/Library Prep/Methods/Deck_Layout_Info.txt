@@ -1,0 +1,59 @@
+PacBio LibraryPrep Deck Layout Info
+
+
+**********
+** v1.8 **
+**********
+- updated to have more 1000uL tips, less 300 tips 
+
+
+**********
+** v2.1 **
+**********
+created 10/18/22 by KScott
+
+- Addition of MFX carrier "MFX_CAR_2HHSF30DWP_DWP HPTab OLD_CPAC.tml"
+
+
+**********
+** v1.9 ** 
+**********
+created 12/20/22 by KScott
+
+- original stacker visibilty disabled by default
+- New stacker added to deck "PLT_CAR_L4ST_OFFSET_0001"
+
+
+**********
+** v1.10 ** 
+**********
+created 01/23/23 by KScott from V1.8
+
+- Updated labware labels for processing carrier
+- sequence in stacker for wash buffer added 
+
+
+05/25/23
+- added Pooling_Tube sequence to deck for microbial pooling
+- added HSP labware on magnet position 
+
+***********
+** v1.11 ** 
+***********
+created 06/08/23 by KScott from V1.10
+- added a 60mL trough for SRE buffer
+06/12/23
+- added sequence RGT_SREBuffer_2mLTubes for SRE module 
+
+***********
+** v3.0  ** 
+***********
+created 10/05/23 by KScott from V1.11
+- removed the springs from the mag plate and adjusted teaching positions
+- note: skipped v2 due to development still there and went straight to V3
+
+***********
+** v5.0  ** 
+***********
+created 11/08/23 by KScott from V4.0
+- Added HSP_OnMagnet Biorad HSP for Post Lig. Cleanup

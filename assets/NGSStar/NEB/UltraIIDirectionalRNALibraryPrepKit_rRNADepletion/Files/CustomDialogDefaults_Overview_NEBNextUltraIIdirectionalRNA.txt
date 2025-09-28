@@ -1,0 +1,2 @@
+"AnswerStartPoint";"AnswerStopPoint";"File_SampleSheet";"AnswerFragTime";"AnswerSizeSelection";"var_Singleplex";"var_Multiplex";"var_AdapterDil_5";"var_AdapterDil_25";"var_AdapterDil_200";"i_AdapterDilCustom"
+1;3;"C:\NGSStarInputFiles\NEB\NEBNextUltraIIdirectionalRNA\NEBNextUltraII_8_samples.txt";2;2;"1";"0";"1";"0";"0";"0"

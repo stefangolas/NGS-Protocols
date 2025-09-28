@@ -1,0 +1,21 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 3/24/2021 2:45:04 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace CPACCONTROLLERSTC {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CPAC_GetTemperature( variable & o_fltActualTemperature ) void { }
+function CPAC_StartTemperatureControl( variable i_fltTemperature ) void { }
+function CPAC_StopTemperatureControl( variable i_strDeviceName ) void { }
+function CPAC_TerminateAll(  ) void { }
+function Init( variable i_blnSimulationMode ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Windows10$$valid=0$$time=2021-06-30 15:19$$checksum=7cf8ddff$$length=086$$

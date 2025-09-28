@@ -1,0 +1,57 @@
+HxCfgFile,3;
+
+ConfigIsValid,Y;
+
+DataDef,CONTAINER,3,default,
+{
+1.DX, "13.3",
+1.DY, "12.3",
+1.DZ, "12.9",
+1.EqnOfVol, "h*130.6981",
+1.Max, "51",
+1.Min, "5.3",
+1.Shape, "0",
+2.DX, "0",
+2.DY, "0",
+2.DZ, "12.9",
+2.EqnOfVol, "h*43.5660",
+2.Max, "5.3",
+2.Min, "0",
+2.Shape, "5",
+3DModel, "ML_STAR\\Cup_15x95.hxx",
+3DModelRel, "..\\..\\..\\..\\Program Files\\HAMILTON\\LabWare\\ML_STAR\\Cup_15x95.hxx",
+3DxOffset, "0",
+3DyOffset, "0",
+3DzOffset, "0",
+Barcode.Unique, "0",
+Barcode.Value, "",
+BaseMM, "41.6",
+CategoryCnt, "0",
+Clearance, "55",
+Depth, "51",
+Description, "",
+Dim.Dx, "12.9",
+Dim.Dy, "12.9",
+Dim.Dz, "0",
+LS, "1",
+LSHt, "50",
+MaxDepth, "0.1",
+Property.1, "Version",
+PropertyCnt, "1",
+PropertyValue.1, "1.0",
+Segments, "2",
+Shape, "0",
+TchBase, "0",
+TchOff, "0",
+UseBndry, "0",
+ViewName, "",
+Visible, "0",
+cLLD, "1"
+};
+
+DataDef,HxPars,3,AuditTrailData,
+[
+")"
+];
+
+* $$author=Orr_B$$valid=0$$time=2021-04-26 13:29$$checksum=a3cbdb13$$length=081$$

@@ -1,0 +1,2228 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+#include "HSLStrLib.hsl"
+#include "VectorCustomDialogs\\VectorCustomDialogs.hsl"
+#include "HamiltonHeaterShaker3G\\HamiltonHeaterShaker3G.hsl"
+#include "ASWStandard\\ASWGlobal\\ASWGlobal.hsl"
+#include "HSLExtensions\\Array.hsl"
+#include "HSLUtilLib.hsl"
+#include "HSLExtensions\\File.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace HAMILTONHEATERSHAKER_CONTROLLER {
+// }} ""
+variable t_intTraceLevel;
+variable t_arrIntCurrentHHSNumbers[];
+variable t_strLibraryName;
+variable t_blnInitPerformed;
+variable t_activateIntegratedAbortHandler;
+variable t_strFunctionName;
+variable t_blnSimulationModeON;
+variable t_strLibraryNameWithoutExtension;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function HHS_CheckTemperature( variable i_intNumberOfConnectedHHS, variable & o_fltTemperature ) variable ;
+function HHS_GetRecordedTemperatureData( variable i_intNumberOfConnectedHHS, variable & o_arrFltRecordedTemperaturData[] ) variable ;
+function HHS_Lock( variable i_intNumberOfConnectedHHS, variable i_blnLock ) variable ;
+function HHS_SetTemperature( variable i_intNumberOfConnectedHHS, variable i_fltTemperature, variable i_blnWaitForTempReached, variable i_blnActivateTemperatureRecording ) variable ;
+function HHS_SetTemperatureAdvanced( variable i_intNumberOfConnectedHHS, variable i_fltTemperature, variable i_blnWaitForTempReached, variable i_blnActivateTemperatureRecording ) variable ;
+function HHS_Shake( variable i_intNumberOfConnectedHHS, variable i_intShakingDirection, variable i_intShakingAcceleration, variable i_intShakingSpeed, variable i_intShakingTime ) variable ;
+function HHS_StopInfinitShaking( variable i_intNumberOfConnectedHHS ) variable ;
+function HHS_Terminate(  ) variable ;
+function Init( variable i_blnSimulationModeON, device & ML_STAR, variable i_intConnectionType, variable i_intNumberOfHHS, variable i_intNumberOfControllerBoxes, variable i_ActivateIntegratedAbortHandler, variable & o_arrIntHHSNumbers[], variable & o_strNameAndVersion ) variable ;
+private function _DATA_AppendStatusWindow( variable i_strMessageToAppend ) void ;
+private function _DATA_IntegratedAbortHandler( variable i_strFunctionName, variable i_strAbortMessage ) void ;
+private function _DATA_ShowListDialog( variable i_strLastErrorMessage, variable i_strTopText, variable i_strBottomText, variable i_strDeviceName ) void ;
+private function _ReportErrorText( variable i_intReturnValue, variable i_intNumberOfConnectedHHS, variable i_strFunctionName ) variable ;
+private function _Version(  ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "HHS_Shake" "Begin"
+function HHS_Shake( variable i_intNumberOfConnectedHHS, variable i_intShakingDirection, variable i_intShakingAcceleration, variable i_intShakingSpeed, variable i_intShakingTime ) variable {
+// }} ""
+private variable l_strMessageLastError;
+private variable l_blnReturnValueHHS;
+private variable l_inLastError;
+private variable l_strErrorDescription;
+private variable l_strStatusMessage;
+private variable l_intNumberOfHHSConnected;
+private variable loopCounter1;
+private variable l_strComment;
+private variable l_blnSuccess;
+private variable l_intReturnValue;
+private timer l_hdl_ShakerTimed;
+// {{ 5 "HHS_Shake" "InitLocals"
+// }} ""
+// {{ 232 1 0 "5a575660_4751_4779_9d351cd8f1fd697c" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 233 1 0 "f0e9fdba_4868_4652_b864897c3b066a5d" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+// {{{ 235 1 0 "c9c59b4a_aae1_43af_aa17ff25c2eb34f9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 236 1 0 "5a575660_4751_4779_9d351cd8f1fd697c" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 237 1 0 "f30b8b0d_bc13_4747_a4b0faedddff9534" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" [0 = all shaker] - set to direction "), i_intShakingDirection, Translate(" [0 = Clockwise, 1 = CounterClockwise] ; acceleration :"), i_intShakingAcceleration, Translate(" rps². Speed: "), i_intShakingSpeed, Translate(" rpm and "), i_intShakingTime, Translate(" seconds time [0 = infinit]."), Translate(""));
+// }} ""
+// {{{ 238 1 0 "819be0f7_af96_4ad3_83dcb68497680e0a" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{ 239 1 0 "edbc5c85_8a7d_4c04_98109e6d67016505" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfConnectedHHS == 0)
+{
+// }} ""
+// {{ 240 1 0 "39d566c6_82da_42c9_89cce499179f83db" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+l_intNumberOfHHSConnected=t_arrIntCurrentHHSNumbers.GetSize();
+// }} ""
+// {{ 241 1 0 "f3d524be_b68d_4e03_8d0d533f1154b053" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intNumberOfHHSConnected;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 242 1 0 "5dd75e47_0758_41c7_b500fd3adc29e951" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::SetShakerParameter(t_arrIntCurrentHHSNumbers.ElementAt( loopCounter1 -1), i_intShakingDirection, i_intShakingAcceleration);
+// }} ""
+// {{{ 243 1 0 "ebf4d492_bf43_485a_a784b5bbc500a28e" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Set shaker parameter"));
+// }} ""
+// {{ 244 1 0 "141584a4_9934_40f5_971d86152256f22a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 245 1 0 "a2255c57_eb43_4dc8_b6ea4b1558d9ca31" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Set shaker parameter"));
+// }} ""
+// {{{ 246 1 0 "4b20c016_d977_4408_830815e0a9cacc16" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 247 1 0 "141584a4_9934_40f5_971d86152256f22a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 248 1 0 "f3d524be_b68d_4e03_8d0d533f1154b053" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 249 1 0 "edbc5c85_8a7d_4c04_98109e6d67016505" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 250 1 0 "55735706_43f5_48b5_bcb0c9278941e799" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::SetShakerParameter(i_intNumberOfConnectedHHS, i_intShakingDirection, i_intShakingAcceleration);
+// }} ""
+// {{{ 251 1 0 "66115b58_c5c8_454c_8519db410656c0a6" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Set shaker parameter"));
+// }} ""
+// {{ 252 1 0 "2152e33d_edbe_43d6_956449c20c5da6b3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 253 1 0 "e9b4201e_6e42_4e10_8c54ae9f6055af9d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Set shaker parameter"));
+// }} ""
+// {{{ 254 1 0 "ed82f9cd_87b8_4b56_9373daf5696ee829" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 255 1 0 "2152e33d_edbe_43d6_956449c20c5da6b3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 256 1 0 "edbc5c85_8a7d_4c04_98109e6d67016505" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 257 1 0 "b51e31c2_8cc2_47a2_b80a57d3045dd670" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intShakingTime == 0)
+{
+// }} ""
+// {{ 258 1 0 "bfb10963_bf74_423d_ad416379af75d3f8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfConnectedHHS == 0)
+{
+// }} ""
+// {{{ 259 1 0 "27b2437a_5ed1_4c19_b30e1842b1f26bb3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StartAllShaker(i_intShakingSpeed);
+// }} ""
+// {{ 260 1 0 "99c0054d_ed2b_47b9_b633f7a9140007b4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 261 1 0 "c8bbe3cb_1437_4d37_833c88c25f3e2601" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intNumberOfHHSConnected;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 262 1 0 "657226c4_6186_43b6_a0ee955a35e169b9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastDeviceError(t_arrIntCurrentHHSNumbers.ElementAt( loopCounter1 -1), l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 263 1 0 "67243735_96a9_4074_ac6b5f89d10f0021" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 264 1 0 "63e42bf5_a48d_4d71_98a110d5b7a20c66" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS start all shaker"), l_strMessageLastError);
+// }} ""
+// {{{ 265 1 0 "22fda7b2_529f_42bd_a479bee1bd8e16b4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 266 1 0 "3be4075f_44df_40ef_8c2ae5eda228ca20" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 267 1 0 "c8bbe3cb_1437_4d37_833c88c25f3e2601" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 268 1 0 "99c0054d_ed2b_47b9_b633f7a9140007b4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 269 1 0 "bfb10963_bf74_423d_ad416379af75d3f8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 270 1 0 "bea4f10a_2d01_4221_813e3b3595d76f38" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StartShaker(i_intNumberOfConnectedHHS, i_intShakingSpeed);
+// }} ""
+// {{{ 271 1 0 "eac54bef_bcc5_476a_b3450c7fc04cecfc" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Start shaker"));
+// }} ""
+// {{ 272 1 0 "78d5ed45_f533_4264_842cda0297ddb57f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 273 1 0 "6b353149_f9c2_45aa_a0ed9a7c95dd2255" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Start shaker"));
+// }} ""
+// {{{ 274 1 0 "847cd425_092b_42da_95fc32e2c55fb515" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 275 1 0 "78d5ed45_f533_4264_842cda0297ddb57f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 276 1 0 "bfb10963_bf74_423d_ad416379af75d3f8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 277 1 0 "b51e31c2_8cc2_47a2_b80a57d3045dd670" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 278 1 0 "15d6bb0e_b60e_4a1d_a071b7766c7ad546" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfConnectedHHS == 0)
+{
+// }} ""
+// {{{ 279 1 0 "7c004bde_3b47_4663_816d466b9fc4941b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StartAllShaker(i_intShakingSpeed);
+// }} ""
+// {{ 280 1 0 "dfab3cf4_f546_4009_a1a6abfed3fe85ac" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 281 1 0 "fd2e8b0b_3a21_45ee_bad423e1e6b8e7b6" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intNumberOfHHSConnected;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 282 1 0 "4f129786_ae2a_418e_afd9d453e7179242" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastDeviceError(t_arrIntCurrentHHSNumbers.ElementAt( loopCounter1 -1), l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 283 1 0 "42f6921d_2c7e_43f6_81e5d743531f8776" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 284 1 0 "138991e2_3802_4b86_a2d68aa8602e839b" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS start all shaker"), l_strMessageLastError);
+// }} ""
+// {{{ 285 1 0 "f1b41324_adfa_405d_8e9bae14003b327e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 286 1 0 "58bc1891_0427_464d_b60ec42b8939ff42" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 287 1 0 "fd2e8b0b_3a21_45ee_bad423e1e6b8e7b6" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 288 1 0 "dfab3cf4_f546_4009_a1a6abfed3fe85ac" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 289 1 0 "15d6bb0e_b60e_4a1d_a071b7766c7ad546" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 290 1 0 "7d35b4a0_9c21_4d26_ba7678d4b8f984b5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StartShaker(i_intNumberOfConnectedHHS, i_intShakingSpeed);
+// }} ""
+// {{{ 291 1 0 "0343bee6_c425_45ee_887bc2e8b34e9347" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Start shaker"));
+// }} ""
+// {{ 292 1 0 "ae3f6e3b_964d_43f1_a854e8f1ca0c0ccb" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 293 1 0 "b1cf414d_aa1b_4d8e_a54732999f547a04" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Start shaker"));
+// }} ""
+// {{{ 294 1 0 "07421c0d_6bce_4910_9a8e79068f42aae1" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 295 1 0 "ae3f6e3b_964d_43f1_a854e8f1ca0c0ccb" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 296 1 0 "15d6bb0e_b60e_4a1d_a071b7766c7ad546" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 297 1 0 "849506cf_65e0_43cc_9c54102f1a59015a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (t_blnSimulationModeON == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 298 1 0 "a3aadbf2_ddae_4d50_b4c22e3207747843" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+l_hdl_ShakerTimed.SetTimerViewName("Shaker timer");
+if( 0 == l_hdl_ShakerTimed.SetTimer(i_intShakingTime) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 299 1 0 "8f24beb3_7f12_4332_9f83347fdd19d4cf" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+l_intReturnValue = l_hdl_ShakerTimed.WaitTimer(hslTrue, hslTrue);
+if (0 == l_intReturnValue)
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 300 1 0 "c2706802_44cc_49e3_8e1df54bea5d67fa" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intReturnValue == 3)
+{
+// }} ""
+// {{{ 301 1 0 "c3d86620_03d9_4aca_90d8456d7ddaba0b" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(Translate("User stopped timer manually"));
+// }} ""
+// {{ 302 1 0 "c2706802_44cc_49e3_8e1df54bea5d67fa" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 303 1 0 "849506cf_65e0_43cc_9c54102f1a59015a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 304 1 0 "69960180_e743_4e2d_8d6160e8ef1f0c2b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfConnectedHHS == 0)
+{
+// }} ""
+// {{ 305 1 0 "aa7cddc0_777b_4048_91b2ce353c9f5b2e" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+l_intNumberOfHHSConnected=t_arrIntCurrentHHSNumbers.GetSize();
+// }} ""
+// {{{ 306 1 0 "5b9f8a39_957d_4b38_a10bf2ca3692cff3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StopAllShaker();
+// }} ""
+// {{ 307 1 0 "8b25598a_1907_41f5_be773513f0066d26" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 308 1 0 "e6bc35db_50c1_4572_9bbcfbcb6789fe7d" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intNumberOfHHSConnected;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 309 1 0 "ff769152_be40_42a3_b95d360efe3d3e32" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastDeviceError(t_arrIntCurrentHHSNumbers.ElementAt( loopCounter1 -1), l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 310 1 0 "ebe6a675_eda8_49dd_9f05071e63a6a14c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 311 1 0 "0bc19b6e_20db_453b_aca3fb9a2916739f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS stop all shaker"), l_strMessageLastError);
+// }} ""
+// {{{ 312 1 0 "4fbbaead_91c2_4a20_89292da37b994a0e" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 313 1 0 "e6bc35db_50c1_4572_9bbcfbcb6789fe7d" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 314 1 0 "8b25598a_1907_41f5_be773513f0066d26" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 315 1 0 "69960180_e743_4e2d_8d6160e8ef1f0c2b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 316 1 0 "2bd4714c_3462_496a_a5f26ee73223e2b2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StopShaker(i_intNumberOfConnectedHHS);
+// }} ""
+// {{{ 317 1 0 "35c8372f_4fc6_43d2_9c3b2a6323900b39" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Stop shaker"));
+// }} ""
+// {{ 318 1 0 "6de949ec_81fb_42f9_a62e106f59fb3912" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 319 1 0 "8d1b4358_7700_4428_b86126c6fa513c44" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Stop shaker"));
+// }} ""
+// {{{ 320 1 0 "736fd9c4_5dad_4200_833b1fcfdd5f4123" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 321 1 0 "6de949ec_81fb_42f9_a62e106f59fb3912" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 322 1 0 "69960180_e743_4e2d_8d6160e8ef1f0c2b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 323 1 0 "b51e31c2_8cc2_47a2_b80a57d3045dd670" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 324 1 0 "6780d3ac_c48e_4f52_98e6ae1656e29e22" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 325 1 0 "cf186798_5235_4f93_b60c43113b57c761" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 326 1 0 "20fb90c0_d192_4991_895379fe2098b319" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{{ 327 1 0 "75c89442_bbdc_430f_b713fad13790bd3a" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 328 1 0 "6780d3ac_c48e_4f52_98e6ae1656e29e22" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "HHS_Shake" "End"
+}
+// }} ""
+// {{{ 5 "_Version" "Begin"
+private function _Version(  ) void {
+// }} ""
+// {{ 5 "_Version" "InitLocals"
+// }} ""
+// {{ 604 1 0 "17111cd9_cdf6_4daf_8268aba0a8139f52" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 605 1 0 "cb97459e_8b13_4c70_a24ceabd8d8e71ec" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 606 1 0 "27525cc4_35f4_4014_8a88bc70efe33ceb" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 607 1 0 "8e89775f_470b_4d80_b19fc92713cd70cb" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 608 1 0 "438df6d5_8078_4fad_854435c25d4bdfcb" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 609 1 0 "6dc5ca8a_4d62_4cfc_baa1a3094a55b4cc" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 610 1 0 "61a23ac1_0428_4ca5_8d4731f89ffc47e0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 611 1 0 "8b68e9d5_abb0_43cc_b48052e5595193b6" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 5 "_Version" "End"
+}
+// }} ""
+// {{{ 5 "_DATA_ShowListDialog" "Begin"
+private function _DATA_ShowListDialog( variable i_strLastErrorMessage, variable i_strTopText, variable i_strBottomText, variable i_strDeviceName ) void {
+// }} ""
+private variable l_strLastError;
+private variable l_strDialogTitle;
+private variable l_intReturnValueDialog;
+private variable l_arrListHHSMessage[];
+// {{ 5 "_DATA_ShowListDialog" "InitLocals"
+// }} ""
+// {{{ 574 1 0 "41f0a3d1_d67b_41be_a630fc0e83ebedc7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strDialogTitle = StrConcat2(i_strDeviceName, Translate(" - inferface "));
+// }} ""
+// {{{ 575 1 0 "d062533d_9a05_4e3b_96f27443e63bb253" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strLastError = StrConcat2(Translate("TEC error description : "), i_strLastErrorMessage);
+// }} ""
+// {{ 576 1 0 "b2ffae5d_31f5_457c_93c58d0fede256fe" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+l_arrListHHSMessage.SetSize(0);
+// }} ""
+// {{ 577 1 0 "7b707808_a139_4c8c_9ab10d5ddeb6825f" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+l_arrListHHSMessage.AddAsLast(l_strLastError);
+// }} ""
+// {{ 578 1 0 "0a250b2e_fe2a_4e9b_af2439204633e2e1" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+onerror goto errLabel_056E3D2B293E47fb8594A5E9A1240F40 ;
+err.Clear();
+// }} ""
+// {{{ 579 1 0 "764cd848_10fd_4962_b522afeaa83e0275" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_intReturnValueDialog = VectorCustomDialogs::ListDialog(l_strDialogTitle, VectorCustomDialogs::IconType::Information, VectorCustomDialogs::ButtonType::OkCancel, 0, 0, 0, i_strTopText, i_strBottomText, l_arrListHHSMessage);
+// }} ""
+// {{ 580 1 0 "0a250b2e_fe2a_4e9b_af2439204633e2e1" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+errLabel_056E3D2B293E47fb8594A5E9A1240F40 : {}
+onerror goto 0;
+if (err.GetId() != 0)   /* skip handler if no error */
+{
+// }} ""
+// {{{ 581 1 0 "1144b6b6_c08e_414c_b26e0ab968a7bec5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::Initialize();
+// }} ""
+// {{{ 582 1 0 "91c1bea5_1c66_4c10_afef6e7e012d6995" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_intReturnValueDialog = VectorCustomDialogs::ListDialog(l_strDialogTitle, VectorCustomDialogs::IconType::Information, VectorCustomDialogs::ButtonType::OkCancel, 0, 0, 0, i_strTopText, i_strBottomText, l_arrListHHSMessage);
+// }} ""
+// {{ 583 1 0 "0a250b2e_fe2a_4e9b_af2439204633e2e1" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+}   /* end if from skip handler if no error */
+// }} ""
+// {{ 584 1 0 "299e4ef3_7675_4c6f_8addaa4375badca0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intReturnValueDialog == ASWGLOBAL::DIALOG::CANCEL)
+{
+// }} ""
+// {{ 585 1 0 "1bdb421f_73c0_4130_9eae17f1d13dc093" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{ 586 1 0 "299e4ef3_7675_4c6f_8addaa4375badca0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 587 1 0 "f1072c42_7e3f_4e25_86144af42524912c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intReturnValueDialog == ASWGLOBAL::DIALOG::OK)
+{
+// }} ""
+// {{ 588 1 0 "57ed3ea6_7855_4d1f_9f9609619d0cfbd5" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("************  Method will continue - USER confirmed dialog with OK ************"));
+// }} ""
+// {{ 589 1 0 "f1072c42_7e3f_4e25_86144af42524912c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 5 "_DATA_ShowListDialog" "End"
+}
+// }} ""
+// {{{ 5 "_DATA_IntegratedAbortHandler" "Begin"
+private function _DATA_IntegratedAbortHandler( variable i_strFunctionName, variable i_strAbortMessage ) void {
+// }} ""
+private variable l_strAffectedLibrary;
+private variable l_strAbortMessage;
+private variable l_strFunctionName;
+private variable l_arrListAbortHandlerMessage[];
+private variable l_strComment;
+// {{ 5 "_DATA_IntegratedAbortHandler" "InitLocals"
+// }} ""
+// {{ 552 1 0 "d396380d_7052_476a_850f0122490a4fd7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (t_activateIntegratedAbortHandler == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 553 1 0 "05bf57cf_ebd8_4698_9c00ab2042813264" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return;
+// }} ""
+// {{ 554 1 0 "d396380d_7052_476a_850f0122490a4fd7" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 555 1 0 "e0ff953c_8435_4030_82ce0567e9da457e" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 556 1 0 "d4a26174_2c6e_430a_9d496e7d8b60d804" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strFunctionName = Translate("");
+// }} ""
+// {{ 557 1 0 "2d1d6733_2491_445c_a347e16073b0ee3c" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+l_strFunctionName = GetFunctionName();
+// {{{ 559 1 0 "2d4500fb_8d5f_4782_b547df7884b45579" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, l_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 560 1 0 "e0ff953c_8435_4030_82ce0567e9da457e" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 561 1 0 "ae81b7f1_8176_4ee7_84c10a7844ded786" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::Initialize();
+// }} ""
+// {{{ 562 1 0 "70a4f590_c218_4dce_b77e0f1be018c777" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strAffectedLibrary = StrConcat2(Translate("Affected library :    "), i_strFunctionName);
+// }} ""
+// {{{ 563 1 0 "3b652f58_5c11_419c_8cdf77e677b32fca" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strAbortMessage = StrConcat2(Translate("Message : "), i_strAbortMessage);
+// }} ""
+// {{ 564 1 0 "37404556_7168_4c82_866de219f7299eee" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+l_arrListAbortHandlerMessage.SetSize(0);
+// }} ""
+// {{ 565 1 0 "b6e5c3cf_4ab9_4779_b6e8fc0f9cb62195" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+l_arrListAbortHandlerMessage.AddAsLast(l_strAffectedLibrary);
+// }} ""
+// {{ 566 1 0 "fa862663_8572_4078_8a96354436f84667" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+l_arrListAbortHandlerMessage.AddAsLast(l_strAbortMessage);
+// }} ""
+// {{{ 567 1 0 "fc2fb926_c077_49b1_a4d964431818c8d3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::ListDialog(Translate(""), VectorCustomDialogs::IconType::Warning, VectorCustomDialogs::ButtonType::Ok, 0, 0, 0, Translate("Internal abort handler activated - error occurred - abort routine started"), Translate("Press OK to Abort the run."), l_arrListAbortHandlerMessage);
+// }} ""
+// {{{ 568 1 0 "61837c21_4876_45b3_b6059ce99ff354f7" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+HHS_Terminate();
+// }} ""
+// {{ 569 1 0 "70de2ca0_c655_4219_a82b3239b12bf176" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 570 1 0 "c866144f_b50e_4220_9ce0de30baa7935e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, i_strAbortMessage);
+// }} ""
+// {{ 571 1 0 "70de2ca0_c655_4219_a82b3239b12bf176" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 572 1 0 "a1199073_8341_48cc_97f3b7b9b69f8155" "{930D6C31-8EFB-11d4-A3BA-002035848439}"
+abort;
+// }} ""
+// {{{ 5 "_DATA_IntegratedAbortHandler" "End"
+}
+// }} ""
+// {{{ 5 "_DATA_AppendStatusWindow" "Begin"
+private function _DATA_AppendStatusWindow( variable i_strMessageToAppend ) void {
+// }} ""
+// {{ 5 "_DATA_AppendStatusWindow" "InitLocals"
+// }} ""
+// {{ 544 1 0 "ce58c41e_0628_4a7b_9e580357bc3a8630" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+onerror goto errLabel_FD907BFCD58B4a24AA6E9B60570A650D ;
+err.Clear();
+// }} ""
+// {{{ 545 1 0 "58aea9c9_b16b_4f88_bb9b68543c022d64" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::AppendStatusText(i_strMessageToAppend);
+// }} ""
+// {{ 546 1 0 "ce58c41e_0628_4a7b_9e580357bc3a8630" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+errLabel_FD907BFCD58B4a24AA6E9B60570A650D : {}
+onerror goto 0;
+if (err.GetId() != 0)   /* skip handler if no error */
+{
+// }} ""
+// {{{ 547 1 0 "57430b23_d913_41e5_825ec4bbd81d646e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::Initialize();
+// }} ""
+// {{{ 548 1 0 "25152f2c_9b79_420b_8c6cc75e326e89c7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::ShowStatusDialog(Translate("TEC controller"));
+// }} ""
+// {{{ 549 1 0 "e88c206d_a06e_40de_ad9e2d4f4f7026bd" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+VectorCustomDialogs::AppendStatusText(i_strMessageToAppend);
+// }} ""
+// {{ 550 1 0 "ce58c41e_0628_4a7b_9e580357bc3a8630" "{3293659E-F71E-472f-AFB4-6A674E32B114}"
+}   /* end if from skip handler if no error */
+// }} ""
+// {{{ 5 "_DATA_AppendStatusWindow" "End"
+}
+// }} ""
+// {{{ 5 "HHS_Terminate" "Begin"
+function HHS_Terminate(  ) variable {
+// }} ""
+private variable l_strComment;
+// {{ 5 "HHS_Terminate" "InitLocals"
+// }} ""
+// {{ 362 1 0 "f78a8135_bc63_4c8d_a0f8c2fdd8dcfae0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (t_blnInitPerformed == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 363 1 0 "5a335a62_d4ba_41d8_8811f476b6fa7340" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("This step was introduced to avoid terminating a device without having initialized it in prior.\nThis may happen if a run is aborted and the init step was not called before --> on abort handler might still call terminate command.."));
+// }} ""
+// {{{ 364 1 0 "d9484e2b_d883_479f_a90c25d099a445fc" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 365 1 0 "f78a8135_bc63_4c8d_a0f8c2fdd8dcfae0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 366 1 0 "9d2164c5_af71_461a_8da817e2eaeb81a1" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 367 1 0 "f7e8e805_658b_4f42_8d660f5a64b37035" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+// {{{ 369 1 0 "04824176_d05b_4be6_935c784416befa4a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 370 1 0 "9d2164c5_af71_461a_8da817e2eaeb81a1" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 371 1 0 "69040c47_d816_4ed0_b280384534c77899" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(Translate("HHS terminate all shaker."));
+// }} ""
+// {{{ 372 1 0 "36fe99f2_40b9_45fd_a19869060bb04bbf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::Terminate();
+// }} ""
+// {{ 373 1 0 "852239b4_96e9_4097_b5077fb5ff76f482" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 374 1 0 "14cc0708_3d32_47ea_8e6c59a22a4964c5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 375 1 0 "cb5c0ac5_051f_4a4a_860db9de25c1b150" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{{ 376 1 0 "57c2b625_e339_4e8b_aea2fc1bd1f4b1d4" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 377 1 0 "852239b4_96e9_4097_b5077fb5ff76f482" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "HHS_Terminate" "End"
+}
+// }} ""
+// {{{ 5 "Init" "Begin"
+function Init( variable i_blnSimulationModeON, device & ML_STAR, variable i_intConnectionType, variable i_intNumberOfHHS, variable i_intNumberOfControllerBoxes, variable i_ActivateIntegratedAbortHandler, variable & o_arrIntHHSNumbers[], variable & o_strNameAndVersion ) variable {
+// }} ""
+private variable l_blnReturnValueHHS;
+private variable l_strSerialNumberCurrentHHS;
+private variable l_intNumberOfConnectedHHS;
+private variable l_strMessageLastError;
+private variable l_intIndexHHSConnected;
+private variable l_inLastError;
+private variable l_strErrorDescription;
+private variable l_strFirmwareVersionCurrentHHS;
+private variable l_strTemperatureCurrentHHS;
+private variable l_fltTemperatureCurrentHHS;
+private variable l_intStartTimeOut;
+private variable l_fltSecurityRange;
+private variable l_fltToleranceRange;
+private variable l_strStatusMessage;
+private variable l_intCurrentControllBox;
+private variable l_intIndexCounter;
+private variable l_strUSBNodeName;
+private variable o_arrIntCurrentHHSNumbers[];
+private variable l_str_ReturnNameAndVersion;
+private variable l_strControllerVersion;
+private variable l_strComment;
+private variable l_strDescription;
+// {{ 5 "Init" "InitLocals"
+o_arrIntHHSNumbers.SetSize( 0);
+o_strNameAndVersion = 0;
+// }} ""
+// {{ 379 1 0 "0aa2cb14_0f86_4e1c_9db0452a23b153a4" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 380 1 0 "53b2e51e_b4ab_4fe1_a348a9d91da5b447" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strLibraryName = Translate("");
+// }} ""
+// {{ 381 1 0 "884a230c_4401_4911_99474baf9cdc4e9e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{ 382 1 0 "e85b370e_6cd8_4b75_9bb2d46374fadc2b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strControllerVersion = Translate("");
+// }} ""
+// {{ 383 1 0 "d0eb4fd5_ad7e_4b26_970c752f5906b6a3" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_str_ReturnNameAndVersion = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+t_strLibraryName = GetFileName();
+l_strControllerVersion = "0.2.6";
+// {{{ 385 1 0 "dd538c31_d83f_44b2_99b3d56b61de3814" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+t_strLibraryNameWithoutExtension = HSLExtensions::File::GetFileNameWithoutExtension(t_strLibraryName);
+// }} ""
+// {{{ 386 1 0 "2bcc91af_60da_464e_9de5b2ccfe0e3197" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+o_strNameAndVersion = StrConcat4(t_strLibraryNameWithoutExtension, Translate(" "), l_strControllerVersion, Translate(""));
+// }} ""
+// {{ 387 1 0 "04fdb5ec_e678_4ae9_a278e79ae199658d" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strDescription = o_strNameAndVersion;
+// }} ""
+// {{{ 388 1 0 "42b76854_c501_4e1c_943e431470e7b22e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strDescription);
+// }} ""
+// {{ 389 1 0 "0aa2cb14_0f86_4e1c_9db0452a23b153a4" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 390 1 0 "bfa42b8f_be98_4d03_b6c08b8441e70c9b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_activateIntegratedAbortHandler = i_ActivateIntegratedAbortHandler;
+// }} ""
+// {{{ 391 1 0 "b9fec330_501a_4fe4_b691ef4c8eb7160d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+t_blnSimulationModeON = Util::GetSimulationMode();
+// }} ""
+// {{ 392 1 0 "b063e8c5_1c93_4c9c_8653ba3043dc4506" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (t_blnSimulationModeON == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 393 1 0 "cdf06e78_209e_4eab_85b36771e70976d4" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_blnSimulationModeON = i_blnSimulationModeON;
+// }} ""
+// {{ 394 1 0 "b063e8c5_1c93_4c9c_8653ba3043dc4506" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 395 1 0 "75c0f110_066c_4fe6_b3d542539e774eb8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_RELEASE, Translate("t_blnSimulationModeON : "), t_blnSimulationModeON);
+// }} ""
+// {{{ 396 1 0 "796f7d2a_b358_4646_8a298e3e69e44298" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS INIT set to "), i_intNumberOfHHS, Translate(" units. Connection type :"), i_intConnectionType, Translate(" [0 = TCC, 1 = HHS Box, 2 = periphery box]."), Translate(" Number of installed controlling boxes: "), i_intNumberOfControllerBoxes, Translate("."), Translate("\n Simulation mode : "), t_blnSimulationModeON, Translate(""), Translate(""));
+// }} ""
+// {{{ 397 1 0 "e1928b3b_62b9_4612_93571d2a1b4547ec" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{{ 398 1 0 "ce47f6f8_4064_4577_b3f60736af4bbbf2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::SetSimulation(t_blnSimulationModeON);
+// }} ""
+// {{ 399 1 0 "2abe3428_fd96_490d_9ec4ecaf95f65284" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intConnectionType == HamiltonHeaterShaker3G::ConnectionType::Vantage)
+{
+// }} ""
+// {{ 400 1 0 "563a89c9_dc7b_4112_ae4ca6894a488ac0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfControllerBoxes == 0)
+{
+// }} ""
+// {{{ 401 1 0 "8972c1c8_f5d2_4037_a235205bcbe6ad61" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("INIT HHS"), Translate("Number of selected controlling boxes may not be 0"));
+// }} ""
+// {{{ 402 1 0 "78e254bf_ca58_426b_9bfea01effd2157b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("INIT HHS - Number of selected controlling boxes may not be 0"));
+// }} ""
+// {{{ 403 1 0 "10d6e545_cea9_4a86_82e7351ff4dd123f" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 404 1 0 "563a89c9_dc7b_4112_ae4ca6894a488ac0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 405 1 0 "107ff0f5_78b8_4ff4_9206ea8fa22613b9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfControllerBoxes > 4)
+{
+// }} ""
+// {{{ 406 1 0 "7634d171_7e54_4c37_8dbd291ea4f92cae" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("INIT HHS"), Translate("Number of selected controlling boxes exeeds the supported numbers. [max 4 peripherie boxes]"));
+// }} ""
+// {{{ 407 1 0 "d84d1be8_603a_4d99_bb357eea8c4e9cde" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("INIT HHS - Number of selected controlling boxes exeeds the supported numbers. [max 4 peripherie boxes]"));
+// }} ""
+// {{{ 408 1 0 "abedc2b1_305c_4646_899892f901d2deef" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 409 1 0 "107ff0f5_78b8_4ff4_9206ea8fa22613b9" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 410 1 0 "9a7f2570_74a3_45d5_89316003f1bea5c0" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(l_intCurrentControllBox = 0; l_intCurrentControllBox < i_intNumberOfControllerBoxes;)
+{
+l_intCurrentControllBox = l_intCurrentControllBox + 1;
+// }} ""
+// {{{ 411 1 0 "6114711a_43f8_4545_925c6925108ae6c1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strUSBNodeName = StrConcat2(Translate("B"), l_intCurrentControllBox);
+// }} ""
+// {{{ 412 1 0 "9c9fc393_4733_4360_967527693dbc1f9e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::SetPeripheryBoxNodeName(l_strUSBNodeName);
+// }} ""
+// {{{ 413 1 0 "e476e0d0_3b5a_4e76_8ed0a97ca6731af7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::InitializeDevices(ML_STAR, i_intConnectionType, i_intNumberOfHHS, o_arrIntCurrentHHSNumbers);
+// }} ""
+// {{ 414 1 0 "f7645a10_2767_47de_9a971eedd34296dd" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 415 1 0 "3f6165ad_26b9_41f8_81cdfb29aca4ef2d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastError(l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 416 1 0 "1ffd1b1c_929b_4677_963e0798ee9c589f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 417 1 0 "ac34d1ca_3b88_49a5_84da4fa13a7c26bf" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS INIT"), l_strMessageLastError);
+// }} ""
+// {{{ 418 1 0 "14053b03_f3bc_4074_a2269479a516da6c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 419 1 0 "ad369fbe_a375_4abc_8b3367421cf63f58" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 420 1 0 "f7645a10_2767_47de_9a971eedd34296dd" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 421 1 0 "c9f8cdc8_287e_4b84_8d67f29f8883e3b5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+o_arrIntHHSNumbers = HSLExtensions::Array::Concat(o_arrIntHHSNumbers, o_arrIntCurrentHHSNumbers);
+// }} ""
+// {{ 422 1 0 "9a7f2570_74a3_45d5_89316003f1bea5c0" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 423 1 0 "2abe3428_fd96_490d_9ec4ecaf95f65284" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 424 1 0 "8ee6f34c_d0eb_4a05_bb01318a49ea7a89" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_intIndexCounter = 0;
+// }} ""
+// {{ 425 1 0 "238442ab_5478_4e43_bc24b1701f84cb96" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intConnectionType == HamiltonHeaterShaker3G::ConnectionType::Usb)
+{
+// }} ""
+// {{ 426 1 0 "307e372c_354c_463e_9888734d1c60d3d2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfControllerBoxes > 100)
+{
+// }} ""
+// {{{ 427 1 0 "49bba696_d4a8_4c31_a66cadd26c4ce2a8" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("INIT HHS"), Translate("Number of selected controlling boxes exeeds the supported numbers. [max. 100 electronic boxes]"));
+// }} ""
+// {{{ 428 1 0 "f04ac2c6_f05f_468c_a4a2a8ba12370c06" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("INIT HHS - Number of selected controlling boxes exeeds the supported numbers. [max. 100 electronic boxes]"));
+// }} ""
+// {{{ 429 1 0 "aff0b23e_a711_4669_a65eb2d30bf77a1c" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 430 1 0 "307e372c_354c_463e_9888734d1c60d3d2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 431 1 0 "695c55d8_0519_447f_a4e3809caff5323f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfControllerBoxes == 0)
+{
+// }} ""
+// {{{ 432 1 0 "442d25c9_7d32_458e_a50535b650fc487e" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("INIT HHS"), Translate("Number of selected controlling boxes may not be 0"));
+// }} ""
+// {{{ 433 1 0 "5e5c7e88_67a7_4285_b2545590c9de35eb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("INIT HHS - Number of selected controlling boxes may not be 0"));
+// }} ""
+// {{{ 434 1 0 "91a4506a_b465_432f_8ebb1d008a240772" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 435 1 0 "695c55d8_0519_447f_a4e3809caff5323f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 436 1 0 "33123823_9679_48e4_be97722ea6cfd8e8" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 437 1 0 "3b7dbdfd_f45e_4f2a_8e4b0cfeca1b44ec" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_intCurrentControllBox = 0;
+// }} ""
+// {{ 438 1 0 "0e438e12_0ede_4be0_88637a011103fd4a" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(l_intIndexCounter = 0; l_intIndexCounter < i_intNumberOfControllerBoxes;)
+{
+l_intIndexCounter = l_intIndexCounter + 1;
+// }} ""
+// {{{ 439 1 0 "fd323303_3f44_48e6_872d41c739ec1c8f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strUSBNodeName = StrConcat2(Translate("0"), l_intCurrentControllBox);
+// }} ""
+// {{{ 440 1 0 "958b2953_85f7_472f_b8adff18351aca70" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::SetUsbSerialNumber(l_strUSBNodeName);
+// }} ""
+// {{{ 441 1 0 "7919cd0e_b99a_4ae7_af3392659b6b5403" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::InitializeDevices(ML_STAR, i_intConnectionType, i_intNumberOfHHS, o_arrIntCurrentHHSNumbers);
+// }} ""
+// {{ 442 1 0 "e9c7ea44_78df_49a0_a42655cfc906de8a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 443 1 0 "26b9f71d_3d7b_48c0_8be79a2e32f3349f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastError(l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 444 1 0 "63159e0e_9d1d_498a_9a0c97dc8b87a391" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 445 1 0 "d572862d_3abd_4cbf_80a762a3393017f1" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS INIT"), l_strMessageLastError);
+// }} ""
+// {{{ 446 1 0 "dd1e1608_5c4a_4de4_a1819ce3d1a80ed4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 447 1 0 "1d7e724c_d0ee_4779_9e457354048d78f4" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 448 1 0 "e9c7ea44_78df_49a0_a42655cfc906de8a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 449 1 0 "718aca04_5975_45db_96bbce57940f4ecf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+o_arrIntHHSNumbers = HSLExtensions::Array::Concat(o_arrIntHHSNumbers, o_arrIntCurrentHHSNumbers);
+// }} ""
+// {{ 450 1 0 "b149d67e_441e_48c4_a7441c1b31bb04dc" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+l_intCurrentControllBox = l_intCurrentControllBox + 1;
+// }} ""
+// {{ 451 1 0 "0e438e12_0ede_4be0_88637a011103fd4a" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 452 1 0 "238442ab_5478_4e43_bc24b1701f84cb96" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 453 1 0 "81304bcb_cc10_4f22_aab1b58df7cb327f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intConnectionType == HamiltonHeaterShaker3G::ConnectionType::Star)
+{
+// }} ""
+// {{ 454 1 0 "f14cdbf9_1e5b_4234_b1cdee068e4f7386" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfHHS > 2)
+{
+// }} ""
+// {{{ 455 1 0 "8dc3a448_43c2_46cf_9e7ad2cf4ba5bbe7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error : "), Translate(" You may connect max 2 devices using the TCC ports of the STARline...If you want to use more devices you may use the HHS electronic box."), Translate(""), Translate(""));
+// }} ""
+// {{{ 456 1 0 "ae4cfbfe_895e_43bf_9afa11023dfb119a" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS INIT"), l_strMessageLastError);
+// }} ""
+// {{{ 457 1 0 "0ab98336_97e1_4f7e_87af11fb1ca6d5c5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 458 1 0 "241f69e7_8df5_49b7_a8cbd11bc02d96fb" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 459 1 0 "f14cdbf9_1e5b_4234_b1cdee068e4f7386" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 460 1 0 "5f3df25c_ed90_435e_bb24b3ab64fb961d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::InitializeDevices(ML_STAR, i_intConnectionType, i_intNumberOfHHS, o_arrIntCurrentHHSNumbers);
+// }} ""
+// {{ 461 1 0 "d248b64e_9c19_4797_b5be8bbcbc8e534d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 462 1 0 "d61756e4_a6ee_4dd6_932e3a5746f33c24" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastError(l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 463 1 0 "4ac74a0a_d814_408b_a3e72c5b9988559f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 464 1 0 "aa57120a_76b5_43e5_8c8a6de37f1b0724" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS INIT"), l_strMessageLastError);
+// }} ""
+// {{{ 465 1 0 "45310856_970b_4e52_b286348972dd40d1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 466 1 0 "eaca7d9e_5f94_48e4_952db2cc88a297c3" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 467 1 0 "d248b64e_9c19_4797_b5be8bbcbc8e534d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 468 1 0 "de3cfa96_4ae7_41a3_96e303fb9059efbc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+o_arrIntHHSNumbers = HSLExtensions::Array::Concat(o_arrIntHHSNumbers, o_arrIntCurrentHHSNumbers);
+// }} ""
+// {{ 469 1 0 "81304bcb_cc10_4f22_aab1b58df7cb327f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 470 1 0 "ef593dff_dfa1_4c92_915fa987eec3c98a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (t_intTraceLevel == 0)
+{
+// }} ""
+// {{{ 471 1 0 "d335a82c_4d7b_49b8_ae8e3e7927b8597e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::SetTraceLevel(TRACE_LEVEL_RELEASE);
+// }} ""
+// {{ 472 1 0 "9ace0bb9_345f_45db_8abac3af041bfc3a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intConnectionType == 1)
+{
+// }} ""
+// {{{ 473 1 0 "1ddf2664_2927_4b69_b449b49859375654" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::SetUSBTrace(ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 474 1 0 "7fff0169_25ad_4e96_a08e98041f99588f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 475 1 0 "6f495c56_d615_4119_90476745fb466eeb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastError(l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 476 1 0 "ceb843af_2ea5_4420_ba3f8617b359fbd8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 477 1 0 "76bc28c0_b895_4f5e_953fa9d696ade2fc" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS INIT"), l_strMessageLastError);
+// }} ""
+// {{{ 478 1 0 "3b58dea4_39fe_46d9_b6c9cc4db9c2ef21" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 479 1 0 "509a0f7b_a9f9_49f5_b10806096fa28b78" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 480 1 0 "7fff0169_25ad_4e96_a08e98041f99588f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 481 1 0 "9ace0bb9_345f_45db_8abac3af041bfc3a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 482 1 0 "ef593dff_dfa1_4c92_915fa987eec3c98a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 483 1 0 "0489b57a_49c9_4c26_a6ba9d83900bfd7f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (t_intTraceLevel == 2)
+{
+// }} ""
+// {{ 484 1 0 "19c2804c_a047_426a_a503ebf989e7ee37" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intConnectionType == 1)
+{
+// }} ""
+// {{{ 485 1 0 "1cb9b0c6_4cf3_4640_9c8d8fa1fc39c65f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::SetUSBTrace(ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 486 1 0 "e0a9da6b_784d_4d80_8032bd2687248dc0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 487 1 0 "a3aef20b_54a3_48c9_a7c9a65b92c8d76c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastError(l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 488 1 0 "03316415_55ff_45eb_84d1ac993722c3c7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 489 1 0 "3a5428e9_3a4a_47db_a4bd5a40573edaba" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS INIT"), l_strMessageLastError);
+// }} ""
+// {{{ 490 1 0 "d35e9cb0_8b80_4514_b1b842ea214b4bbf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 491 1 0 "5d706d67_5a7c_4f7e_8118ba7b1e519767" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 492 1 0 "e0a9da6b_784d_4d80_8032bd2687248dc0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 493 1 0 "19c2804c_a047_426a_a503ebf989e7ee37" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 494 1 0 "0489b57a_49c9_4c26_a6ba9d83900bfd7f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 495 1 0 "9826be50_8f64_4a22_8b52000f52bfde10" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, Translate("Number of Heater Shaker devices : "), o_arrIntHHSNumbers);
+// }} ""
+// {{ 496 1 0 "27c1683f_1ef5_4274_b82c4e943aa8f320" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+l_intNumberOfConnectedHHS=o_arrIntHHSNumbers.GetSize();
+// }} ""
+// {{ 497 1 0 "7ba12485_d477_445a_af99661808cea779" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(l_intIndexHHSConnected = 0; l_intIndexHHSConnected < l_intNumberOfConnectedHHS;)
+{
+l_intIndexHHSConnected = l_intIndexHHSConnected + 1;
+// }} ""
+// {{{ 498 1 0 "7a877c41_f0ff_4ece_9b395db2ca8c5b8c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::GetSerialNumber(l_intIndexHHSConnected, l_strSerialNumberCurrentHHS);
+// }} ""
+// {{{ 499 1 0 "a5d6d341_7f33_48de_b55c4ff3369873d2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_RELEASE, Translate("Connected HHS number : "), l_intIndexHHSConnected, Translate(" - Serial number : "), l_strSerialNumberCurrentHHS);
+// }} ""
+// {{ 500 1 0 "53e12103_982f_4e1e_83f3728f8cb39721" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 501 1 0 "56e5f159_8395_4194_a316e994edb896cf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastDeviceError(l_intIndexHHSConnected, l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 502 1 0 "15e472d7_40a0_4d7e_9f827c333a47cf58" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 503 1 0 "5b9d9c35_e80e_45c6_9d00956bfcd2bac5" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS get serial numbers"), l_strMessageLastError);
+// }} ""
+// {{{ 504 1 0 "5d011027_cc11_44bb_82bd881167ad0a6a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 505 1 0 "bd7cb77f_2dac_4739_891c1003e0836e11" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 506 1 0 "53e12103_982f_4e1e_83f3728f8cb39721" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 507 1 0 "72742a2c_ef1a_49b8_a8bc7f8c95c8b3db" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::GetFirmwareVersion(l_intIndexHHSConnected, l_strFirmwareVersionCurrentHHS);
+// }} ""
+// {{{ 508 1 0 "4675bbeb_f27c_4f02_9aff9ec788596e47" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_RELEASE, Translate("Connected HHS number : "), l_intIndexHHSConnected, Translate(" - Firmware Version : "), l_strFirmwareVersionCurrentHHS);
+// }} ""
+// {{ 509 1 0 "1db167af_00a3_4ec5_a015bd73e0538c9e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 510 1 0 "8487b81e_8dd1_4e98_88db45a050c53ec4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastDeviceError(l_intIndexHHSConnected, l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 511 1 0 "ec417d51_5574_419f_9365c67fbaac9e7d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 512 1 0 "0fa5e3a8_2e39_436e_8d55ca5e47961efb" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS get serial numbers"), l_strMessageLastError);
+// }} ""
+// {{{ 513 1 0 "ed6b6e39_a486_477f_924b82d512e2be62" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 514 1 0 "e1fd572d_047f_4c9f_99e27267a6bcab9c" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 515 1 0 "1db167af_00a3_4ec5_a015bd73e0538c9e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 516 1 0 "fd82e094_e490_4d74_a3b2f1cd98e2ffa9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::GetTemperature(l_intIndexHHSConnected, l_fltTemperatureCurrentHHS);
+// }} ""
+// {{{ 517 1 0 "b0ad05b7_607c_4c4c_96e6cd837282f0f9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strTemperatureCurrentHHS = StrFStr(l_fltTemperatureCurrentHHS);
+// }} ""
+// {{{ 518 1 0 "f9be0e38_c845_48b0_9f4cd28acbcf3915" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_RELEASE, Translate("Connected HHS number : "), l_intIndexHHSConnected, Translate(" - Temperature in °C : "), l_strTemperatureCurrentHHS);
+// }} ""
+// {{ 519 1 0 "67de9604_53c6_41f6_b1daeac3dfabf4bb" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 520 1 0 "e51a9e5d_7e42_4f71_bb751a990005ba50" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastDeviceError(l_intIndexHHSConnected, l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 521 1 0 "20d83d23_8d6d_4536_839ba8d1005061da" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 522 1 0 "5ccf31a9_97ff_45a6_8ba02c54698527d3" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS get temperatures"), l_strMessageLastError);
+// }} ""
+// {{{ 523 1 0 "9bc88160_af6b_4abd_a530b1b842b18483" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 524 1 0 "6496e759_ca82_4776_b58b22939036ed92" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 525 1 0 "67de9604_53c6_41f6_b1daeac3dfabf4bb" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 526 1 0 "87fe4019_0cf6_42f4_8dd7aa7fb3ba8ec1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::GetTempParameter(l_intIndexHHSConnected, l_intStartTimeOut, l_fltToleranceRange, l_fltSecurityRange);
+// }} ""
+// {{{ 527 1 0 "5d5cfa2e_57f0_4a7b_ba7f65ad2310c983" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_10(TRACE_LEVEL_RELEASE, Translate("Connected HHS number : "), l_intIndexHHSConnected, Translate(" - get start time out : "), l_intStartTimeOut, Translate(" seconds. Get Tolerance range +- "), l_fltToleranceRange, Translate(" °C - get security range +- "), l_fltSecurityRange, Translate(" °C."), Translate(""));
+// }} ""
+// {{ 528 1 0 "cb9f358c_5b5f_4598_b4aadc3f9b43d42d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{{ 529 1 0 "eae80c07_69dc_4394_b9171d3d2efcc762" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastDeviceError(l_intIndexHHSConnected, l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 530 1 0 "8dcb28f3_e992_47d1_891e82d08b374456" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 531 1 0 "413dd1c9_bc3f_47c7_b78e372cf7da8b0f" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS get temperature parameter"), l_strMessageLastError);
+// }} ""
+// {{{ 532 1 0 "d897e9a5_2df0_4f73_99529333ddbaf050" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, l_strMessageLastError);
+// }} ""
+// {{{ 533 1 0 "aa033ce2_8657_4c2a_860cb8c0204a3e52" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 534 1 0 "cb9f358c_5b5f_4598_b4aadc3f9b43d42d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 535 1 0 "7ba12485_d477_445a_af99661808cea779" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 536 1 0 "a3f0b202_30a7_4a95_8c73993c0c33a6af" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+t_arrIntCurrentHHSNumbers = HSLExtensions::Array::Copy(o_arrIntCurrentHHSNumbers);
+// }} ""
+// {{ 537 1 0 "5a3cae38_1d56_4cff_a29c15f3aca47041" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_blnInitPerformed = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{ 538 1 0 "d23eda8f_f57c_4c67_9cdd00fbe99e073a" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 539 1 0 "de1891bc_ce92_47f8_9d23b3282344956b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 540 1 0 "df79851e_0ba9_4323_8a6747dc4c7c91f7" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{{ 541 1 0 "2109047c_cb51_4db5_b0aa878157f9c648" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 542 1 0 "d23eda8f_f57c_4c67_9cdd00fbe99e073a" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "Init" "End"
+}
+// }} ""
+// {{{ 5 "HHS_StopInfinitShaking" "Begin"
+function HHS_StopInfinitShaking( variable i_intNumberOfConnectedHHS ) variable {
+// }} ""
+private variable l_strMessageLastError;
+private variable l_blnReturnValueHHS;
+private variable l_inLastError;
+private variable l_strErrorDescription;
+private variable l_strStatusMessage;
+private variable l_intNumberOfHHSConnected;
+private variable loopCounter1;
+private variable l_strComment;
+private variable l_blnSuccess;
+// {{ 5 "HHS_StopInfinitShaking" "InitLocals"
+// }} ""
+// {{ 330 1 0 "8624afd4_927c_49a1_89a599531284c73c" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 331 1 0 "51d3d300_54b4_4057_bd8c9a83171b9b35" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+// {{{ 333 1 0 "c89a78f6_9800_4724_8f4bc34a20f038ff" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 334 1 0 "8624afd4_927c_49a1_89a599531284c73c" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 335 1 0 "f5043e52_f262_4724_9034fd4b3451243b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" [0 = all shaker] - stop infinit shaking."), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 336 1 0 "ad3b4fbe_24ee_41ea_8964c516d42ba579" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{ 337 1 0 "fdd6826e_536c_4983_af5002892815a65e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfConnectedHHS == 0)
+{
+// }} ""
+// {{ 338 1 0 "11dd11b8_61f1_4dc1_8dd11a6e403b3354" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+l_intNumberOfHHSConnected=t_arrIntCurrentHHSNumbers.GetSize();
+// }} ""
+// {{{ 339 1 0 "0b94be22_da73_485d_aaf8e07dbc8928f1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StopAllShaker();
+// }} ""
+// {{ 340 1 0 "1c08592c_5c01_4a95_bb7a3a08df9c2b8f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnReturnValueHHS == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 341 1 0 "d48cc226_53e1_403e_830397d874d31768" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intNumberOfHHSConnected;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 342 1 0 "1c225e01_e401_457d_bc65900bf035117a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastDeviceError(t_arrIntCurrentHHSNumbers.ElementAt( loopCounter1 -1), l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 343 1 0 "a2736e98_0d7b_4690_8a18f745387ff43b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 344 1 0 "85c6edef_46f1_49cf_a68f5693b7196123" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(Translate("HHS stop all shaker"), l_strMessageLastError);
+// }} ""
+// {{{ 345 1 0 "468970a3_d20d_422c_810230632f43678d" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 346 1 0 "d48cc226_53e1_403e_830397d874d31768" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 347 1 0 "1c08592c_5c01_4a95_bb7a3a08df9c2b8f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 348 1 0 "fdd6826e_536c_4983_af5002892815a65e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 349 1 0 "bfe94137_8559_4e87_8ee511fea927f709" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StopShaker(i_intNumberOfConnectedHHS);
+// }} ""
+// {{{ 350 1 0 "50c8947c_6984_46bb_8725da1f00c4ab20" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Stop shaker"));
+// }} ""
+// {{ 351 1 0 "1987c57b_28b0_4b18_8f6e3d29753bc44e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 352 1 0 "5e47f442_92fa_43ee_b67d0cadd8a12ab2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Stop shaker"));
+// }} ""
+// {{{ 353 1 0 "49f0f894_46b7_4abe_bcfd210b68b58eea" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 354 1 0 "1987c57b_28b0_4b18_8f6e3d29753bc44e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 355 1 0 "fdd6826e_536c_4983_af5002892815a65e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 356 1 0 "fd48597a_68a5_4bf9_a724045301b45945" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 357 1 0 "3553b862_9620_469e_98498601ca73a4d0" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 358 1 0 "a9f5c7eb_c768_4413_92922a8dd2c35afe" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{{ 359 1 0 "0e0cbb90_f954_457e_82ca13d5e356c9e2" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 360 1 0 "fd48597a_68a5_4bf9_a724045301b45945" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "HHS_StopInfinitShaking" "End"
+}
+// }} ""
+// {{{ 5 "HHS_SetTemperature" "Begin"
+function HHS_SetTemperature( variable i_intNumberOfConnectedHHS, variable i_fltTemperature, variable i_blnWaitForTempReached, variable i_blnActivateTemperatureRecording ) variable {
+// }} ""
+private variable l_blnReturnValueHHS;
+private variable l_strTemperatureCurrentHHS;
+private variable l_fltTemperatureCurrentHHS;
+private variable l_strStatusMessage;
+private variable l_strComment;
+private variable l_blnSuccess;
+// {{ 5 "HHS_SetTemperature" "InitLocals"
+// }} ""
+// {{ 128 1 0 "adc351ce_a883_4562_8ece728597fb341d" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 129 1 0 "a20b5e5a_e945_41da_9ad4b23196867dae" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+// {{{ 131 1 0 "1e81e493_adbe_4f89_8e5c41f9f07a1b91" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 132 1 0 "adc351ce_a883_4562_8ece728597fb341d" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 133 1 0 "01c3febc_d41a_4425_885bf45f57953471" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" - set to "), i_fltTemperature, Translate(" °C. \nWait for temperature reached : "), i_blnWaitForTempReached, Translate(". Temperatur recording activated : "), i_blnActivateTemperatureRecording, Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 134 1 0 "cc77c40f_c7c0_4a97_9d9213003eb37b82" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{ 135 1 0 "11115da5_40b9_4c41_9d05c6650ca076d5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_blnActivateTemperatureRecording == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 136 1 0 "993b5b3c_101d_4db4_81ebd814299edfab" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StartTemperatureRecording(i_intNumberOfConnectedHHS);
+// }} ""
+// {{{ 137 1 0 "02aafc3a_ce3d_451d_9a21ec9c2019f165" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Start temperature recording"));
+// }} ""
+// {{ 138 1 0 "3e082e43_4c9d_4134_bf7f0506eda752d2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 139 1 0 "da4d3ab1_93a5_43de_9f17669476ab6ce2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Start temperature recording"));
+// }} ""
+// {{{ 140 1 0 "bcb22edf_919e_422b_8cdd645565fb801f" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 141 1 0 "3e082e43_4c9d_4134_bf7f0506eda752d2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 142 1 0 "11115da5_40b9_4c41_9d05c6650ca076d5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 143 1 0 "286a4144_bf77_4cf0_89c981809ba1d0c2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StartTempCtrl(i_intNumberOfConnectedHHS, i_fltTemperature, i_blnWaitForTempReached);
+// }} ""
+// {{{ 144 1 0 "3f6344a7_7e09_48c8_86bc7873f9364c01" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Start temperature controlling"));
+// }} ""
+// {{ 145 1 0 "d47b4cfa_aa18_4bdd_bc4abf90b7793974" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 146 1 0 "514b0237_4807_4183_88455f411793d911" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Start temperature controlling"));
+// }} ""
+// {{{ 147 1 0 "efc03185_e739_4ca7_bd005dfef31fb06c" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 148 1 0 "d47b4cfa_aa18_4bdd_bc4abf90b7793974" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 149 1 0 "348d3a20_32c2_408a_999a99646fa6d0f6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::GetTemperature(i_intNumberOfConnectedHHS, l_fltTemperatureCurrentHHS);
+// }} ""
+// {{{ 150 1 0 "7afde6b2_5960_4c62_98372e8fa62afb14" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strTemperatureCurrentHHS = StrFStr(l_fltTemperatureCurrentHHS);
+// }} ""
+// {{{ 151 1 0 "8d021ca7_5268_4886_b945197253e48680" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_RELEASE, Translate("Connected HHS number : "), i_intNumberOfConnectedHHS, Translate(" - Temperature in °C : "), l_strTemperatureCurrentHHS);
+// }} ""
+// {{{ 152 1 0 "34eb9425_e16d_47a4_872c789f67475eb9" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Get temperature"));
+// }} ""
+// {{ 153 1 0 "b16d9fc2_2b80_4f2f_b4d9bfc50fa41f93" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 154 1 0 "f8c4a51d_8dd7_4fce_af9f7b2e4ec1efef" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Get temperature"));
+// }} ""
+// {{{ 155 1 0 "029e7cba_2395_480c_bf37f58aefd6661b" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 156 1 0 "b16d9fc2_2b80_4f2f_b4d9bfc50fa41f93" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 157 1 0 "af60c127_f2f7_4f8b_b2d57494d887178f" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 158 1 0 "03546010_09ff_4ec4_93e75bd4d47127da" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 159 1 0 "19e56ed7_0050_4bee_8bd1b599af7e90d4" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{{ 160 1 0 "8e80f052_b2ee_478d_81d1ef7f59650dcc" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 161 1 0 "af60c127_f2f7_4f8b_b2d57494d887178f" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "HHS_SetTemperature" "End"
+}
+// }} ""
+// {{{ 5 "HHS_CheckTemperature" "Begin"
+function HHS_CheckTemperature( variable i_intNumberOfConnectedHHS, variable & o_fltTemperature ) variable {
+// }} ""
+private variable l_strTemperatureCurrentHHS;
+private variable l_blnReturnValueHHS;
+private variable l_intNumberOfTrials;
+private variable l_intTemperatureState;
+private variable l_blnTriggerTimer;
+private variable l_strStatusMessage;
+private timer timer1;
+private variable l_strComment;
+private variable l_blnSuccess;
+// {{ 5 "HHS_CheckTemperature" "InitLocals"
+o_fltTemperature = 0;
+// }} ""
+// {{ 1 1 0 "cb4352e4_a72f_4576_bccf7055091ce916" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 2 1 0 "ddb71869_0903_4766_ac708ff973f0e226" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+// {{{ 4 1 0 "50d92725_90f7_4d08_8835ac7ea27b04e2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 5 1 0 "cb4352e4_a72f_4576_bccf7055091ce916" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 6 1 0 "dd1bf773_f7ac_400a_81921fe5d4fd5e5d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" - check temperature activated. "), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 7 1 0 "ee8f280f_c8c6_4f01_bcc44f1feea8fb13" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{ 8 1 0 "33ed1be3_e0ba_4ebf_bb03daf1d460d9e8" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+l_intNumberOfTrials = 0;
+while (1 == 1)
+{
+l_intNumberOfTrials = l_intNumberOfTrials + 1;
+// }} ""
+// {{ 9 1 0 "f914932b_ce85_41fb_980d9a6b5a4da253" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_blnTriggerTimer = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{{ 10 1 0 "7291be54_a5c0_4338_9c7c12060c720366" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::GetTemperature(i_intNumberOfConnectedHHS, o_fltTemperature);
+// }} ""
+// {{{ 11 1 0 "227920b2_fb9d_41d9_8ed67aa88697843d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strTemperatureCurrentHHS = StrFStr(o_fltTemperature);
+// }} ""
+// {{{ 12 1 0 "85128055_0063_4a60_b7eaea1c776a7a5d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_RELEASE, Translate("Connected HHS number : "), i_intNumberOfConnectedHHS, Translate(" - Temperature in °C : "), l_strTemperatureCurrentHHS);
+// }} ""
+// {{{ 13 1 0 "a8b5d641_65f3_490e_a4cb1cc0cc01c15d" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("HHS get temperature"));
+// }} ""
+// {{ 14 1 0 "4a438af3_cdf7_4db4_aac283e42d849f9b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 15 1 0 "64af33c9_63ac_441a_ab071b3861ecf117" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("HHS get temperature"));
+// }} ""
+// {{{ 16 1 0 "915d3f1a_65c8_400e_9b88c907bbd30841" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 17 1 0 "4a438af3_cdf7_4db4_aac283e42d849f9b" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 18 1 0 "e53901ca_199e_4d9d_9bf65eaeec9c9a9d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::GetTemperatureState(i_intNumberOfConnectedHHS, l_intTemperatureState);
+// }} ""
+// {{{ 19 1 0 "ebc2cb4e_25c3_43ba_b14b29be442ddad5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_RELEASE, Translate("Connected HHS number : "), i_intNumberOfConnectedHHS, Translate(" - Temperature state : "), l_intTemperatureState);
+// }} ""
+// {{{ 20 1 0 "e6014dc6_e406_4069_98960b1c291708b7" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("HHS get temperature state"));
+// }} ""
+// {{ 21 1 0 "f54226d4_cafe_4b1a_8b5292e20074de85" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 22 1 0 "a64e9c08_a57f_4c7b_bf18b672f62267f3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("HHS get temperature state"));
+// }} ""
+// {{{ 23 1 0 "96201999_7a6c_4cb6_9aff24a22ad79184" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 24 1 0 "f54226d4_cafe_4b1a_8b5292e20074de85" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 25 1 0 "090160d8_433a_4395_aa8f42acb5525c06" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intTemperatureState == HamiltonHeaterShaker3G::TemperatureState::Ok)
+{
+// }} ""
+// {{ 26 1 0 "01b6b4cc_8b88_4dba_a5b372f5269a838e" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("HamiltonHeaterShaker3G::TemperatureState::Ok  = 0 No error, temperature was always in the defined range. \n"));
+// }} ""
+// {{{ 27 1 0 "3191cf48_dcb2_4fa5_ae3e57828fca573b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" reached "), o_fltTemperature, Translate(" °C."), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 28 1 0 "86ed65d5_230d_43b4_b1c7df7e3738ce7a" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{ 29 1 0 "169a815c_8657_4799_8453e64c549d92e2" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 30 1 0 "090160d8_433a_4395_aa8f42acb5525c06" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 31 1 0 "d59cbb73_564f_4f3d_847553bd4bac8486" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intTemperatureState == HamiltonHeaterShaker3G::TemperatureState::OutOfRange)
+{
+// }} ""
+// {{ 32 1 0 "8f6cc63f_96e9_449c_b7ca1fc9da8166aa" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("HamiltonHeaterShaker3G::TemperatureState::OutOfRange = 1 Temperature was or is out of temperature range. (default 2.0 °C)\n"));
+// }} ""
+// {{ 33 1 0 "4774348a_a7c0_441a_88883d6fb79d2189" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_blnTriggerTimer = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{{ 34 1 0 "8138dd7a_13b5_4c70_bc530917c69144cf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" reached "), o_fltTemperature, Translate(" °C."), Translate("TemperatureState::OutOfRange!"), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 35 1 0 "38217d58_2d12_4367_905a8aa94aeaac1e" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{ 36 1 0 "d59cbb73_564f_4f3d_847553bd4bac8486" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 37 1 0 "d78094b9_a864_4ba0_8a3f4201937db310" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intTemperatureState == HamiltonHeaterShaker3G::TemperatureState::OutOfSecurity)
+{
+// }} ""
+// {{ 38 1 0 "3b1ec60e_9435_4d58_9b3a6e03e8f45d4a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("HamiltonHeaterShaker3G::TemperatureState::OutOfSecurity = 2 Temperature was out of security range. (default 6.0 °C)Temperature controlling is switched off now. \n"));
+// }} ""
+// {{ 39 1 0 "13e1018f_33a1_4e62_aba9d711cdbfe88e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_blnTriggerTimer = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{{ 40 1 0 "335db117_c6ae_44ab_a8bddec3b2ae3c54" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" reached "), o_fltTemperature, Translate(" °C."), Translate("TemperatureState::OutOfSecurity!"), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 41 1 0 "34f33a27_3ecd_405f_bb0a6691b93eed7c" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{ 42 1 0 "d78094b9_a864_4ba0_8a3f4201937db310" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 43 1 0 "d8dc0007_8221_442d_b9ca9bf59571f97f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intTemperatureState == HamiltonHeaterShaker3G::TemperatureState::TimeOut)
+{
+// }} ""
+// {{ 44 1 0 "6dcc29e5_68ef_4b78_8923dd31938829a6" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("HamiltonHeaterShaker3G::TemperatureState::TimeOut = 3 Temperature time out during start of temperature controlling. (default 1800 seconds)\n"));
+// }} ""
+// {{ 45 1 0 "cd2aa79e_f76b_47d9_8741c77503c17f86" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_blnTriggerTimer = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{{ 46 1 0 "8d571f02_4f82_4c3e_97ab2b7d8cb4aea6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" reached "), o_fltTemperature, Translate(" °C."), Translate("TemperatureState::TimeOut!"), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 47 1 0 "4de21f80_29d3_4f6b_bfdc66196c836862" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{ 48 1 0 "d8dc0007_8221_442d_b9ca9bf59571f97f" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 49 1 0 "6153f883_2e96_4217_abcb792865d64236" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (t_blnSimulationModeON == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 50 1 0 "5991c1f8_bf5f_477b_934b5dc0af9b9414" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnTriggerTimer == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 51 1 0 "3ddb0d28_6305_47e4_ae1d656c78f15ba6" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+timer1.SetTimerViewName("HHS timer to get temperature each 10 seconds");
+if( 0 == timer1.SetTimer(10) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 52 1 0 "eb7697fb_b065_4dac_80e0768b634d51bf" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.WaitTimer(hslFalse, hslFalse) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 53 1 0 "5991c1f8_bf5f_477b_934b5dc0af9b9414" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 54 1 0 "6153f883_2e96_4217_abcb792865d64236" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 55 1 0 "7a8a2001_b7df_497b_a96a3c0dc99a5fe0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intNumberOfTrials != 1)
+{
+// }} ""
+// {{{ 56 1 0 "b02c2a78_1db5_4400_b6df409b00911e15" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS function number of trials: "), l_intNumberOfTrials, Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 57 1 0 "0e10452d_f1c7_4ead_b466500edc745d1d" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{ 58 1 0 "7a8a2001_b7df_497b_a96a3c0dc99a5fe0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 59 1 0 "ba2b55b3_3def_4076_a3c4b5fec44ceff6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intNumberOfTrials == 10)
+{
+// }} ""
+// {{{ 60 1 0 "f84c08df_afe9_4fc3_bd58c6caff566b1e" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_ShowListDialog(Translate("Get temperature state is not OK."), Translate("Retrieve temperature state of HHS."), Translate("Press OK to exit loop. Press CANCEL to abort run."), Translate("Hamilton Heater Shaker."));
+// }} ""
+// {{ 61 1 0 "85f567db_9ca4_45ab_8910e1456bad1eae" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 62 1 0 "ba2b55b3_3def_4076_a3c4b5fec44ceff6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 63 1 0 "33ed1be3_e0ba_4ebf_bb03daf1d460d9e8" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 64 1 0 "f389865c_2f52_40d2_8ef08b7df499e4c9" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 65 1 0 "b8b823c5_26ae_42c5_927c3484938a46e1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 66 1 0 "b5b02c9e_a85e_44a0_bc042fdc572d8ac4" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{{ 67 1 0 "81554889_7974_4c2d_a649b1b3d8656786" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 68 1 0 "f389865c_2f52_40d2_8ef08b7df499e4c9" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "HHS_CheckTemperature" "End"
+}
+// }} ""
+// {{{ 5 "HHS_GetRecordedTemperatureData" "Begin"
+function HHS_GetRecordedTemperatureData( variable i_intNumberOfConnectedHHS, variable & o_arrFltRecordedTemperaturData[] ) variable {
+// }} ""
+private variable l_blnReturnValueHHS;
+private variable l_strStatusMessage;
+private variable l_strComment;
+private variable l_blnSuccess;
+// {{ 5 "HHS_GetRecordedTemperatureData" "InitLocals"
+o_arrFltRecordedTemperaturData.SetSize( 0);
+// }} ""
+// {{ 70 1 0 "3bb6059f_0d04_4b44_a12d50bf91e84360" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 71 1 0 "6e6b4fe8_8818_4a24_bbf30198700db258" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+// {{{ 73 1 0 "0175c66f_dfa5_4b76_9d08d82587b2d869" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 74 1 0 "3bb6059f_0d04_4b44_a12d50bf91e84360" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 75 1 0 "8e42cba5_5874_4da8_b2f3365dbe4744cc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" - retrieve recorded data activated. "), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 76 1 0 "1f8411aa_4719_479d_94e513a190782222" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{{ 77 1 0 "101affa5_28ab_4b12_955722ccd155ecfe" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StopTemperatureRecording(i_intNumberOfConnectedHHS);
+// }} ""
+// {{{ 78 1 0 "79a02ba3_a315_4d68_b5d4f8b7a19e6a89" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("l_blnReturnValueHHS"), l_blnReturnValueHHS);
+// }} ""
+// {{{ 79 1 0 "ba84b81e_1347_4aa1_91a67dbd7d9c45a0" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Stop temperature recording"));
+// }} ""
+// {{ 80 1 0 "77d54261_e6ac_41ba_974dc42c939935ae" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 81 1 0 "c1d7b699_4298_4851_a2efa87ebbcaa515" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Stop temperature recording"));
+// }} ""
+// {{{ 82 1 0 "abb38f31_9798_4d11_92a9ebd411921e7e" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 83 1 0 "77d54261_e6ac_41ba_974dc42c939935ae" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 84 1 0 "296eedfd_8d51_4e43_be236e014a6b1aec" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::GetRecordedTemperatureData(i_intNumberOfConnectedHHS, o_arrFltRecordedTemperaturData);
+// }} ""
+// {{{ 85 1 0 "4d203405_2568_408b_8f2611b1156c43ff" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("l_blnReturnValueHHS"), l_blnReturnValueHHS);
+// }} ""
+// {{{ 86 1 0 "52d3881e_92fc_4157_b6d7ccaba1126d84" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Get recorded temperature data"));
+// }} ""
+// {{ 87 1 0 "9a3d9645_9634_4612_99628dbeb5e8797c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 88 1 0 "ae696fb3_1111_4198_a457e9e77a281063" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Get recorded temperature data"));
+// }} ""
+// {{{ 89 1 0 "fad40f7a_b3ff_49d3_9ead9853019ae21e" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 90 1 0 "9a3d9645_9634_4612_99628dbeb5e8797c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 91 1 0 "052bafb7_25d7_47b5_b04114441c49cfea" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 92 1 0 "fe526c27_9706_40d4_87ca41ff51396aac" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 93 1 0 "62d3d464_06b8_4293_aae36e7315e84be1" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{{ 94 1 0 "c743fd32_3712_4279_b3d93c999b8f6699" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 95 1 0 "052bafb7_25d7_47b5_b04114441c49cfea" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "HHS_GetRecordedTemperatureData" "End"
+}
+// }} ""
+// {{{ 5 "_ReportErrorText" "Begin"
+private function _ReportErrorText( variable i_intReturnValue, variable i_intNumberOfConnectedHHS, variable i_strFunctionName ) variable {
+// }} ""
+private variable l_strMessageLastError;
+private variable l_inLastError;
+private variable l_strErrorDescription;
+// {{ 5 "_ReportErrorText" "InitLocals"
+// }} ""
+// {{ 591 1 0 "a4143f29_bcb5_4133_9fa45c3d3f740544" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intReturnValue == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 592 1 0 "d4e38a26_b47e_439a_8dd9eaffcde49702" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 593 1 0 "a4143f29_bcb5_4133_9fa45c3d3f740544" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 594 1 0 "9b35a8af_91ac_4769_8082ac1fdb5fbdb8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+HamiltonHeaterShaker3G::GetLastDeviceError(i_intNumberOfConnectedHHS, l_inLastError, l_strErrorDescription);
+// }} ""
+// {{{ 595 1 0 "19829535_7164_43a1_86c755e914aea6aa" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strMessageLastError = StrConcat4(Translate("Error code : "), l_inLastError, Translate(" \n Translated description : "), l_strErrorDescription);
+// }} ""
+// {{{ 596 1 0 "e5e28450_a5b4_41aa_8105d86bfb64cd86" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_RELEASE, Translate("Error message of HHS function : "), i_strFunctionName, Translate(" decrypted to : "), l_strMessageLastError);
+// }} ""
+// {{{ 597 1 0 "543d4a10_63e6_49d8_905962144b3131f4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_IntegratedAbortHandler(i_strFunctionName, l_strMessageLastError);
+// }} ""
+// {{{ 598 1 0 "1daf7ab2_ea90_4bd5_879167cfb58ebee9" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 599 1 0 "a4143f29_bcb5_4133_9fa45c3d3f740544" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+/* {{ 1 "" "0" */ if(0){  /* }} "" */
+// {{ 600 1 0 "9ad7f52e_b722_4907_8cad3241c6a500b2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intReturnValue == HamiltonHeaterShaker3G::ErrorCode::NoError)
+{
+// }} ""
+// {{ 601 1 0 "9ad7f52e_b722_4907_8cad3241c6a500b2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 602 1 0 "9ad7f52e_b722_4907_8cad3241c6a500b2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+/* {{ 1 "" "1" */ } /* }} "" */
+// {{{ 5 "_ReportErrorText" "End"
+}
+// }} ""
+// {{{ 5 "HHS_SetTemperatureAdvanced" "Begin"
+function HHS_SetTemperatureAdvanced( variable i_intNumberOfConnectedHHS, variable i_fltTemperature, variable i_blnWaitForTempReached, variable i_blnActivateTemperatureRecording ) variable {
+// }} ""
+private variable l_strTemperatureCurrentHHS;
+private variable l_fltTemperatureCurrentHHS;
+private variable l_blnReturnValueHHS;
+private variable l_strStatusMessage;
+private variable l_fltTemperatureInitial;
+private variable l_blnCoolingDown;
+private variable l_blnHeatingUp;
+private variable loopCounter1;
+private timer timer1;
+private variable l_strComment;
+private variable l_blnSuccess;
+// {{ 5 "HHS_SetTemperatureAdvanced" "InitLocals"
+// }} ""
+// {{ 163 1 0 "ab8d8ce0_7a45_4236_b415dadfa43301a9" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 164 1 0 "0df114b9_cfcb_4211_b54d9dddaae04aa2" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+// {{{ 166 1 0 "6e751b1a_ea9c_4c58_a3418edf8e42efa5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 167 1 0 "ab8d8ce0_7a45_4236_b415dadfa43301a9" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 168 1 0 "86ba351a_3699_426c_81b59e069ce62700" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" - set to "), i_fltTemperature, Translate(" °C. \nWait for temperature reached : "), i_blnWaitForTempReached, Translate(". Temperatur recording activated : "), i_blnActivateTemperatureRecording, Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 169 1 0 "ad92944c_ae9d_466c_88386e461fdd83cb" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{{ 170 1 0 "900864ce_6f2f_4e99_bfdebffcaa8c9d62" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::GetTemperature(i_intNumberOfConnectedHHS, l_fltTemperatureInitial);
+// }} ""
+// {{{ 171 1 0 "97e6d51d_450d_4754_bd0a3ffa8c0dae3e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strTemperatureCurrentHHS = StrFStr(l_fltTemperatureInitial);
+// }} ""
+// {{{ 172 1 0 "fa14a4bf_6c74_4d5f_b67557a24376542e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_RELEASE, Translate("Connected HHS number : "), i_intNumberOfConnectedHHS, Translate(" - Temperature in °C : "), l_strTemperatureCurrentHHS);
+// }} ""
+// {{{ 173 1 0 "e686d6a1_6978_4f07_ba68f69efd77ca4c" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Get temperature"));
+// }} ""
+// {{ 174 1 0 "efd9b412_8292_41c2_96f9f86676f06764" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 175 1 0 "fa0e681f_855b_4a26_902ccc569a521791" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Get temperature"));
+// }} ""
+// {{{ 176 1 0 "c8edfb27_5010_488a_a735f169427cfdfa" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 177 1 0 "efd9b412_8292_41c2_96f9f86676f06764" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 178 1 0 "afc0b59f_acfe_4db3_8ea5e2ac8e80587a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_blnActivateTemperatureRecording == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 179 1 0 "4a6c088e_ce1a_437f_8d2a94340ca5e7c3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StartTemperatureRecording(i_intNumberOfConnectedHHS);
+// }} ""
+// {{{ 180 1 0 "078772ee_52ed_463a_9f2678e9bde7d50b" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Start temperature recording"));
+// }} ""
+// {{ 181 1 0 "0a773d29_8160_4ee1_98880fc1d98e5ab4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 182 1 0 "4a0905a0_d211_47d6_90992c46709c2bed" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Start temperature recording"));
+// }} ""
+// {{{ 183 1 0 "f372fe4f_415a_4546_ba1ec2fb771a5f28" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 184 1 0 "0a773d29_8160_4ee1_98880fc1d98e5ab4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 185 1 0 "afc0b59f_acfe_4db3_8ea5e2ac8e80587a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 186 1 0 "e01443c2_3d7b_4d57_90f5d121611d8fd6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_fltTemperature < l_fltTemperatureInitial)
+{
+// }} ""
+// {{ 187 1 0 "69bff9d4_dc29_422b_ad924bb6b57e4c68" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_blnCoolingDown = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{ 188 1 0 "7f397f6a_4f56_4020_87b7fcb7a0d9a1db" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_blnHeatingUp = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 189 1 0 "e01443c2_3d7b_4d57_90f5d121611d8fd6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 190 1 0 "22fb0667_6761_4e6f_9426fadaeb497abf" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_blnCoolingDown = ASWGLOBAL::BOOL::FALSE;
+// }} ""
+// {{ 191 1 0 "c27945cc_2a73_4c86_9fafbeacf214bab3" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_blnHeatingUp = ASWGLOBAL::BOOL::TRUE;
+// }} ""
+// {{ 192 1 0 "e01443c2_3d7b_4d57_90f5d121611d8fd6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{{ 193 1 0 "b30d0919_f018_4c05_af75ddd7fd296f8a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::StartTempCtrl(i_intNumberOfConnectedHHS, i_fltTemperature, 0);
+// }} ""
+// {{{ 194 1 0 "412262b3_6fce_4844_916f572f3a3dddc5" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Start temperature controlling"));
+// }} ""
+// {{ 195 1 0 "f48325bc_b35a_428e_954ad628b101c954" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 196 1 0 "4d57dc7b_3029_4f5b_a420c4b3dabc3244" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Start temperature controlling"));
+// }} ""
+// {{{ 197 1 0 "543b1d8d_b6a0_4879_a0f3c0f40fd328b0" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 198 1 0 "f48325bc_b35a_428e_954ad628b101c954" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 199 1 0 "cd94c2c0_546a_41c7_b567dad7b72c436c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+loopCounter1 = 0;
+while (1 == 1)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 200 1 0 "7c87a745_2e26_4035_b0d42c402815a6f3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::GetTemperature(i_intNumberOfConnectedHHS, l_fltTemperatureCurrentHHS);
+// }} ""
+// {{{ 201 1 0 "c83d4d2a_9f80_440a_9002be96ec469df2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strTemperatureCurrentHHS = StrFStr(l_fltTemperatureCurrentHHS);
+// }} ""
+// {{{ 202 1 0 "dbdc88e9_641c_4946_9703b6fae05b774c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_04(TRACE_LEVEL_RELEASE, Translate("Connected HHS number : "), i_intNumberOfConnectedHHS, Translate(" - Temperature in °C : "), l_strTemperatureCurrentHHS);
+// }} ""
+// {{{ 203 1 0 "0d5551bf_d7bf_45f8_bafbba2d7bd27766" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Get temperature"));
+// }} ""
+// {{ 204 1 0 "a9b23384_ee8f_463c_8343b46cc8db0c63" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 205 1 0 "b3d95727_1afd_46f0_b2cd9566fa10bb8b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Get temperature"));
+// }} ""
+// {{{ 206 1 0 "b2d5fdd5_67cf_4299_8163d1f72ab1f9a0" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 207 1 0 "a9b23384_ee8f_463c_8343b46cc8db0c63" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 208 1 0 "ed40563c_6419_4096_91e229c9b61dcefa" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnCoolingDown == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 209 1 0 "5efac1fa_b11f_48e0_a5171f38fe54d63c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_fltTemperatureCurrentHHS <= i_fltTemperature)
+{
+// }} ""
+// {{ 210 1 0 "df7ca914_b5d0_4e17_be248f7571f437df" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 211 1 0 "5efac1fa_b11f_48e0_a5171f38fe54d63c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 212 1 0 "ed40563c_6419_4096_91e229c9b61dcefa" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 213 1 0 "702d2f66_12d3_48df_bbdc4f4fa236e213" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnHeatingUp == ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{ 214 1 0 "b7dfd16f_afbb_4a19_aa8b8693a454e372" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_fltTemperatureCurrentHHS >= i_fltTemperature)
+{
+// }} ""
+// {{ 215 1 0 "887ae0a4_3957_4f8f_8683b4d33fc2327b" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 216 1 0 "b7dfd16f_afbb_4a19_aa8b8693a454e372" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 217 1 0 "702d2f66_12d3_48df_bbdc4f4fa236e213" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 218 1 0 "88890ec1_558a_480a_9eaf6e7db075f787" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (t_blnSimulationModeON == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 219 1 0 "f84e64ab_c4a3_4725_8239aabe133d658e" "{B31F353E-5D80-11d4-A5EB-0050DA737D89}"
+timer1.SetTimerViewName("");
+if( 0 == timer1.SetTimer(10) )
+{
+    MECC::RaiseRuntimeErrorEx(-1355939584, MECC::IDS::stepNameTimerStart, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 220 1 0 "df82052b_2ea6_47e6_ab99a4ed6ba8efb5" "{B31F353F-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == timer1.WaitTimer(hslFalse, hslFalse) )
+{
+    MECC::RaiseRuntimeErrorEx(-1339162368, MECC::IDS::stepNameTimerWait, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 221 1 0 "88890ec1_558a_480a_9eaf6e7db075f787" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 222 1 0 "939a07f1_2d35_4136_860c8cc11b3d0023" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_blnWaitForTempReached == ASWGLOBAL::BOOL::FALSE)
+{
+// }} ""
+// {{ 223 1 0 "9b8bb024_8e50_4158_b2059b2f4e4fe80c" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 224 1 0 "939a07f1_2d35_4136_860c8cc11b3d0023" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 225 1 0 "cd94c2c0_546a_41c7_b567dad7b72c436c" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 226 1 0 "8ba972f5_c008_43e0_87aaa1aea6690735" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 227 1 0 "6470cc4e_3cbd_48c6_a779a0f6aefb0398" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 228 1 0 "678a98df_f0bc_49ad_8a33bec39efefe2c" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{{ 229 1 0 "61e7ae7c_a067_42b8_b5af40a0d4a33dec" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 230 1 0 "8ba972f5_c008_43e0_87aaa1aea6690735" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "HHS_SetTemperatureAdvanced" "End"
+}
+// }} ""
+// {{{ 5 "HHS_Lock" "Begin"
+function HHS_Lock( variable i_intNumberOfConnectedHHS, variable i_blnLock ) variable {
+// }} ""
+private variable l_strComment;
+private variable l_blnSuccess;
+private variable l_intNumberOfHHSConnected;
+private variable l_blnReturnValueHHS;
+private variable l_strStatusMessage;
+private variable loopCounter1;
+// {{ 5 "HHS_Lock" "InitLocals"
+// }} ""
+// {{ 97 1 0 "b5ad5aea_2e1f_4ec0_903543328be93284" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 98 1 0 "334dd812_e1e7_42cf_945c2e175d22e304" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+// {{{ 100 1 0 "2a7854e0_3ae1_45fd_b30331d5ac24678a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 101 1 0 "b5ad5aea_2e1f_4ec0_903543328be93284" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 102 1 0 "e9c93ad7_5ba0_45bd_a97b57ec921c01e9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strStatusMessage = StrConcat12(Translate("HHS "), i_intNumberOfConnectedHHS, Translate(" lock set to  "), i_blnLock, Translate("."), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""), Translate(""));
+// }} ""
+// {{{ 103 1 0 "dcf14a65_38ea_4a0c_a59ee3d5171818c6" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_DATA_AppendStatusWindow(l_strStatusMessage);
+// }} ""
+// {{ 104 1 0 "05fdceea_a5c2_4846_9f6710ee3302e77c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfConnectedHHS == 0)
+{
+// }} ""
+// {{ 105 1 0 "c147dd4b_e446_447a_830a02715f814e38" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+l_intNumberOfHHSConnected=t_arrIntCurrentHHSNumbers.GetSize();
+// }} ""
+// {{ 106 1 0 "5b5382e7_4a81_4702_bdc9e215e25aae40" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intNumberOfHHSConnected;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 107 1 0 "c46a906f_e259_4434_9465806e91d4e3d1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::SetPlateLock(t_arrIntCurrentHHSNumbers.ElementAt( loopCounter1 -1), i_blnLock);
+// }} ""
+// {{{ 108 1 0 "1588f806_0523_4e9d_9bfcb7adf1b0ccd4" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Set shaker parameter"));
+// }} ""
+// {{ 109 1 0 "374e594d_d5d0_403b_9080b534791d7607" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 110 1 0 "02cc16cc_ac31_4f87_b5574afca3be22d5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Set shaker parameter"));
+// }} ""
+// {{{ 111 1 0 "74100665_bdd9_4f21_aac3e01828909189" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 112 1 0 "374e594d_d5d0_403b_9080b534791d7607" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 113 1 0 "5b5382e7_4a81_4702_bdc9e215e25aae40" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 114 1 0 "05fdceea_a5c2_4846_9f6710ee3302e77c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 115 1 0 "15d0858b_3eb0_4c83_868539c1a5769a5e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_blnReturnValueHHS = HamiltonHeaterShaker3G::SetPlateLock(i_intNumberOfConnectedHHS, i_blnLock);
+// }} ""
+// {{{ 116 1 0 "2eb80d66_c0a0_4f4f_b1396353cd152500" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+l_blnSuccess = _ReportErrorText(l_blnReturnValueHHS, i_intNumberOfConnectedHHS, Translate("Set shaker parameter"));
+// }} ""
+// {{ 117 1 0 "c26c0215_fc69_46d7_b1f0e06fa2b76ba2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_blnSuccess != ASWGLOBAL::BOOL::TRUE)
+{
+// }} ""
+// {{{ 118 1 0 "424ec929_b3d2_4324_839345033a603f41" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE_WITH_ERROR, t_strFunctionName, t_strLibraryName, Translate("Set shaker parameter"));
+// }} ""
+// {{{ 119 1 0 "22bc2880_652c_4ad1_94b33bdfb1aa0387" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::FALSE);
+// }} ""
+// {{ 120 1 0 "c26c0215_fc69_46d7_b1f0e06fa2b76ba2" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 121 1 0 "05fdceea_a5c2_4846_9f6710ee3302e77c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 122 1 0 "77882f9b_b236_4bd2_ac5fbc71cbb42ad7" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 123 1 0 "782efdf7_7d9b_4f8e_8614b9c79a6abb6d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 124 1 0 "70218aed_c70b_4c8c_9d920897d24541df" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{{ 125 1 0 "f7a93d59_da57_4c5f_bf79988d27de4487" "{9EC997CD-FD3B-4280-811B-49E99DCF062C}"
+return (ASWGLOBAL::BOOL::TRUE);
+// }} ""
+// {{ 126 1 0 "77882f9b_b236_4bd2_ac5fbc71cbb42ad7" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "HHS_Lock" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=orr_b$$valid=0$$time=2024-10-15 08:48$$checksum=03bab081$$length=082$$

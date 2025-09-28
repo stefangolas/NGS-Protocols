@@ -1,0 +1,60 @@
+HxCfgFile,3;
+
+ConfigIsValid,Y;
+
+DataDef,RECTRACK,3,default,
+{
+BackgrndClr, "16777215",
+Barcode.Unique, "0",
+Barcode.Value, "",
+Bitmap, "C:\\Program Files (x86)\\Hamilton\\NGSStarMOA\\KitProvider\\KitName\\Labware\\RT_L.BMP",
+BitmapRel, "..\\..\\..\\..\\NGSStarMOA\\KitProvider\\KitName\\Labware\\RT_L.BMP",
+BndryX, "14",
+BndryY, "11.5",
+Category.0.Id, "1008",
+Category.1.Id, "1019",
+CategoryCnt, "2",
+Clearance, "47",
+Cntr.1.base, "0",
+Cntr.1.file, "C:\\Program Files (x86)\\Hamilton\\NGSStarMOA\\10x Genomics\\Chromium GEM-X Single Cell\\Labware\\axygen_dw_96_res.ctr",
+Cntr.1.fileRel, ".\\axygen_dw_96_res.ctr",
+Cntr.1.offsetx, "0",
+Cntr.1.offsety, "0",
+Columns, "12",
+ConnectedCtr, "0",
+DataType, "1",
+Description, "Axygen Trough (300 mL)",
+Dim.Dx, "127",
+Dim.Dy, "86",
+Dim.Dz, "47",
+Dx, "9",
+Dy, "9",
+Hole.Shape, "1",
+Hole.X, "9",
+Hole.Y, "9",
+Hole.Z, "0",
+IX.First, "1",
+IX.Inc, "0",
+IX.Index, "1",
+IX.Start, "0",
+Image3D, "C:\\Program Files (x86)\\Hamilton\\NGSStarMOA\\10x Genomics\\Chromium GEM-X Single Cell\\Labware\\Ham_DW_Rgt.png",
+ImageRel, ".\\Ham_DW_Rgt.png",
+Options, "0",
+Rows, "8",
+SegmentCount_x, "0",
+SegmentCount_y, "0",
+Shape, "1",
+SingleCntr, "1",
+StackHt, "0",
+Stagger, "9",
+UseBndry, "1",
+ViewName, "Axygen DW 96 Reservoir",
+Visible, "0"
+};
+
+DataDef,HxPars,3,AuditTrailData,
+[
+")"
+];
+
+* $$author=orr_b$$valid=0$$time=2024-10-04 07:18$$checksum=8c7936d0$$length=081$$

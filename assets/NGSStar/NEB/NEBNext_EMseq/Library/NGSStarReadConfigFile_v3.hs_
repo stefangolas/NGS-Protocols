@@ -1,0 +1,18 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 25.11.2020 11:49:17
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace NGSSTARREADCONFIGFILE_V3 {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function ReadConfigFile( device & ML_STAR, variable i_strPathConfigFile, variable & i_arrIntProcessToPerform[], variable i_intNumberOfSamples, variable i_indexFormat, variable & i_arrIndexID1[], variable & i_arrIndexID2[], variable & i_arrIndexPos1[], variable & i_arrIndexPos2[], variable i_blnSimulationMode, variable i_blnODTC, variable i_blnTEST_MODE_DisableLoadingCarrierCommand, sequence & o_arrSequenceToAspirate[], variable & o_arrFltVolumesPerSample[], variable & o_arrStrReagentNames[], sequence & o_arrSeqStackMIDI[], sequence & o_arrSeqStackHSP[], sequence & o_arrSeqStackComfortLid[], variable & o_arrNumberOfTipsPerProcess[] ) void { }
+function Return_ProcessIDs( variable i_strPathConfigFile, variable & o_arrStrProcessID[] ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Administrator$$valid=0$$time=2020-11-25 11:49$$checksum=23e8ceb2$$length=090$$

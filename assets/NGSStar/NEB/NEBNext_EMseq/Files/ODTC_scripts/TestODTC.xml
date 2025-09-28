@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<MethodSet>
+  <PreMethod methodName="ShortInit" creator="Stephan Grosch" description="Short Method to initialize ODTC to room temperature" dateTime="2019-01-29T11:25:09.8484646+01:00">
+    <TargetBlockTemperature>25</TargetBlockTemperature>
+    <TargetLidTemp>40</TargetLidTemp>
+  </PreMethod>
+  <Method methodName="ShortIncubation" creator="Enrique Bayo" description="Short protocol to perform some cycles at different temeratures" dateTime="2019-01-29T11:24:49.1784283+01:00">
+    <Variant>960000</Variant>
+    <PlateType>0</PlateType>
+    <FluidQuantity>1</FluidQuantity>
+    <PostHeating>true</PostHeating>
+    <StartBlockTemperature>25</StartBlockTemperature>
+    <StartLidTemperature>40</StartLidTemperature>
+    <Step>
+      <Number>1</Number>
+      <Slope>2.2</Slope>
+      <PlateauTemperature>25</PlateauTemperature>
+      <PlateauTime>10</PlateauTime>
+      <OverShootSlope1>0.1</OverShootSlope1>
+      <OverShootTemperature>0</OverShootTemperature>
+      <OverShootTime>0</OverShootTime>
+      <OverShootSlope2>0.1</OverShootSlope2>
+      <GotoNumber>0</GotoNumber>
+      <LoopNumber>0</LoopNumber>
+      <PIDNumber>1</PIDNumber>
+      <LidTemp>40</LidTemp>
+    </Step>
+    <PIDSet>
+      <PID number="1">
+        <PHeating>60</PHeating>
+        <PCooling>80</PCooling>
+        <IHeating>250</IHeating>
+        <ICooling>100</ICooling>
+        <DHeating>10</DHeating>
+        <DCooling>10</DCooling>
+        <PLid>100</PLid>
+        <ILid>70</ILid>
+      </PID>
+    </PIDSet>
+  </Method>
+</MethodSet>

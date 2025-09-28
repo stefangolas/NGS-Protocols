@@ -1,0 +1,1001 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+#include "HSLStrLib.hsl"
+#include "HSLMthLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace IOCONTROLLER {
+// }} ""
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+function CalculateArrayForNormalization( variable i_strFileName, variable i_fltFinalConcentration, variable i_fltFixedDNAVolume, variable i_fltMinimalDilutionVolume, variable & o_arrDNAVolume[], variable & o_arrDiluentforNormalization[], variable & o_arr_fltMixingVolumes[], variable & o_arrHighConcSamples[], variable & o_arrLowConcSamples[], variable & o_intSampleNumber ) void ;
+function CalculateArrayForPlatePreparation( variable i_strFileName, variable i_fltDNAVol, variable i_fltFinalConcentration, variable & o_arr_fltDNAVolumes[], variable & o_arr_fltWaterVolumes[], variable & o_arr_fltMixingVolumes[], variable & o_intSampleNumber, variable & o_blnError ) void ;
+function CalculateArrayForPlatePreparationV3( variable i_strFileName, variable i_strLiquidClass50, variable i_strLiquidClass300, variable & o_arr_fltDNAVolumes[], variable & o_arr_fltWaterVolumes[], variable & o_arr_fltMixingVolumes[], variable & o_arr_strChannelPattern50[], variable & o_arr_strChannelPattern300[], variable & o_arr_strLiquidClass[], variable & o_intSampleNumber, variable & o_blnError, variable & o_intNeededTips50, variable & o_intNeededTips300 ) void ;
+function ReadExcelWorklist_Hybridization( variable i_strFileName, variable & o_intPoolNumber, variable & o_arrPanelProbePos[] ) void ;
+function ReadExcelWorklist_Indexing( variable i_strFileName, variable & o_intSampleNumber, variable & o_arr_strIndexPlatePosID[], variable & o_arr_strSamplePosID[] ) void ;
+function ReadExcelWorklist_Pooling( variable i_strFileName, variable i_fltLibraryVol, variable & o_intSampleNumber, variable & o_arr_strSamplePosID[], variable & o_arr_strDispensePosID[], variable & o_arr_fltDilunetVol[], variable & o_arr_fltMixingVol[] ) void ;
+function UpdateWorklistFile( variable i_strFileName, variable i_strBarcode, variable i_intColumnNumber, variable i_intRowNumber ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "ReadExcelWorklist_Indexing" "Begin"
+function ReadExcelWorklist_Indexing( variable i_strFileName, variable & o_intSampleNumber, variable & o_arr_strIndexPlatePosID[], variable & o_arr_strSamplePosID[] ) void {
+// }} ""
+private file file1;
+private variable file1_SampleID;
+private variable file1_PosID;
+private variable file1_IndexPlatePos;
+private variable intLength;
+private variable strPosition;
+private variable file1_DNAconc;
+// {{ 5 "ReadExcelWorklist_Indexing" "InitLocals"
+o_intSampleNumber = 0;
+o_arr_strIndexPlatePosID.SetSize( 0);
+o_arr_strSamplePosID.SetSize( 0);
+// }} ""
+// {{ 165 1 0 "4b5f45bd_4382_4378_ad3f4be766d593f2" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file1.SetExtendedProperties( "IMEX=1");
+file1.AddField("PosID", file1_PosID, hslString, 255);
+file1.AddField("SampleID", file1_SampleID, hslString, 255);
+file1.AddField("LibraryConc(nM)", file1_DNAconc, hslFloat);
+file1.AddField("IndexPlatePos", file1_IndexPlatePos, hslString, 255);
+if( 0 == file1.Open(i_strFileName + " " + "LibraryPrep$", hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 166 1 0 "cc4ebbd2_825c_4ad2_af5eb16d44814778" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (
+   (file1.Eof() == 0)
+)
+{
+// }} ""
+// {{ 167 1 0 "96e2d522_e3fb_4d0e_8873e6f5a001d9fc" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == file1.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 168 1 0 "2ba01c20_a2e1_4d36_9d2c21f6cbf18284" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intLength = StrGetLength(file1_SampleID);
+// }} ""
+// {{ 169 1 0 "8d2873f9_11c7_4452_a225d190ed2be279" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intLength == 0)
+{
+// }} ""
+// {{ 170 1 0 "381f34bd_3576_488b_8a95917af8454137" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 171 1 0 "8d2873f9_11c7_4452_a225d190ed2be279" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 172 1 0 "12f5941d_2fa3_4156_af2604f80cb73659" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strPosition = StrConcat2(file1_PosID, Translate(""));
+// }} ""
+// {{ 173 1 0 "829c3a02_4c64_4b9c_a7ffca757b5aca4f" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strSamplePosID.AddAsLast(file1_PosID);
+// }} ""
+// {{{ 174 1 0 "1889910d_a847_4d48_8d2a20cea1dd8e22" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strPosition = StrConcat2(file1_IndexPlatePos, Translate(""));
+// }} ""
+// {{ 175 1 0 "a954b2a9_4d8c_4b82_91873bdc5855896a" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strIndexPlatePosID.AddAsLast(file1_IndexPlatePos);
+// }} ""
+// {{ 176 1 0 "8d2873f9_11c7_4452_a225d190ed2be279" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 177 1 0 "cc4ebbd2_825c_4ad2_af5eb16d44814778" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 178 1 0 "4e7d2b31_6a62_4722_ab790a26afd23aa9" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != file1.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+file1.RemoveFields();
+// }} ""
+// {{ 179 1 0 "0acd8bef_a4b7_4dcb_adc06c89eb691509" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+o_intSampleNumber=o_arr_strSamplePosID.GetSize();
+// }} ""
+// {{{ 5 "ReadExcelWorklist_Indexing" "End"
+}
+// }} ""
+// {{{ 5 "CalculateArrayForNormalization" "Begin"
+function CalculateArrayForNormalization( variable i_strFileName, variable i_fltFinalConcentration, variable i_fltFixedDNAVolume, variable i_fltMinimalDilutionVolume, variable & o_arrDNAVolume[], variable & o_arrDiluentforNormalization[], variable & o_arr_fltMixingVolumes[], variable & o_arrHighConcSamples[], variable & o_arrLowConcSamples[], variable & o_intSampleNumber ) void {
+// }} ""
+private variable loopCounter1;
+private variable intCheckLength;
+private variable file1_DNAconc;
+private variable file1_SampleID;
+private variable file1_PosID;
+private file file1;
+private variable fltFinalVol;
+private variable fltDiluentVol;
+private variable strSampleIdentification;
+private variable fltMixingVol;
+// {{ 5 "CalculateArrayForNormalization" "InitLocals"
+o_arrDNAVolume.SetSize( 0);
+o_arrDiluentforNormalization.SetSize( 0);
+o_arr_fltMixingVolumes.SetSize( 0);
+o_arrHighConcSamples.SetSize( 0);
+o_arrLowConcSamples.SetSize( 0);
+o_intSampleNumber = 0;
+// }} ""
+// {{ 1 1 0 "f833f92e_6bac_448d_833869bd3c23e343" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file1.AddField("PosID", file1_PosID, hslString, 255);
+file1.AddField("SampleID", file1_SampleID, hslString, 255);
+file1.AddField("DNAconc", file1_DNAconc, hslFloat);
+if( 0 == file1.Open(i_strFileName + " " + "LibraryPrep$", hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 2 1 0 "2e12b6ee_0b88_405f_85facd25ee5e4a6f" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+loopCounter1 = 0;
+while (
+   (file1.Eof() == 0)
+)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{ 3 1 0 "840a30b4_98da_43fe_9fe0c9ad2d26d802" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == file1.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 4 1 0 "9f34a9f8_f220_4ab2_a35810a19954e7d9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intCheckLength = StrGetLength(file1_SampleID);
+// }} ""
+// {{ 5 1 0 "65285ee0_b7b1_46c1_81479fb670eb0ca8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intCheckLength > 0)
+{
+// }} ""
+// {{ 6 1 0 "9a9eba61_666c_4cea_9dc57c0672f38d88" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (file1_DNAconc <= i_fltFinalConcentration)
+{
+// }} ""
+// {{ 7 1 0 "14ab81b9_c331_4fb5_b38485822719f285" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arrDNAVolume.AddAsLast(i_fltMinimalDilutionVolume);
+// }} ""
+// {{ 8 1 0 "1c16d46b_a259_4f8e_bb8277a09df87606" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_fltMixingVolumes.AddAsLast(0);
+// }} ""
+// {{ 9 1 0 "e39e2243_b70c_4309_97975aa5a35eb346" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arrDiluentforNormalization.AddAsLast(0);
+// }} ""
+// {{{ 10 1 0 "cefd4f05_e13c_496c_a05e656df52d2c59" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strSampleIdentification = StrConcat4(loopCounter1, Translate(" - "), file1_SampleID, Translate(""));
+// }} ""
+// {{ 11 1 0 "2d60f6a7_5f92_4c03_8c5935506e54b626" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arrLowConcSamples.AddAsLast(strSampleIdentification);
+// }} ""
+// {{ 12 1 0 "9a9eba61_666c_4cea_9dc57c0672f38d88" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 13 1 0 "d85f857f_a8f9_41f3_95ad3dcd3ce4ddde" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arrDNAVolume.AddAsLast(i_fltFixedDNAVolume);
+// }} ""
+fltFinalVol = (file1_DNAconc * i_fltFixedDNAVolume)/i_fltFinalConcentration;
+
+fltDiluentVol = fltFinalVol - i_fltFixedDNAVolume;
+
+fltMixingVol = fltFinalVol * 0.8;
+
+
+if (fltMixingVol > 50)
+{fltMixingVol = 50;}
+// {{ 15 1 0 "8380731e_ed68_4c9c_b1bbf09842836ead" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_fltMixingVolumes.AddAsLast(fltMixingVol);
+// }} ""
+// {{ 16 1 0 "5008596b_ea4e_4d7e_af5a96a0b873321e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (fltDiluentVol > 250)
+{
+// }} ""
+// {{ 17 1 0 "bcae22e0_e010_4b27_9838e0d9fcfadeb6" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arrDiluentforNormalization.AddAsLast(250);
+// }} ""
+// {{{ 18 1 0 "7d08ad96_56c2_4c1f_897e9592cfdbbe4a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strSampleIdentification = StrConcat4(loopCounter1, Translate(" - "), file1_SampleID, Translate(""));
+// }} ""
+// {{ 19 1 0 "c4199d38_f8e1_4a6f_9f7e734b77f695ff" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arrHighConcSamples.AddAsLast(strSampleIdentification);
+// }} ""
+// {{ 20 1 0 "5008596b_ea4e_4d7e_af5a96a0b873321e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 21 1 0 "404941a7_0514_4fc2_b2ba927e3770f54c" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arrDiluentforNormalization.AddAsLast(fltDiluentVol);
+// }} ""
+// {{ 22 1 0 "5008596b_ea4e_4d7e_af5a96a0b873321e" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 23 1 0 "9a9eba61_666c_4cea_9dc57c0672f38d88" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 24 1 0 "65285ee0_b7b1_46c1_81479fb670eb0ca8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 25 1 0 "2dc07cd9_2f26_4696_ade072150345e282" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 26 1 0 "65285ee0_b7b1_46c1_81479fb670eb0ca8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 27 1 0 "2e12b6ee_0b88_405f_85facd25ee5e4a6f" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 28 1 0 "61ec94d2_0f7f_4e0a_8771ea0d62ede8a5" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != file1.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+file1.RemoveFields();
+// }} ""
+// {{ 29 1 0 "84a3377c_8c72_4cea_bdec458ad064a45d" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+o_intSampleNumber=o_arrDNAVolume.GetSize();
+// }} ""
+// {{{ 30 1 0 "aed0a5d8_deb3_4a38_ab4bc060b5d228d8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArraysFaceToFace(TRACE_LEVEL_DEBUG, Translate("Array of DNA volumes: "), Translate("Array of Diluent volumes: "), o_arrDNAVolume, o_arrDiluentforNormalization);
+// }} ""
+// {{{ 31 1 0 "e8908d67_f46d_4002_a4a805f3e5418322" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArraysFaceToFace(TRACE_LEVEL_DEBUG, Translate("Array of Mixing volumes: "), Translate("Array of Diluent volumes: "), o_arr_fltMixingVolumes, o_arrDiluentforNormalization);
+// }} ""
+// {{{ 32 1 0 "d1031304_6501_4279_ad00984c04a43ae3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_DEBUG, Translate("Array of High concentration samples: "), o_arrHighConcSamples);
+// }} ""
+// {{{ 33 1 0 "fb0341b1_207b_4228_8fbd4e23ecbacb94" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_DEBUG, Translate("Array of Low concentration samples: "), o_arrLowConcSamples);
+// }} ""
+// {{{ 5 "CalculateArrayForNormalization" "End"
+}
+// }} ""
+// {{{ 5 "ReadExcelWorklist_Hybridization" "Begin"
+function ReadExcelWorklist_Hybridization( variable i_strFileName, variable & o_intPoolNumber, variable & o_arrPanelProbePos[] ) void {
+// }} ""
+private variable file1_ProbePanel;
+private variable file1_ProbePos;
+private variable intLength;
+private variable file1_PoolPos;
+private variable strPosition;
+private file file1;
+// {{ 5 "ReadExcelWorklist_Hybridization" "InitLocals"
+o_intPoolNumber = 0;
+o_arrPanelProbePos.SetSize( 0);
+// }} ""
+// {{ 150 1 0 "ab297981_7e10_4f2a_94d9abcfb706b024" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file1.SetExtendedProperties( "IMEX=1");
+file1.AddField("PoolPos", file1_PoolPos, hslString, 255);
+file1.AddField("ProbePanel", file1_ProbePanel, hslString, 255);
+file1.AddField("ProbePos", file1_ProbePos, hslString, 255);
+if( 0 == file1.Open(i_strFileName + " " + "Enrichment$", hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 151 1 0 "2cf12756_e17b_45ee_9170a353357371e9" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (
+   (file1.Eof() == 0)
+)
+{
+// }} ""
+// {{ 152 1 0 "cd128700_d858_46c4_8596b6fe78b44e45" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == file1.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 153 1 0 "49329ca5_eec3_481a_9acd1e1706682ab7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intLength = StrGetLength(file1_ProbePanel);
+// }} ""
+// {{ 154 1 0 "407c5aaf_61ef_4609_a1bfb335dd47a9c5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intLength == 0)
+{
+// }} ""
+// {{ 155 1 0 "934a033d_625a_410b_beb2e7cd55b52211" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 156 1 0 "407c5aaf_61ef_4609_a1bfb335dd47a9c5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 157 1 0 "8c296f02_0c46_429f_a9c8adb48db33deb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strPosition = StrConcat2(file1_ProbePos, Translate(""));
+// }} ""
+// {{ 158 1 0 "ab37d418_a42d_4bcc_8a8ee43b681cccef" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arrPanelProbePos.AddAsLast(file1_ProbePos);
+// }} ""
+// {{ 159 1 0 "407c5aaf_61ef_4609_a1bfb335dd47a9c5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 160 1 0 "2cf12756_e17b_45ee_9170a353357371e9" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 161 1 0 "287fa3e9_a23a_47c3_a574be997485d3b7" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != file1.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+file1.RemoveFields();
+// }} ""
+// {{ 162 1 0 "58696765_0853_48de_92ffcf07af11b94f" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+o_intPoolNumber=o_arrPanelProbePos.GetSize();
+// }} ""
+// {{{ 163 1 0 "5c003d22_3c0a_420d_8bf744c8657e0a05" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_DEBUG, Translate("o_arrPanelProbePos = "), o_arrPanelProbePos);
+// }} ""
+// {{{ 5 "ReadExcelWorklist_Hybridization" "End"
+}
+// }} ""
+// {{{ 5 "CalculateArrayForPlatePreparation" "Begin"
+function CalculateArrayForPlatePreparation( variable i_strFileName, variable i_fltDNAVol, variable i_fltFinalConcentration, variable & o_arr_fltDNAVolumes[], variable & o_arr_fltWaterVolumes[], variable & o_arr_fltMixingVolumes[], variable & o_intSampleNumber, variable & o_blnError ) void {
+// }} ""
+private variable file1_DNAconc;
+private variable file1_SampleID;
+private variable loopCounter1;
+private variable intCheckLength;
+private variable file1_PosID;
+private file file1;
+private variable fltWaterVolume;
+private variable fltMixingVolume;
+// {{ 5 "CalculateArrayForPlatePreparation" "InitLocals"
+o_arr_fltDNAVolumes.SetSize( 0);
+o_arr_fltWaterVolumes.SetSize( 0);
+o_arr_fltMixingVolumes.SetSize( 0);
+o_intSampleNumber = 0;
+o_blnError = 0;
+// }} ""
+// {{ 35 1 0 "1f219140_cc02_4d1d_a6344850686cead3" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file1.AddField("PosID", file1_PosID, hslString, 255);
+file1.AddField("SampleID", file1_SampleID, hslString, 255);
+file1.AddField("DNAconc", file1_DNAconc, hslFloat);
+if( 0 == file1.Open(i_strFileName + " " + "LibraryPrep$", hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 36 1 0 "17d4f6f1_4cde_407e_aecc5e60fec74e02" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_blnError = 0;
+// }} ""
+// {{ 37 1 0 "2c66995f_47b4_46a9_b7b5f465934eb208" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+loopCounter1 = 0;
+while (
+   (file1.Eof() == 0)
+)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{ 38 1 0 "497c81d7_29b2_4b9b_9327d4be17430df8" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == file1.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 39 1 0 "e0954c54_04d2_4237_b4bcd141dba44dd3" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intCheckLength = StrGetLength(file1_SampleID);
+// }} ""
+// {{ 40 1 0 "a2f68ff5_a2bf_48a1_b5d37c9b310817c4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intCheckLength > 0)
+{
+// }} ""
+// {{ 41 1 0 "77c667cd_975c_461a_b41bfdd529cf26fb" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltWaterVolume = i_fltDNAVol * file1_DNAconc;
+// }} ""
+// {{ 42 1 0 "966360a4_c402_4c56_bbdd28bc93d101c1" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltWaterVolume = fltWaterVolume / (i_fltFinalConcentration * 1.0);
+// }} ""
+// {{{ 43 1 0 "e02cd874_3ab5_41ba_852390280985929e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+fltWaterVolume = MthRound(fltWaterVolume, 1);
+// }} ""
+// {{ 44 1 0 "38bbd7ab_e911_409d_b9dd913534c06145" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltWaterVolume = fltWaterVolume - i_fltDNAVol;
+// }} ""
+/* {{ 1 "" "0" */ if(0){  /* }} "" */
+// {{ 45 1 0 "ed793beb_9e94_4590_83d9b14543c69fc7" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+fltMixingVolume = fltWaterVolume;
+// }} ""
+/* {{ 1 "" "1" */ } /* }} "" */
+// {{ 46 1 0 "4138d7f6_4603_4e0a_97e0377ff10d1489" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltMixingVolume = fltWaterVolume * 0.9;
+// }} ""
+// {{ 47 1 0 "2afefd02_994a_4228_b171a3751ba46328" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (fltWaterVolume > 300)
+{
+// }} ""
+// {{ 48 1 0 "067755a0_9898_44d3_acb20d1ac83d1422" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+fltWaterVolume = 300;
+// }} ""
+// {{ 49 1 0 "2afefd02_994a_4228_b171a3751ba46328" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 50 1 0 "71daec2b_6db8_4a4c_a697ea06b2bded38" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (fltMixingVolume > 50)
+{
+// }} ""
+// {{ 51 1 0 "c71cb07f_d12f_4aa3_81ea0bb7c096e897" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+fltMixingVolume = 50;
+// }} ""
+// {{ 52 1 0 "71daec2b_6db8_4a4c_a697ea06b2bded38" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 53 1 0 "3a81c246_296d_44df_99de3cecce4a9751" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_fltWaterVolumes.AddAsLast(fltWaterVolume);
+// }} ""
+// {{ 54 1 0 "aa9200b5_89e1_4849_a0bd8703fd129f5b" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_fltMixingVolumes.AddAsLast(fltMixingVolume);
+// }} ""
+// {{ 55 1 0 "f0c89a99_c923_4400_b6d2320b4d78e30c" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_fltDNAVolumes.AddAsLast(i_fltDNAVol);
+// }} ""
+/* {{ 1 "" "0" */ if(0){  /* }} "" */
+// {{ 56 1 0 "6ec5086f_6693_48a7_8e1ec334dd869016" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (file1_DNAconc > 80)
+{
+// }} ""
+// {{ 57 1 0 "d7821acd_95c7_413b_80fefdbbb660941e" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_blnError = 1;
+// }} ""
+// {{ 58 1 0 "6ec5086f_6693_48a7_8e1ec334dd869016" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+/* {{ 1 "" "1" */ } /* }} "" */
+// {{ 59 1 0 "ad90bfbf_e12e_419d_84a386ed1a875280" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (file1_DNAconc > 488)
+{
+// }} ""
+// {{ 60 1 0 "b03ec0be_9dcd_4e8d_9a6d53132ca0029b" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_blnError = 1;
+// }} ""
+// {{ 61 1 0 "ad90bfbf_e12e_419d_84a386ed1a875280" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 62 1 0 "a2f68ff5_a2bf_48a1_b5d37c9b310817c4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 63 1 0 "df2297ef_ea59_4fe0_9c8865410379b12e" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 64 1 0 "a2f68ff5_a2bf_48a1_b5d37c9b310817c4" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 65 1 0 "2c66995f_47b4_46a9_b7b5f465934eb208" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 66 1 0 "8226b1fc_a4fb_4c3f_af7ca2fda6d854e2" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != file1.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+file1.RemoveFields();
+// }} ""
+// {{ 67 1 0 "efce96e7_dfef_48e1_8ad038ce7f3bd58f" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+o_intSampleNumber=o_arr_fltWaterVolumes.GetSize();
+// }} ""
+// {{{ 68 1 0 "a6c2237a_0df7_4a09_9ad5c3d08de3901e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArraysFaceToFace(TRACE_LEVEL_DEBUG, Translate("Array of Diluent volumes: "), Translate("Array of Mixing volumes: "), o_arr_fltWaterVolumes, o_arr_fltMixingVolumes);
+// }} ""
+// {{{ 69 1 0 "0355a054_5aef_4f13_93ac847b332ca6e5" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("======> Sample Number = "), o_intSampleNumber);
+// }} ""
+// {{{ 5 "CalculateArrayForPlatePreparation" "End"
+}
+// }} ""
+// {{{ 5 "CalculateArrayForPlatePreparationV3" "Begin"
+function CalculateArrayForPlatePreparationV3( variable i_strFileName, variable i_strLiquidClass50, variable i_strLiquidClass300, variable & o_arr_fltDNAVolumes[], variable & o_arr_fltWaterVolumes[], variable & o_arr_fltMixingVolumes[], variable & o_arr_strChannelPattern50[], variable & o_arr_strChannelPattern300[], variable & o_arr_strLiquidClass[], variable & o_intSampleNumber, variable & o_blnError, variable & o_intNeededTips50, variable & o_intNeededTips300 ) void {
+// }} ""
+private variable file1_DNAconc;
+private variable fltWaterVolume;
+private variable fltMixingVolume;
+private variable loopCounter1;
+private variable file1_SampleID;
+private variable intCheckLength;
+private variable file1_PosID;
+private file file1;
+private variable arrTempChannelPattern50[];
+private variable arrTempChannelPattern300[];
+private variable intFullPattern;
+private variable intSizeArray;
+private variable intIndex;
+private variable strChannelPattern300;
+private variable loopCounterFullPattern;
+private variable strChannelPattern50;
+private variable strChannelPattern300_8;
+private variable strChannelPattern50_8;
+private variable loopCounterChannelPattern;
+// {{ 5 "CalculateArrayForPlatePreparationV3" "InitLocals"
+o_arr_fltDNAVolumes.SetSize( 0);
+o_arr_fltWaterVolumes.SetSize( 0);
+o_arr_fltMixingVolumes.SetSize( 0);
+o_arr_strChannelPattern50.SetSize( 0);
+o_arr_strChannelPattern300.SetSize( 0);
+o_arr_strLiquidClass.SetSize( 0);
+o_intSampleNumber = 0;
+o_blnError = 0;
+o_intNeededTips50 = 0;
+o_intNeededTips300 = 0;
+// }} ""
+// {{ 71 1 0 "df702b74_c483_4fe5_96a6c9c042920801" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrTempChannelPattern50.SetSize(0);
+// }} ""
+// {{ 72 1 0 "396c614d_c7e0_4553_b853ccb9b31da1ce" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+arrTempChannelPattern300.SetSize(0);
+// }} ""
+// {{ 73 1 0 "ebeee903_3ff1_4038_8362a3976698ee1a" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file1.AddField("PosID", file1_PosID, hslString, 255);
+file1.AddField("SampleID", file1_SampleID, hslString, 255);
+file1.AddField("DNAconc", file1_DNAconc, hslFloat);
+if( 0 == file1.Open(i_strFileName + " " + "LibraryPrep$", hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 74 1 0 "6bb2ef77_f06a_4cfd_a536763aa65c02d0" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_blnError = 0;
+// }} ""
+// {{ 75 1 0 "24285d19_ded2_4994_9f3b429827850950" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_intNeededTips50 = 0;
+// }} ""
+// {{ 76 1 0 "50ecf9b8_9eae_4ae6_bc2eeb9ad6a86d66" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_intNeededTips300 = 0;
+// }} ""
+// {{ 77 1 0 "668ce46f_b3d8_40ff_9b5e168b5367b879" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+loopCounter1 = 0;
+while (
+   (file1.Eof() == 0)
+)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{ 78 1 0 "4422855f_d5a7_4b7f_b379afc67d1b94c0" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == file1.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 79 1 0 "9d876ca1_df9b_4221_81ee4273835405cb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intCheckLength = StrGetLength(file1_SampleID);
+// }} ""
+// {{ 80 1 0 "651ece8e_1414_420d_94932a68253770c3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intCheckLength > 0)
+{
+// }} ""
+// {{ 81 1 0 "264b958d_0727_4463_a47e1437a37a2490" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltWaterVolume = 5 * file1_DNAconc;
+// }} ""
+// {{ 82 1 0 "6b4bf1f9_cab0_4f91_887dba36280018b6" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltWaterVolume = fltWaterVolume / (8 * 1.0);
+// }} ""
+// {{ 83 1 0 "94315a70_91c2_4705_8dc7f2baf1f6b6d1" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltWaterVolume = fltWaterVolume - 5;
+// }} ""
+// {{ 84 1 0 "9037ba29_fbc3_43ab_a24a075cfe6a2622" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+fltMixingVolume = fltWaterVolume;
+// }} ""
+// {{ 85 1 0 "7a5edacb_dd04_483f_a9b46887a3a2759a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (fltWaterVolume > 50)
+{
+// }} ""
+// {{ 86 1 0 "8df2b4a7_1f4b_4f8b_b083fed78f1fc214" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (fltWaterVolume > 300)
+{
+// }} ""
+// {{ 87 1 0 "55ee3111_4671_4284_acc8b47eb53a338b" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+o_intNeededTips300 = o_intNeededTips300 + 1;
+// }} ""
+// {{ 88 1 0 "2168c363_4fa5_4912_83b6d4e5787dba54" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strLiquidClass.AddAsLast(i_strLiquidClass300);
+// }} ""
+// {{ 89 1 0 "ab95abc9_6a30_4383_883b50811fd69af4" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTempChannelPattern300.AddAsLast(Translate("1"));
+// }} ""
+// {{ 90 1 0 "3cefaac4_c98a_40cb_8121936aad82577e" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTempChannelPattern50.AddAsLast(Translate("0"));
+// }} ""
+// {{ 91 1 0 "707d10e1_346d_418c_9cca4f07e2406089" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+fltWaterVolume = 300;
+// }} ""
+// {{ 92 1 0 "8df2b4a7_1f4b_4f8b_b083fed78f1fc214" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 93 1 0 "910084d1_3fa6_4e63_96d3937958860aad" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+o_intNeededTips300 = o_intNeededTips300 + 1;
+// }} ""
+// {{ 94 1 0 "4b007c45_6a93_4e27_80d4a8e91757a687" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strLiquidClass.AddAsLast(i_strLiquidClass300);
+// }} ""
+// {{ 95 1 0 "255350c6_d534_4c10_b2e5d19f7e596c7d" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTempChannelPattern300.AddAsLast(Translate("1"));
+// }} ""
+// {{ 96 1 0 "eae403b0_ea20_4f7e_a28ab3c01bb99c39" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTempChannelPattern50.AddAsLast(Translate("0"));
+// }} ""
+// {{ 97 1 0 "7a5edacb_dd04_483f_a9b46887a3a2759a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 98 1 0 "028c2007_e760_411a_b538fc988b728899" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+o_intNeededTips50 = o_intNeededTips50 + 1;
+// }} ""
+// {{ 99 1 0 "15268f92_6b43_4a94_98bb7ac280fe798c" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTempChannelPattern50.AddAsLast(Translate("1"));
+// }} ""
+// {{ 100 1 0 "e608f1e7_1525_4ded_b5e4037615858b76" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+arrTempChannelPattern300.AddAsLast(Translate("0"));
+// }} ""
+// {{ 101 1 0 "1c3d2550_0a54_409f_b3a42fd4d736dbcb" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strLiquidClass.AddAsLast(i_strLiquidClass50);
+// }} ""
+// {{ 102 1 0 "7a5edacb_dd04_483f_a9b46887a3a2759a" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 103 1 0 "b7da6734_6f9e_41ab_ab6bb35a7d66d1a8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (fltMixingVolume > 50)
+{
+// }} ""
+// {{ 104 1 0 "ac6f2a12_774a_46c3_a50835b4e203ae99" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+fltMixingVolume = 50;
+// }} ""
+// {{ 105 1 0 "b7da6734_6f9e_41ab_ab6bb35a7d66d1a8" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 106 1 0 "211fd0a1_81ed_407d_b1ab83996a7fb587" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_fltWaterVolumes.AddAsLast(fltWaterVolume);
+// }} ""
+// {{ 107 1 0 "29379107_b8e4_4baf_a4816fef5d59c72f" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_fltMixingVolumes.AddAsLast(fltMixingVolume);
+// }} ""
+// {{ 108 1 0 "1f5cfcc5_e250_43f9_a8fff0befbe321c4" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_fltDNAVolumes.AddAsLast(5);
+// }} ""
+/* {{ 1 "" "0" */ if(0){  /* }} "" */
+// {{ 109 1 0 "c4e65632_9a98_44e6_9056090f857cdf12" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (file1_DNAconc > 80)
+{
+// }} ""
+// {{ 110 1 0 "0cc7978a_5246_4073_8b605f06899aa54f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_blnError = 1;
+// }} ""
+// {{ 111 1 0 "c4e65632_9a98_44e6_9056090f857cdf12" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+/* {{ 1 "" "1" */ } /* }} "" */
+// {{ 112 1 0 "f3ed0b32_68a3_43f4_97ab75e7d1752f3c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (file1_DNAconc > 488)
+{
+// }} ""
+// {{ 113 1 0 "4456b5c5_0f81_432d_95d59e9ef63707ab" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+o_blnError = 1;
+// }} ""
+// {{ 114 1 0 "f3ed0b32_68a3_43f4_97ab75e7d1752f3c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 115 1 0 "651ece8e_1414_420d_94932a68253770c3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 116 1 0 "2019f9d7_3a73_4203_b1a39a669746859f" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 117 1 0 "651ece8e_1414_420d_94932a68253770c3" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 118 1 0 "668ce46f_b3d8_40ff_9b5e168b5367b879" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 119 1 0 "cbc44380_a649_4e18_9449f55d546f3306" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != file1.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+file1.RemoveFields();
+// }} ""
+// {{ 120 1 0 "932e4c61_dd75_4ea9_823576f3c7ee23e0" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+o_intSampleNumber=o_arr_fltWaterVolumes.GetSize();
+// }} ""
+// {{{ 121 1 0 "8f0a6100_4fa3_44c1_81ec3bef8a22db4a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArraysFaceToFace(TRACE_LEVEL_DEBUG, Translate("Array of Diluent volumes: "), Translate("Array of Mixing volumes: "), o_arr_fltWaterVolumes, o_arr_fltMixingVolumes);
+// }} ""
+// {{{ 122 1 0 "86cec089_882e_435f_b72775ded481c232" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("======> Sample Number = "), o_intSampleNumber);
+// }} ""
+// {{{ 123 1 0 "9af05d65_2a3d_4694_a4463822e7721b2d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("======> NeededTips 50 = "), o_intNeededTips50);
+// }} ""
+// {{{ 124 1 0 "8a41b757_5a53_42dd_b5cc163d59e9d84e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("======> NeededTips 300 = "), o_intNeededTips300);
+// }} ""
+// {{ 125 1 0 "60156dbb_ac46_49e4_937b0858c81c4c7f" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+intSizeArray=arrTempChannelPattern50.GetSize();
+// }} ""
+// {{ 126 1 0 "e5619cd2_c7a8_436a_a7c5014299a071eb" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+intFullPattern = intSizeArray / (8 * 1.0);
+// }} ""
+// {{{ 127 1 0 "f49aabff_d976_42f1_8fb0d218ad0e6514" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intFullPattern = MthCeiling(intFullPattern);
+// }} ""
+// {{ 128 1 0 "8bde4584_b047_4fb9_873eb12d94a149f5" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+intIndex = 1;
+// }} ""
+// {{ 129 1 0 "f2e3a062_06fe_4dc3_9d5ade3bdc10a235" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounterFullPattern = 0; loopCounterFullPattern < intFullPattern;)
+{
+loopCounterFullPattern = loopCounterFullPattern + 1;
+// }} ""
+// {{ 130 1 0 "23b1c562_4cac_4a62_9d4ebbe05e5442a2" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strChannelPattern50_8 = Translate("");
+// }} ""
+// {{ 131 1 0 "15e6344c_7932_49b2_a42e1a51b5d38da1" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+strChannelPattern300_8 = Translate("");
+// }} ""
+// {{ 132 1 0 "aad84fa7_abcf_4f28_9becc898e38f3e35" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounterChannelPattern = 0; loopCounterChannelPattern < 8;)
+{
+loopCounterChannelPattern = loopCounterChannelPattern + 1;
+// }} ""
+// {{ 133 1 0 "6aa19b9c_6585_4386_a4279a3c008867a5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intIndex > intSizeArray)
+{
+// }} ""
+// {{{ 134 1 0 "65fac686_011f_41c0_a474f7dbe09ec2d9" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strChannelPattern50_8 = StrConcat2(strChannelPattern50_8, Translate("0"));
+// }} ""
+// {{{ 135 1 0 "7d1735c7_e6d0_4a45_8a542709f6de894c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strChannelPattern300_8 = StrConcat2(strChannelPattern300_8, Translate("0"));
+// }} ""
+// {{ 136 1 0 "6aa19b9c_6585_4386_a4279a3c008867a5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 137 1 0 "4cbf1b52_08c4_4936_830db9fb93a64825" "{67A8F1C9-6546-41e9-AD2F-3C54F7818853}"
+strChannelPattern50=arrTempChannelPattern50.GetAt(intIndex-1);
+// }} ""
+// {{ 138 1 0 "d16a8a3a_59db_47d5_8aef0de6230e6ab0" "{67A8F1C9-6546-41e9-AD2F-3C54F7818853}"
+strChannelPattern300=arrTempChannelPattern300.GetAt(intIndex-1);
+// }} ""
+// {{{ 139 1 0 "fd9bdf55_929e_4902_a412cb901d537729" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strChannelPattern50_8 = StrConcat2(strChannelPattern50_8, strChannelPattern50);
+// }} ""
+// {{{ 140 1 0 "e281f0d6_5368_45ab_95418af6fbad8ee1" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strChannelPattern300_8 = StrConcat2(strChannelPattern300_8, strChannelPattern300);
+// }} ""
+// {{ 141 1 0 "6aa19b9c_6585_4386_a4279a3c008867a5" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 142 1 0 "d3fbf10d_c617_437b_8fe34db6f57123b0" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+intIndex = intIndex + 1;
+// }} ""
+// {{ 143 1 0 "aad84fa7_abcf_4f28_9becc898e38f3e35" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 144 1 0 "56b8101a_8702_4012_bb39f37fa5dc83f6" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strChannelPattern50.AddAsLast(strChannelPattern50_8);
+// }} ""
+// {{ 145 1 0 "8cb71378_63d0_4332_b620306db7096193" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strChannelPattern300.AddAsLast(strChannelPattern300_8);
+// }} ""
+// {{ 146 1 0 "f2e3a062_06fe_4dc3_9d5ade3bdc10a235" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 147 1 0 "60783ad0_6812_4b3f_9cff5c97bd12712f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_DEBUG, Translate("Array LiquidClasses: "), o_arr_strLiquidClass);
+// }} ""
+// {{{ 148 1 0 "c2fefaa2_5e07_47f5_91f34b6b30a692e7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArraysFaceToFace(TRACE_LEVEL_DEBUG, Translate("Array ChannelPattern 50: "), Translate("Array ChannelPattern 300: "), o_arr_strChannelPattern50, o_arr_strChannelPattern300);
+// }} ""
+// {{{ 5 "CalculateArrayForPlatePreparationV3" "End"
+}
+// }} ""
+// {{{ 5 "UpdateWorklistFile" "Begin"
+function UpdateWorklistFile( variable i_strFileName, variable i_strBarcode, variable i_intColumnNumber, variable i_intRowNumber ) void {
+// }} ""
+private variable strColumnName1;
+private variable file1_MyColumn;
+private variable file1_F1;
+private variable strSQL;
+private file file1;
+private variable file1_F2;
+private variable file1_F3;
+// {{ 5 "UpdateWorklistFile" "InitLocals"
+// }} ""
+// {{{ 209 1 0 "024738a1_a23f_46bc_b8115f090c29d8f8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strColumnName1 = StrConcat2(Translate("F"), i_intColumnNumber);
+// }} ""
+// {{{ 210 1 0 "93f1ae3d_fa2d_402d_ad28d34592730679" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strSQL = StrConcat8(Translate("UPDATE [Barcodes$] SET ["), strColumnName1, Translate("] = '"), i_strBarcode, Translate("' WHERE [F1] = "), i_intRowNumber, Translate(""), Translate(""));
+// }} ""
+// {{{ 211 1 0 "fa63df65_ea18_4bed_9b1d62202463e1e8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::Trace_02(TRACE_LEVEL_DEBUG, Translate("strSQL__________"), strSQL);
+// }} ""
+// {{ 212 1 0 "f8c32d76_c95f_472f_81c559f066721b52" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file1.SetExtendedProperties( "HDR=NO");
+file1.AddField("F1", file1_F1, hslFloat);
+file1.AddField("F2", file1_F2, hslString, 255);
+file1.AddField("F3", file1_F3, hslString, 255);
+if( 0 == file1.Open(i_strFileName + " " + "Barcodes$", hslAppend, strSQL) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 213 1 0 "871a8849_f9cf_420a_9a4ab1dbde570e24" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != file1.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+file1.RemoveFields();
+// }} ""
+// {{{ 5 "UpdateWorklistFile" "End"
+}
+// }} ""
+// {{{ 5 "ReadExcelWorklist_Pooling" "Begin"
+function ReadExcelWorklist_Pooling( variable i_strFileName, variable i_fltLibraryVol, variable & o_intSampleNumber, variable & o_arr_strSamplePosID[], variable & o_arr_strDispensePosID[], variable & o_arr_fltDilunetVol[], variable & o_arr_fltMixingVol[] ) void {
+// }} ""
+private variable intLength;
+private variable strPosition;
+private variable file1_DNAconc;
+private variable file1_SampleID;
+private variable file1_IndexPlatePos;
+private variable file1_PosID;
+private file file1;
+private variable fltDiluent;
+private variable fltMixingVol;
+private variable intDispensePos;
+// {{ 5 "ReadExcelWorklist_Pooling" "InitLocals"
+o_intSampleNumber = 0;
+o_arr_strSamplePosID.SetSize( 0);
+o_arr_strDispensePosID.SetSize( 0);
+o_arr_fltDilunetVol.SetSize( 0);
+o_arr_fltMixingVol.SetSize( 0);
+// }} ""
+// {{ 181 1 0 "0c6266d7_e3eb_4e72_ab9fe3ce39b459ed" "{B31F3534-5D80-11d4-A5EB-0050DA737D89}"
+file1.SetExtendedProperties( "IMEX=1");
+file1.AddField("PosID", file1_PosID, hslInteger);
+file1.AddField("SampleID", file1_SampleID, hslString, 255);
+file1.AddField("LibraryConc(nM)", file1_DNAconc, hslFloat);
+file1.AddField("IndexPlatePos", file1_IndexPlatePos, hslString, 255);
+if( 0 == file1.Open(i_strFileName + " " + "LibraryPrep$", hslRead) )
+{
+    MECC::RaiseRuntimeErrorEx(-1523711743, MECC::IDS::stepNameFileOpen, MECC::IDS::errorStepFileOpenFailed, i_strFileName, "HxMetEdCompCmd");
+}
+// }} ""
+// {{ 182 1 0 "3a7be095_21cf_495d_a4a4244e68e8eefe" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+while (
+   (file1.Eof() == 0)
+)
+{
+// }} ""
+// {{ 183 1 0 "2eef5da8_f4bf_4c84_9dd9c4a3e95c2285" "{B31F3536-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 == file1.ReadRecord() )
+{
+    MECC::RaiseRuntimeErrorEx(-1490157312, MECC::IDS::stepNameFileRead, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+// }} ""
+// {{{ 184 1 0 "f52f26e2_1f2f_44f0_b90f5baf34d7b830" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+intLength = StrGetLength(file1_SampleID);
+// }} ""
+// {{ 185 1 0 "0f21e7bd_641d_427e_8425a3fde916e54c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (intLength == 0)
+{
+// }} ""
+// {{ 186 1 0 "bee73885_263b_449b_84cc4bb3af484692" "{B31F3533-5D80-11d4-A5EB-0050DA737D89}"
+break;
+// }} ""
+// {{ 187 1 0 "0f21e7bd_641d_427e_8425a3fde916e54c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 188 1 0 "26ab63ed_d166_4492_b821728a335dd828" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+intDispensePos = file1_PosID + 48;
+// }} ""
+// {{{ 189 1 0 "7d58f3e8_62ad_493d_8a29c0ebeb9e168b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strPosition = StrConcat2(intDispensePos, Translate(""));
+// }} ""
+// {{ 190 1 0 "ae7e5a53_957a_43a5_842d69950b5216bd" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strDispensePosID.AddAsLast(strPosition);
+// }} ""
+// {{{ 191 1 0 "3c9a4ad9_a96b_4942_99e393199a64cd13" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+strPosition = StrConcat2(file1_PosID, Translate(""));
+// }} ""
+// {{ 192 1 0 "581f1d1e_e323_475e_999a3e4b352a5ddc" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strSamplePosID.AddAsLast(strPosition);
+// }} ""
+// {{ 193 1 0 "84f63aae_bd2a_4cbd_bcecb2c8780bb89b" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltDiluent = file1_DNAconc * i_fltLibraryVol;
+// }} ""
+// {{ 194 1 0 "ef3f08b3_e6d9_4b30_9dc365f39e7a9806" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltDiluent = fltDiluent / (10 * 1.0);
+// }} ""
+// {{ 195 1 0 "2d936991_8788_463b_a4c48b605b76733b" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltDiluent = fltDiluent - i_fltLibraryVol;
+// }} ""
+// {{{ 196 1 0 "03fb0a40_62fe_4480_9c320755c48d198e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+fltDiluent = MthRound(fltDiluent, 1);
+// }} ""
+// {{ 197 1 0 "bcaba776_1f82_4e68_ad25c2b84edf8c63" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+fltMixingVol = fltDiluent * 0.9;
+// }} ""
+// {{ 198 1 0 "ee1c47e9_6a6c_4675_ad6a71d216b7d4ec" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (fltMixingVol > 50)
+{
+// }} ""
+// {{ 199 1 0 "0a5c4a90_3d00_4953_b504d7aed6b8379a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+fltMixingVol = 50;
+// }} ""
+// {{ 200 1 0 "ee1c47e9_6a6c_4675_ad6a71d216b7d4ec" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 201 1 0 "604577d3_8260_4af5_990f8f35c8f1a2b8" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_fltDilunetVol.AddAsLast(fltDiluent);
+// }} ""
+// {{ 202 1 0 "9d1526cf_e24b_4fb1_b7714f90616a28f6" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_fltMixingVol.AddAsLast(fltMixingVol);
+// }} ""
+// {{ 203 1 0 "0f21e7bd_641d_427e_8425a3fde916e54c" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 204 1 0 "3a7be095_21cf_495d_a4a4244e68e8eefe" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 205 1 0 "f627d194_b789_4c42_9871f5abacf8360e" "{B31F3538-5D80-11d4-A5EB-0050DA737D89}"
+if( 0 != file1.Close() )
+{
+    MECC::RaiseRuntimeErrorEx(-1456602880, MECC::IDS::stepNameFileClose, MECC::IDS::errorStepFailed, "", "HxMetEdCompCmd");
+}
+file1.RemoveFields();
+// }} ""
+// {{ 206 1 0 "d8581b1e_d8e8_4d32_81328969fc3f0a0d" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+o_intSampleNumber=o_arr_strSamplePosID.GetSize();
+// }} ""
+// {{{ 207 1 0 "b32f563a_c12f_4e35_89fc9b5af32fbe27" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArraysFaceToFace(TRACE_LEVEL_DEBUG, Translate("======> Array of Dilunet Volume: "), Translate("======> Array of Mixing Volume: "), o_arr_fltDilunetVol, o_arr_fltMixingVol);
+// }} ""
+// {{{ 5 "ReadExcelWorklist_Pooling" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Windows10$$valid=0$$time=2021-06-30 15:19$$checksum=292d2f6e$$length=088$$

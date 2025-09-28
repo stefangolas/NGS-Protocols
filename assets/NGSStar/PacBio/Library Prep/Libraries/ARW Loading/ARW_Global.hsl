@@ -1,0 +1,66 @@
+// This library contains the correct definition for resources and reagents.
+//
+// Modification History
+// 2020-01-20  Enrique Bayo: Creation of this lib.
+// 2021-06-22  William Hutchens: Modification to Generic Framework Demo Methods
+
+#ifndef __ARW_Global_hsl__
+#define __ARW_Global_hsl__	1
+
+namespace GlobalARW
+{
+   namespace ReagentType
+   {
+     const variable Solution("Solution");
+	  const variable SolutionComponent("SolutionComponent");
+	  const variable Reagent("Reagent");
+
+      
+   }
+
+   namespace LabwareType
+   {
+    const variable Trough50mL("50mL Trough");
+    const variable Trough120mL("120mL Trough");
+	 const variable Trough200mL("200mL Trough");
+    const variable Trough300mL("300mL Trough");
+	 const variable Tube_5mL("tube 4ml");
+	 const variable Tube_2mL("vial 2mL");
+	 const variable Tube_1500uL("Vial 1.5ml");
+	 const variable Tube_500uL("Vial 0.5ml");
+	 const variable Tube_12x75("Tube 12x75mm");
+	 const variable Tube_15x100("Tube 15x100mm");
+    const variable DWP96_Plate("96 Deep Well Plate");
+	 const variable DWP24_Plate("24 Deep Well Plate");
+    const variable MTP96_Plate("96 Microtiter Plate");
+	 const variable MTP24_Plate("24 Microtiter Plate");
+	 const variable PCR96_Plate("96 Well PCR Plate");
+    const variable TIP50("50µL Tips");
+    const variable TIP300("300µL Tips");
+    const variable TIP1000("1000µL Tips");
+   }
+
+
+//	Below List of Carriers For NimbusPresto
+   namespace CarrierType
+   {
+    const variable Carrier1("MFX_CAR_ODTC_MTP_V2_0001");
+    const variable STACK_Carrier("PLT_CAR_L4ST_0001");
+	 const variable Carrier3("TIP_CAR_480BC_A00_0001");
+	 const variable Carrier4("TIP_CAR_480BC_A00_0002");
+	 const variable Carrier5("TIP_CAR_480BC_A00_0003");
+	 const variable Carrier6("TIP_CAR_480BC_A00_0004");
+	 const variable Carrier7("RGT_CAR_1");
+    const variable Carrier8("RGT_CAR_2");
+    const variable Carrier9("SMP_CAR_24_15x75_A00_0001");
+    const variable Carrier10("RGT_TUBE_1");
+    const variable Carrier11("RGT_TUBE_2");
+    const variable Carrier12("MFX_CAR_2MTP_HPTab_MIDI_HPTab_2DWP_HPTab_0001");
+    const variable Carrier13("PLT_CAR_2HHS30NuncDWP_Empty_DWP_Nest_0001");
+    const variable Carrier14("MFX_CAR_2HHSF30MTP_HHSF30DWP_CPAC_0001");
+	 
+   }
+  
+}
+#endif
+// $$author=Hutchens_W$$valid=0$$time=2021-11-16 11:52$$checksum=67e7aab3$$length=087$$

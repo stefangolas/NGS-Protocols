@@ -1,0 +1,21 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 14.03.2024 13:02:22
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace INHECOTEC_CONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Init( variable i_blnSimulationModeON, variable i_ActivateIntegratedAbortHandler, variable & o_strNameAndVersion ) variable {  return (0); }
+function TEC_CheckTemperature( variable i_intTECTemp, variable i_intDeviceID, variable & o_fltTECTempReached ) variable {  return (0); }
+function TEC_SetTemperature( variable i_intTECTemp, variable i_intDeviceID ) variable {  return (0); }
+function TEC_Shake( variable i_intTECrpm, variable i_intDeviceID, variable i_intShakerOrientation, variable i_intShakingTime ) variable {  return (0); }
+function TEC_Terminate(  ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=orr_b$$valid=0$$time=2024-10-04 07:18$$checksum=487d8cc8$$length=082$$

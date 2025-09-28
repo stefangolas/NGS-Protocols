@@ -1,0 +1,37 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 25/05/2022 12:15:08
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace NGSSTARPREP {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function CPAC_CheckTemperature( variable i_intCPACTemp ) void { }
+function CPAC_Init(  ) void { }
+function CPAC_SetTemperature( variable i_intCPACTemp ) void { }
+function CPAC_Terminate(  ) void { }
+function DATA_HandOverSimulationModeForAllLocalSMTs( variable i_blnSimulationON, variable i_blnShowUVGUI ) void { }
+function HHS_CheckTemperature( variable i_intHHS, variable i_intHHSTemp ) void { }
+function HHS_Init( variable & o_intHHSDeviceNo1, variable & o_intHHSDeviceNo2, variable & o_intHHSDeviceNo3, variable & o_intHHSDeviceNo4, variable & o_intHHSDeviceNo5, variable i_strInitDeviceNo1, variable i_strInitDeviceNo2, variable i_strInitDeviceNo3, variable i_strInitDeviceNo4, variable i_strInitDeviceNo5, device & ML_STAR ) void { }
+function HHS_SetTemperature( variable i_intHHS, variable i_fltTemperature ) void { }
+function HHS_Shake( variable i_intHHS, variable i_intSpeed, variable i_intShakingDuration ) void { }
+function HHS_Terminate( variable i_intHHSDeviceNo1, variable i_intHHSDeviceNo2, variable i_intHHSDeviceNo3, variable i_intHHSDeviceNo4, variable i_intHHSDeviceNo5 ) void { }
+function LiquidWasteSensor_Init( variable i_intComPort ) void { }
+function ODTC_CloseDoor( variable i_intDeviceNumber ) void { }
+function ODTC_DownloadProtocol( variable i_intDeviceNumber, variable i_strProtocollFullFileName ) void { }
+function ODTC_ExecuteProtocol( variable i_intDeviceNumber, variable i_strProtocollFullFileName, variable i_strNameOfProtocollOnDevice, variable & o_intTimeForProtocol, variable & o_intRequestIDForActiveProtocol, variable i_blnShortenPreheatingMethodsTo40Seconds ) void { }
+function ODTC_GetDataFromLastRun( variable i_intDeviceNumber, variable i_strNameOfODTCProtocol ) void { }
+function ODTC_Init( variable i_strDeviceAddress, variable & o_intDeviceNum, variable i_strLocalIPAdress ) void { }
+function ODTC_OpenDoor( variable i_intDeviceNumber ) void { }
+function ODTC_ReadTemperatureAndWaitForStartedProtocolToFinish( variable i_intDeviceNumber, variable i_intTimeForProtocoll, variable i_intRequestIDToWaitFor ) void { }
+function ODTC_Terminate( variable i_intDeviceNumber, variable i_blnOpenDoorRequested ) void { }
+function ODTC_WaitForLidAndBlockCorrectTemperature( variable i_intDeviceNumber, variable i_fltRequestedBlockTemperature, variable i_fltRequestedLidTemperature ) void { }
+function ODTC_WaitForStartedProtocolToFinish( variable i_intDeviceNumber, variable i_intTimeOut, variable i_intRequestIDToWaitFor ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Hutchens_W$$valid=0$$time=2023-01-31 13:48$$checksum=bf579fb5$$length=087$$

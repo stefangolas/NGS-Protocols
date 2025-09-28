@@ -1,0 +1,33 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 6/10/2021 11:11:03 AM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace INHECOODTCCONTROLLER {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Abort( variable i_intDeviceNumber ) variable {  return (0); }
+function CloseDoor( variable i_intDeviceNumber ) variable {  return (0); }
+function ConnectSingle( variable i_intDeviceNumber, variable i_blnSimulation, variable i_blnDisplayErrorDialogs, variable i_strConfigurationFilePath ) variable {  return (0); }
+function DownloadProtocol( variable i_intDeviceNumber, variable i_strProtocolFile ) variable {  return (0); }
+function EvaluateError( variable i_intDeviceNumber, variable & o_intErrorReturn, variable & o_strErrorMessage ) variable {  return (0); }
+function ExecuteMethod( variable i_intDeviceNumber, variable i_strMethodName, variable i_intPriority, variable & o_intDuration, variable & o_intRequestID ) variable {  return (0); }
+function GetStatus( variable i_intDeviceNumber, variable & o_strDeviceID, variable & o_strState, variable & o_blnLocked, variable & o_strPmsID, variable & o_strCurrentTime ) variable {  return (0); }
+function InitializeSingle( variable i_intDeviceNumber ) variable {  return (0); }
+function OpenDoor( variable i_intDeviceNumber ) variable {  return (0); }
+function ReadActualTemperature( variable i_intDeviceNumber, variable & o_strTime, variable & o_arrFltActualTemperatures[], variable & o_arrStrActualTempNames[] ) variable {  return (0); }
+function ResetSingle( variable i_intDeviceNumber ) variable {  return (0); }
+function SetupAllDevices( variable i_blnDisplayErrorDialogs, variable i_blnSimulation, variable i_strConfigurationFilePath ) variable {  return (0); }
+function StopMethod( variable i_intDeviceNumber ) variable {  return (0); }
+function TerminateAllDevices(  ) variable {  return (0); }
+function TerminateSingle( variable i_intDeviceNumber ) variable {  return (0); }
+function WaitForEndOfMethod( variable i_intDeviceNumber ) variable {  return (0); }
+function WaitForEndOfMethodManual( variable i_intDeviceNumber, variable i_strPreheatMethod ) variable {  return (0); }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=Beleckis_D$$valid=0$$time=2021-06-10 11:11$$checksum=9e0b3eb7$$length=087$$

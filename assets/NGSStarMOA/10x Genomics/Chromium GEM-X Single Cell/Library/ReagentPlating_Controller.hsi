@@ -1,0 +1,1129 @@
+// {{{ 2 "IncludeGuard" "PragmaOnce"
+#pragma once
+// }} ""
+#include "ASWStandard\\TraceLevel\\TraceLevel.hsl"
+#include "HSLSeqLib.hsl"
+#include "HSLStrLib.hsl"
+/* {{ 2 "LibraryInsertLine" "" */ // }} ""
+// {{ 2 "TemplateIncludeBlock" ""
+#include "HSLMETEDLib.hs_"
+#include "HSLMECCLib.hs_"
+#include "HSLPTLLib.hsl"
+#include "templates\\HSLPipetteWizard.hsl"
+#include "HSLSchedCCLib.hs_"
+// }} ""
+// {{{ 2 "LibraryNamespace" "Begin"
+namespace REAGENTPLATING_CONTROLLER {
+// }} ""
+variable t_strFunctionName;
+variable t_strLibraryName;
+/* {{ 2 "VariableInsertLine" "" */ // }} ""
+// {{{ 2 "SubmethodForwardDeclaration" ""
+private function Abstract(  ) void ;
+function ReagentPlateCreation_SpecifyNumberOfSourceTubes( variable i_intNumberOfSamples, variable i_intNumberOfIntermediatePlateWells, variable i_intNumberOfTubes, variable i_fltVolumePerSample, variable i_fltDeadVolumeOfTube, variable i_fltDeadVolumeOfIntermediatePlate, variable i_fltDeadVolumeOfLiquidTransfer, sequence & i_seqTemplate, variable i_intStartPosition, variable i_blnCreateMultiDispensePattern, sequence & o_seqAspiration, variable & o_arr_fltVolumeAspiration[], variable & o_arr_fltVolumeDispense[], variable & o_arr_fltVolumePerTube[], variable & o_arr_intNumberOfReactionsPerTube[], variable & o_arr_intNumberOfReactionsPerWell[] ) void ;
+function ReagentPlateCreation_WithPartialSourceTubes( variable i_intNumberOfSamples, variable i_intNumberOfIntermediatePlateWells, variable i_fltVolumePerSample, variable i_fltVolumeOfPartialTube, variable i_fltVolumeOfFullTube, variable i_fltDeadVolumeOfTube, variable i_fltDeadVolumeOfIntermediatePlate, variable i_fltDeadVolumeOfLiquidTransfer, sequence i_seqTemplate, variable i_intStartPosition, variable i_blnCreateMultiDispensePattern, sequence & o_arr_seqAspiration[], variable & o_arr_fltVolumeAspiration[], variable & o_arr_fltVolumeDispense[], variable & o_arr_blnConsecutiveAspiration[], variable & o_arr_intNumberOfReactionsPerTube[], variable & o_arr_intNumberOfReactionsPerWell[] ) void ;
+function ReagentPlateLoadInformation_SpecifyNumberOfSourceTubes( variable i_strReagentName, variable i_strTubeType, variable i_intStartPosition, variable & i_arr_fltVolumes[], variable & o_arr_strReagentName[], variable & o_arr_strVolume[], variable & o_arr_strTubeType[] ) void ;
+function ReagentPlateLoadInformation_WithPartialSourceTubes( variable i_strReagentName, variable i_fltPartialTubeVolume, variable i_fltPartialTubeDeadVolume, variable i_strTubeType, variable i_intStartPosition, variable i_intNumberOfTubes, variable & o_arr_strReagentName[], variable & o_arr_strVolume[], variable & o_arr_strTubeType[] ) void ;
+function ReagentPlateSequences( device & i_instrument, sequence i_seqTemplateAspirate, sequence i_seqTemplateDispense, variable i_intAspirateStartPosition, variable i_intNumberOfSamples, variable i_intNumberOfIntermediateWells, sequence & o_seqFormatAspirate, sequence & o_seqChannelsAspirate, sequence & o_seqChannelsDispense, sequence & o_seqMPHAspirate, sequence & o_seqMPHDispense ) void ;
+private function _FormatSequenceForSize( device & i_instrument, sequence & i_seqTemplate, variable i_intStartPoint, variable i_intSize, sequence & o_seqFormattedForSize ) void ;
+private function _VersionHistory(  ) void ;
+// }} ""
+function _InitLibrary() {
+// {{ 2 "AutoInitBlock" ""
+PTL::SetWashingStateDefault("RinseTime1", 5);
+PTL::SetWashingStateDefault("SoakTime1", 5);
+PTL::SetWashingStateDefault("FlowRate1", 11);
+PTL::SetWashingStateDefault("RinseTime2", 0);
+PTL::SetWashingStateDefault("SoakTime2", 0);
+PTL::SetWashingStateDefault("FlowRate2", 11);
+PTL::SetWashingStateDefault("DrainingTime", 10);
+PTL::SetWashingStateDefault("StartWashLiquid", 0);
+PTL::SetLoadingStateDefault("RecoveryOptionContinue", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionExclude", hslTrue);
+PTL::SetLoadingStateDefault("RecoveryOptionDefault", 0);
+PTL::SetLoadingStateDefault("KitLotCheckEnabled", hslFalse);
+// }} ""
+}
+function _ExitLibrary() {
+// {{ 2 "AutoExitBlock" ""
+// }} ""
+}
+// {{{ 5 "Abstract" "Begin"
+private function Abstract(  ) void {
+// }} ""
+// {{ 5 "Abstract" "InitLocals"
+// }} ""
+// {{ 1 1 0 "8eec69e2_3072_478f_9811114101834c9c" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{ 2 1 0 "c2b46045_2cf9_4f41_ae3b36b109d9b9ea" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{ 3 1 0 "37721f82_0f39_4203_84d34eee70efde08" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strLibraryName = Translate("");
+// }} ""
+// {{{ 5 "Abstract" "End"
+}
+// }} ""
+// {{{ 5 "ReagentPlateSequences" "Begin"
+function ReagentPlateSequences( device & i_instrument, sequence i_seqTemplateAspirate, sequence i_seqTemplateDispense, variable i_intAspirateStartPosition, variable i_intNumberOfSamples, variable i_intNumberOfIntermediateWells, sequence & o_seqFormatAspirate, sequence & o_seqChannelsAspirate, sequence & o_seqChannelsDispense, sequence & o_seqMPHAspirate, sequence & o_seqMPHDispense ) void {
+// }} ""
+private variable l_intNumberOfMPHCycles;
+private variable l_strPositionID;
+private variable l_intChannelPosition;
+private variable l_intCurrentPositionDispense;
+private variable l_intNumberOfChannelWells;
+private variable l_intAspirateEndPosition;
+private variable l_intNumberOfMPHWells;
+private variable loopCounter1;
+private variable l_intCurrentPositionAspirate;
+private variable loopCounter3;
+private variable l_strLabwareID;
+private variable l_strComment;
+// {{ 5 "ReagentPlateSequences" "InitLocals"
+// }} ""
+// {{ 100 1 0 "535b85d1_ee2e_41a7_ac4400322fa692a4" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 101 1 0 "929070f4_ba2b_4867_87abdf4ca2535903" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+t_strLibraryName = GetFileName();
+// {{{ 103 1 0 "f3da6539_392f_493f_965eb1327fb0e1a8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 104 1 0 "535b85d1_ee2e_41a7_ac4400322fa692a4" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 105 1 0 "0317f150_85e0_44b1_b1be9674da74e2c1" "{B31F353B-5D80-11d4-A5EB-0050DA737D89}"
+l_intCurrentPositionAspirate = i_seqTemplateAspirate.GetCurrentPosition();
+// }} ""
+// {{ 106 1 0 "d91b6ebd_07ba_4baa_8be383211cf23305" "{B31F353B-5D80-11d4-A5EB-0050DA737D89}"
+l_intCurrentPositionDispense = i_seqTemplateDispense.GetCurrentPosition();
+// }} ""
+// {{ 107 1 0 "9351673f_807d_47bd_9c584bdde242e4dc" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+l_intAspirateEndPosition = i_intAspirateStartPosition + i_intNumberOfIntermediateWells - 1;
+// }} ""
+// {{ 108 1 0 "663d0e33_a12c_40fa_bea22a0c5f20bb84" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+i_seqTemplateAspirate.SetCurrentPosition(i_intAspirateStartPosition);
+// }} ""
+// {{ 109 1 0 "584ffb70_a6a4_4823_a3140422acc186fc" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter3 = 0; loopCounter3 < i_intNumberOfIntermediateWells;)
+{
+loopCounter3 = loopCounter3 + 1;
+// }} ""
+// {{{ 110 1 0 "ea0ef051_3ce2_49e2_876952daaf849d5d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strLabwareID = SeqGetLabwareId(i_seqTemplateAspirate);
+// }} ""
+// {{{ 111 1 0 "4a0be48d_bd9c_4501_80cc710a64eddae2" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strPositionID = SeqGetPositionId(i_seqTemplateAspirate);
+// }} ""
+// {{{ 112 1 0 "7d3f3100_dd13_489f_a164032b298ff6ae" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(o_seqFormatAspirate, l_strLabwareID, l_strPositionID);
+// }} ""
+// {{{ 113 1 0 "5bc73c8b_886c_49df_ab3f4fb2a054e7da" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqIncrement(i_seqTemplateAspirate, 1);
+// }} ""
+// {{ 114 1 0 "584ffb70_a6a4_4823_a3140422acc186fc" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 115 1 0 "8eec1a39_41a3_44ed_bd887cc999057a76" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+o_seqFormatAspirate.SetCurrentPosition(1);
+// }} ""
+// {{ 116 1 0 "3b928158_8b7e_4fa5_a6cc88fa7bb373b6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_intNumberOfIntermediateWells >= 8)
+{
+// }} ""
+// {{ 117 1 0 "1262bef1_f610_4a58_8eee40ebe56c8dc0" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+/* {{ 1 "" "0" */ if(0){  /* }} "" */
+// {{ 118 1 0 "2769fd69_a40f_4309_a16fbce398565dd6" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+l_intNumberOfChannelWells = i_intNumberOfSamples % i_intNumberOfIntermediateWells;
+// }} ""
+// {{ 119 1 0 "4722598b_ae18_4f9d_a772e579b0958ca6" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+l_intNumberOfMPHCycles = i_intNumberOfSamples / i_intNumberOfIntermediateWells;
+// }} ""
+// {{ 120 1 0 "870ef11b_5661_4c7d_86ee4b9e9d3388d5" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+l_intNumberOfMPHWells = l_intNumberOfMPHCycles * i_intNumberOfIntermediateWells;
+// }} ""
+/* {{ 1 "" "1" */ } /* }} "" */
+// {{ 121 1 0 "44f82a37_4517_4378_8b2c687fe0b93195" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+l_intNumberOfChannelWells = i_intNumberOfSamples % 8;
+// }} ""
+// {{ 122 1 0 "8559a84d_f41a_4b8d_b3f43e20239cdd58" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+l_intNumberOfMPHWells = i_intNumberOfSamples - l_intNumberOfChannelWells;
+// }} ""
+// {{ 123 1 0 "1262bef1_f610_4a58_8eee40ebe56c8dc0" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 124 1 0 "c433d7ca_3d7b_4783_90b7915d27a1b81d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intNumberOfChannelWells > 0)
+{
+// }} ""
+// {{ 125 1 0 "88f40476_03fa_4784_819c03e62e89a93f" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+l_intChannelPosition = i_intNumberOfSamples - l_intNumberOfChannelWells + 1;
+// }} ""
+// {{ 126 1 0 "c433d7ca_3d7b_4783_90b7915d27a1b81d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 127 1 0 "42e0f3dd_895d_47af_a424f51cfe351c48" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+i_seqTemplateAspirate.SetCurrentPosition(i_intAspirateStartPosition);
+// }} ""
+// {{ 128 1 0 "43cc4d35_380a_45ca_ae5bffee21ece3e6" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intNumberOfChannelWells;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 129 1 0 "1fd0def6_875c_4e38_b4d7a8cc02a2f5c4" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strLabwareID = SeqGetLabwareId(i_seqTemplateAspirate);
+// }} ""
+// {{{ 130 1 0 "e44b2338_62b3_4077_9173602f9d06321a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strPositionID = SeqGetPositionId(i_seqTemplateAspirate);
+// }} ""
+// {{{ 131 1 0 "b345a3c8_8e43_435b_bb4d360656317b58" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(o_seqChannelsAspirate, l_strLabwareID, l_strPositionID);
+// }} ""
+// {{{ 132 1 0 "9c398043_afa6_4347_a0d7722888bb42ff" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqIncrement(i_seqTemplateAspirate, 1);
+// }} ""
+// {{ 133 1 0 "43cc4d35_380a_45ca_ae5bffee21ece3e6" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 134 1 0 "e2239b1b_6046_4d96_88f54c7ca5a8c382" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+o_seqChannelsAspirate.SetCurrentPosition(1);
+// }} ""
+// {{ 135 1 0 "cd11e2af_449d_4f5f_926376da1a569bfd" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+i_seqTemplateDispense.SetCurrentPosition(l_intChannelPosition);
+// }} ""
+// {{ 136 1 0 "66fbfc64_4041_42b2_b1de1bf855495076" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intNumberOfChannelWells;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 137 1 0 "076798a8_7aae_4a5f_b65178b7785d5167" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strLabwareID = SeqGetLabwareId(i_seqTemplateDispense);
+// }} ""
+// {{{ 138 1 0 "0ddf3e6f_e2a6_4024_856b4322d2d1fb7f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strPositionID = SeqGetPositionId(i_seqTemplateDispense);
+// }} ""
+// {{{ 139 1 0 "2a813c6d_17c5_47d1_aa41a54ad5289492" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(o_seqChannelsDispense, l_strLabwareID, l_strPositionID);
+// }} ""
+// {{{ 140 1 0 "ebf85be9_6ed6_4818_b2898c07b795795f" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqIncrement(i_seqTemplateDispense, 1);
+// }} ""
+// {{ 141 1 0 "66fbfc64_4041_42b2_b1de1bf855495076" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 142 1 0 "548c7286_b2b9_47c4_bda04243e835be61" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+o_seqChannelsDispense.SetCurrentPosition(1);
+// }} ""
+// {{ 143 1 0 "a861af0a_91f6_4619_8bf8dc725e449d4b" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+i_seqTemplateAspirate.SetCurrentPosition(i_intAspirateStartPosition);
+// }} ""
+// {{ 144 1 0 "40fa927e_ee9d_47a4_82ef42502b9c4a4d" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter3 = 0; loopCounter3 < i_intNumberOfIntermediateWells;)
+{
+loopCounter3 = loopCounter3 + 1;
+// }} ""
+// {{{ 145 1 0 "d6d3b1b6_7ca9_4fab_b440c0a96865b8bf" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strLabwareID = SeqGetLabwareId(i_seqTemplateAspirate);
+// }} ""
+// {{{ 146 1 0 "fed1d939_82b6_4185_8423b9bbe5140644" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strPositionID = SeqGetPositionId(i_seqTemplateAspirate);
+// }} ""
+// {{{ 147 1 0 "2ef07b40_9dac_4111_b62eb3a1342aa844" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(o_seqMPHAspirate, l_strLabwareID, l_strPositionID);
+// }} ""
+// {{{ 148 1 0 "b4b1b448_89ae_4f39_932236c33bfcf376" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqIncrement(i_seqTemplateAspirate, 1);
+// }} ""
+// {{ 149 1 0 "40fa927e_ee9d_47a4_82ef42502b9c4a4d" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 150 1 0 "a8f26c37_4dac_439b_9e5a49f183267c23" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+o_seqMPHAspirate.SetCurrentPosition(1);
+// }} ""
+// {{ 151 1 0 "1228431d_7df9_49e0_b4e0d56c6ba97121" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+i_seqTemplateDispense.SetCurrentPosition(l_intCurrentPositionDispense);
+// }} ""
+// {{ 152 1 0 "b2373fae_6c77_4faa_a916ed576df3107d" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intNumberOfMPHWells;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+// {{{ 153 1 0 "567e7a61_6394_4eeb_a85e944f818d9d74" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strLabwareID = SeqGetLabwareId(i_seqTemplateDispense);
+// }} ""
+// {{{ 154 1 0 "50ea8348_6532_458c_ab7e1f06014f6e97" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strPositionID = SeqGetPositionId(i_seqTemplateDispense);
+// }} ""
+// {{{ 155 1 0 "dd632841_e063_4b38_9bed1c42c0762534" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(o_seqMPHDispense, l_strLabwareID, l_strPositionID);
+// }} ""
+// {{{ 156 1 0 "77e5c537_9901_40f3_97246448e143c49d" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqIncrement(i_seqTemplateDispense, 1);
+// }} ""
+// {{ 157 1 0 "b2373fae_6c77_4faa_a916ed576df3107d" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 158 1 0 "3ddd4789_eed5_4d62_91cef375a8736f06" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+o_seqMPHDispense.SetCurrentPosition(1);
+// }} ""
+// {{ 159 1 0 "3b928158_8b7e_4fa5_a6cc88fa7bb373b6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{{ 160 1 0 "31105df3_292c_4aba_8eb797a63311221a" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_FormatSequenceForSize(i_instrument, o_seqFormatAspirate, 1, i_intNumberOfSamples, o_seqChannelsAspirate);
+// }} ""
+// {{{ 161 1 0 "e2762122_9e9d_41af_8a12344c7012ecda" "{7C4EF7A7-39BE-406a-897F-71F3A35B4093}"
+_FormatSequenceForSize(i_instrument, i_seqTemplateDispense, l_intCurrentPositionDispense, i_intNumberOfSamples, o_seqChannelsDispense);
+// }} ""
+// {{ 162 1 0 "3b928158_8b7e_4fa5_a6cc88fa7bb373b6" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 163 1 0 "894789ff_12c8_4d70_a724ac6eeeda5100" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+i_seqTemplateAspirate.SetCurrentPosition(l_intCurrentPositionAspirate);
+// }} ""
+// {{ 164 1 0 "247f92ec_5654_46fe_b1682125a216be10" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+i_seqTemplateDispense.SetCurrentPosition(l_intCurrentPositionDispense);
+// }} ""
+// {{ 165 1 0 "dd137a2b_8c3c_4ac2_8086a59c1be90573" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("o_seqFormatAspirate"));
+// }} ""
+// {{{ 166 1 0 "c6a7f877_8f1b_48cb_b730ef46f08a03fe" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceSequence(TRACE_LEVEL_RELEASE, o_seqFormatAspirate);
+// }} ""
+// {{ 167 1 0 "88bf9d60_0084_471f_a99b8f173c2b9f3d" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("o_seqChannelsAspirate"));
+// }} ""
+// {{{ 168 1 0 "b4c7e7d4_c6c6_46dd_a2b8bd89996cedba" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceSequence(TRACE_LEVEL_RELEASE, o_seqChannelsAspirate);
+// }} ""
+// {{ 169 1 0 "6a4ae62e_71cc_413a_acc2d006bf2f1b97" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("o_seqChannelsDispense"));
+// }} ""
+// {{{ 170 1 0 "5fd2bd8f_3462_4add_b52d0733967d8ac7" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceSequence(TRACE_LEVEL_RELEASE, o_seqChannelsDispense);
+// }} ""
+// {{ 171 1 0 "d2ea1ac9_c4d3_4d9d_9bbba68d40fdb4d2" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("o_seqMPHAspirate"));
+// }} ""
+// {{{ 172 1 0 "59c55826_94d3_4f5a_9a09d56498c3605e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceSequence(TRACE_LEVEL_RELEASE, o_seqMPHAspirate);
+// }} ""
+// {{ 173 1 0 "cd0aea94_152e_4efe_aa66246dad9a89f0" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+MECC::TraceComment(Translate("o_seqMPHDispense"));
+// }} ""
+// {{{ 174 1 0 "7e12df8b_743f_498e_a0e6180cde64a1da" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceSequence(TRACE_LEVEL_RELEASE, o_seqMPHDispense);
+// }} ""
+// {{ 175 1 0 "eb092c59_9dff_41a3_94edbe0d3b7542ac" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 176 1 0 "94f47895_1317_4fab_b8684ebe8ae42d04" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 177 1 0 "42d9b29a_5fc7_417c_b143904f01e08379" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{ 178 1 0 "eb092c59_9dff_41a3_94edbe0d3b7542ac" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "ReagentPlateSequences" "End"
+}
+// }} ""
+// {{{ 5 "ReagentPlateCreation_WithPartialSourceTubes" "Begin"
+function ReagentPlateCreation_WithPartialSourceTubes( variable i_intNumberOfSamples, variable i_intNumberOfIntermediatePlateWells, variable i_fltVolumePerSample, variable i_fltVolumeOfPartialTube, variable i_fltVolumeOfFullTube, variable i_fltDeadVolumeOfTube, variable i_fltDeadVolumeOfIntermediatePlate, variable i_fltDeadVolumeOfLiquidTransfer, sequence i_seqTemplate, variable i_intStartPosition, variable i_blnCreateMultiDispensePattern, sequence & o_arr_seqAspiration[], variable & o_arr_fltVolumeAspiration[], variable & o_arr_fltVolumeDispense[], variable & o_arr_blnConsecutiveAspiration[], variable & o_arr_intNumberOfReactionsPerTube[], variable & o_arr_intNumberOfReactionsPerWell[] ) void {
+// }} ""
+private variable l_strComment;
+// {{ 5 "ReagentPlateCreation_WithPartialSourceTubes" "InitLocals"
+o_arr_seqAspiration.SetSize( 0);
+o_arr_fltVolumeAspiration.SetSize( 0);
+o_arr_fltVolumeDispense.SetSize( 0);
+o_arr_blnConsecutiveAspiration.SetSize( 0);
+o_arr_intNumberOfReactionsPerTube.SetSize( 0);
+o_arr_intNumberOfReactionsPerWell.SetSize( 0);
+// }} ""
+// {{ 16 1 0 "dadb79f0_6c68_4a02_bfe1891c42b56d6d" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 17 1 0 "7e52da8f_2fe0_429e_a1ab2fc184e5e836" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+t_strLibraryName = GetFileName();
+// {{{ 19 1 0 "fc4cc904_05af_45a0_8a81783bfa3cd55e" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 20 1 0 "dadb79f0_6c68_4a02_bfe1891c42b56d6d" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 21 1 0 "a7cceea1_c712_46d2_8029a78882969a59" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+/* {{ 1 "" "0" */ if(0){  /* }} "" */
+{
+variable fltActionVolume, fltNumberOfTips, fltNeededVolumeBucket, fltNumberOfSamplesBucket(0), fltNumberOfReactionsBucket, fltDeadVolumeBucket, fltDeadVolumeTransfer, intSequencePositionReset, i, j(1), k(1), m(1), intSize;
+sequence seqAspirationBucket;
+
+//Store original sequence position for reset and prepare for input start position
+intSequencePositionReset = i_seqTemplate.GetCurrentPosition();
+i_seqTemplate.SetCurrentPosition(i_intStartPosition);
+
+//Prepare dead volume variables
+fltDeadVolumeTransfer = 1 + i_fltDeadVolumeOfLiquidTransfer / 100.0;
+fltDeadVolumeBucket = i_fltDeadVolumeOfIntermediatePlate;
+
+//Calculate the number of tips used, used to equal to 8 if == 16
+fltNumberOfTips = i_intNumberOfIntermediatePlateWells;
+if(i_blnCreateMultiDispensePattern == 1 && i_intNumberOfIntermediatePlateWells == 16) fltNumberOfTips = 8;
+TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Number of tips: ", fltNumberOfTips, "", "", "", "", "", "", "", "");
+
+//Calculate the number of reactions per intermediate plate well
+o_arr_intNumberOfReactionsPerWell.SetSize(i_intNumberOfIntermediatePlateWells);
+for(i = 1;i <= i_intNumberOfSamples; i++){  
+   o_arr_intNumberOfReactionsPerWell.SetAt(j - 1,k);
+   if(j < i_intNumberOfIntermediatePlateWells) j++;
+   else j = 1;
+   if(i % i_intNumberOfIntermediatePlateWells == 0) k++;
+   }
+//o_arr_intNumberOfReactionsPerWell now contains the namesake in [i_intNumberOfIntermediatePlateWells] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per well: ", o_arr_intNumberOfReactionsPerWell);
+
+//Determine the current action volume and initiate o_arr_intNumberOfReactionsPerTube and index
+if(i_fltVolumeOfPartialTube == 0){
+	fltActionVolume = i_fltVolumeOfFullTube - i_fltDeadVolumeOfTube;
+	o_arr_intNumberOfReactionsPerTube.AddAsLast(0);
+	o_arr_intNumberOfReactionsPerTube.AddAsLast(0);
+   i_seqTemplate.Increment(1);
+	m++;
+	}
+else{
+   fltActionVolume = i_fltVolumeOfPartialTube - i_fltDeadVolumeOfTube;
+   if(fltActionVolume <= 0){
+	   fltActionVolume = i_fltVolumeOfFullTube - i_fltDeadVolumeOfTube;
+	   o_arr_intNumberOfReactionsPerTube.AddAsLast(0);
+	   o_arr_intNumberOfReactionsPerTube.AddAsLast(0);
+      i_seqTemplate.Increment(1);
+	   m++;
+	   }
+   else o_arr_intNumberOfReactionsPerTube.AddAsLast(0);
+   }
+TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Action volume 1: ", fltActionVolume, "", "", "", "", "", "", "", "");
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per tube 1: ", o_arr_intNumberOfReactionsPerTube);
+
+//Determine the aspiration volume and consecutive boolean arrays, with respect to depletion of the partial tube.  Generate o_arr_seqAspiration...1:1 with o_arr_blnConsecutiveAspiration
+for(i = 1;i <= fltNumberOfTips; i++){
+   //Determine the number of reactions per aspiration
+   fltNumberOfReactionsBucket = o_arr_intNumberOfReactionsPerWell.GetAt(i - 1);
+   if(i_blnCreateMultiDispensePattern == 1 && i_intNumberOfIntermediatePlateWells == 16){
+      fltNumberOfReactionsBucket = fltNumberOfReactionsBucket + o_arr_intNumberOfReactionsPerWell.GetAt(i + 7);
+      fltDeadVolumeBucket = i_fltDeadVolumeOfIntermediatePlate * 2;
+      }
+   TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Number of reactions bucket: ", fltNumberOfReactionsBucket, "", "", "", "", "", "", "", "");
+   
+   //Determine the volume per aspiration
+   fltNeededVolumeBucket = fltNumberOfReactionsBucket * i_fltVolumePerSample * fltDeadVolumeTransfer + fltDeadVolumeBucket;
+   TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Volume needed bucket: ", fltNeededVolumeBucket, "", "", "", "", "", "", "", "");
+   if(fltNeededVolumeBucket <= fltActionVolume){
+      //Aspirate from current tube...partial or new
+      o_arr_fltVolumeAspiration.AddAsLast(fltNeededVolumeBucket);
+      o_arr_blnConsecutiveAspiration.AddAsLast(0);
+      seqAspirationBucket.Add(i_seqTemplate.GetLabwareId(), i_seqTemplate.GetPositionId());
+      seqAspirationBucket.SetCurrentPosition(1);
+      o_arr_seqAspiration.AddAsLast(seqAspirationBucket);
+      seqAspirationBucket.RemoveAt(1);
+      //i_seqTemplate.Increment(1);
+      fltNumberOfSamplesBucket = o_arr_intNumberOfReactionsPerTube.GetAt(m - 1) + fltNumberOfReactionsBucket;
+      o_arr_intNumberOfReactionsPerTube.SetAt(m - 1, fltNumberOfSamplesBucket);
+      fltActionVolume = fltActionVolume - fltNeededVolumeBucket;
+      if(fltActionVolume == 0) fltActionVolume = i_fltVolumeOfFullTube - i_fltDeadVolumeOfTube;
+      TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Action volume 2: ", fltActionVolume, "", "", "", "", "", "", "", "");
+      }
+   else{
+      //Deplete partial tube
+      o_arr_fltVolumeAspiration.AddAsLast(fltActionVolume);
+      o_arr_blnConsecutiveAspiration.AddAsLast(0);
+      seqAspirationBucket.Add(i_seqTemplate.GetLabwareId(), i_seqTemplate.GetPositionId());
+      seqAspirationBucket.SetCurrentPosition(1);
+      o_arr_seqAspiration.AddAsLast(seqAspirationBucket);
+      seqAspirationBucket.RemoveAt(1);
+      i_seqTemplate.Increment(1);
+      fltNumberOfSamplesBucket = Floor(fltActionVolume / i_fltVolumePerSample);
+      fltNumberOfReactionsBucket = fltNumberOfReactionsBucket - fltNumberOfSamplesBucket;
+      fltNumberOfSamplesBucket = o_arr_intNumberOfReactionsPerTube.GetAt(m - 1) + fltNumberOfSamplesBucket;
+      o_arr_intNumberOfReactionsPerTube.SetAt(m - 1, fltNumberOfSamplesBucket);
+      //Consecutive aspiration from new tube
+      fltNeededVolumeBucket = fltNeededVolumeBucket - fltActionVolume;
+      fltActionVolume = i_fltVolumeOfFullTube - i_fltDeadVolumeOfTube;
+      TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Action volume 3: ", fltActionVolume, "", "", "", "", "", "", "", "");
+      o_arr_fltVolumeAspiration.AddAsLast(fltNeededVolumeBucket);
+      o_arr_blnConsecutiveAspiration.AddAsLast(1);
+      seqAspirationBucket.Add(i_seqTemplate.GetLabwareId(), i_seqTemplate.GetPositionId());
+      seqAspirationBucket.SetCurrentPosition(1);
+      o_arr_seqAspiration.AddAsLast(seqAspirationBucket);
+      seqAspirationBucket.RemoveAt(1);
+      fltNumberOfSamplesBucket = fltNumberOfReactionsBucket;
+      o_arr_intNumberOfReactionsPerTube.AddAsLast(fltNumberOfReactionsBucket);
+      m++;
+      fltActionVolume = fltActionVolume - fltNeededVolumeBucket;
+      TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Action volume 4: ", fltActionVolume, "", "", "", "", "", "", "", "");
+      }
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per tube 2: ", o_arr_intNumberOfReactionsPerTube);	  
+   }
+//Reset template sequence
+i_seqTemplate.SetCurrentPosition(intSequencePositionReset);   
+//o_arr_fltVolumeAspiration now contains the namesake in [number of source tubes OR number of source tubes +1] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Volume of aspiration: ", o_arr_fltVolumeAspiration);
+//o_arr_blnConsecutiveAspiration now contains the namesake in [number of source tubes OR number of source tubes +1] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Consecutive aspiration boolean: ", o_arr_blnConsecutiveAspiration);
+//o_arr_intNumberOfReactionsPerTube now contains the namesake in [number of source tubes] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per tube: ", o_arr_intNumberOfReactionsPerTube);
+//o_arr_seqAspiration now contains the namesake in [number of source tubes OR number of source tubes +1] elements
+intSize = o_arr_seqAspiration.GetSize();
+for(i = 1; i <= intSize; i++){
+	TRACELEVEL::TraceSequence(TRACE_LEVEL_RELEASE, o_arr_seqAspiration.GetAt(i - 1));
+	}
+	
+//Calculate the dispense volume array
+for(i = 1;i <= i_intNumberOfIntermediatePlateWells; i++){
+	o_arr_fltVolumeDispense.AddAsLast(o_arr_intNumberOfReactionsPerWell.GetAt(i - 1) * i_fltVolumePerSample * fltDeadVolumeTransfer + i_fltDeadVolumeOfIntermediatePlate);
+	}
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Volume of dispense: ", o_arr_fltVolumeDispense);
+}
+/* {{ 1 "" "1" */ } /* }} "" */
+// {{ 23 1 0 "a7cceea1_c712_46d2_8029a78882969a59" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 24 1 0 "1038b8d6_d2e5_4e85_8e65c31fa81ff03a" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+{
+variable fltActionVolume, fltNumberOfTips, fltNeededVolumeBucket, fltNumberOfSamplesBucket(0), fltNumberOfReactionsBucket, fltDeadVolumeBucket, fltDeadVolumeTransfer, intSequencePositionReset, i, j(1), k(1), m(1), intSize;
+sequence seqAspirationBucket;
+
+//Store original sequence position for reset and prepare for input start position
+intSequencePositionReset = i_seqTemplate.GetCurrentPosition();
+i_seqTemplate.SetCurrentPosition(i_intStartPosition);
+
+//Prepare dead volume variables
+fltDeadVolumeTransfer = 1 + i_fltDeadVolumeOfLiquidTransfer / 100.0;
+fltDeadVolumeBucket = i_fltDeadVolumeOfIntermediatePlate;
+
+//Calculate the number of tips used
+fltNumberOfTips = i_intNumberOfIntermediatePlateWells;
+if(i_blnCreateMultiDispensePattern == 1 && i_intNumberOfIntermediatePlateWells >= 16) fltNumberOfTips = 8;
+TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Number of tips: ", fltNumberOfTips, "", "", "", "", "", "", "", "");
+
+//Calculate the number of reactions per intermediate plate well
+o_arr_intNumberOfReactionsPerWell.SetSize(i_intNumberOfIntermediatePlateWells);
+for(i = 1;i <= i_intNumberOfSamples; i++){  
+   o_arr_intNumberOfReactionsPerWell.SetAt(j - 1,k);
+   if(j < i_intNumberOfIntermediatePlateWells) j++;
+   else j = 1;
+   if(i % i_intNumberOfIntermediatePlateWells == 0) k++;
+   }
+//o_arr_intNumberOfReactionsPerWell now contains the namesake in [i_intNumberOfIntermediatePlateWells] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per well: ", o_arr_intNumberOfReactionsPerWell);
+
+//Determine the current action volume and initiate o_arr_intNumberOfReactionsPerTube and index
+if(i_fltVolumeOfPartialTube == 0){
+	fltActionVolume = i_fltVolumeOfFullTube - i_fltDeadVolumeOfTube;
+	o_arr_intNumberOfReactionsPerTube.AddAsLast(0);
+	o_arr_intNumberOfReactionsPerTube.AddAsLast(0);
+   i_seqTemplate.Increment(1);
+	m++;
+	}
+else{
+   fltActionVolume = i_fltVolumeOfPartialTube - i_fltDeadVolumeOfTube;
+   if(fltActionVolume <= 0){
+	   fltActionVolume = i_fltVolumeOfFullTube - i_fltDeadVolumeOfTube;
+	   o_arr_intNumberOfReactionsPerTube.AddAsLast(0);
+	   o_arr_intNumberOfReactionsPerTube.AddAsLast(0);
+      i_seqTemplate.Increment(1);
+	   m++;
+	   }
+   else o_arr_intNumberOfReactionsPerTube.AddAsLast(0);
+   }
+TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Action volume 1: ", fltActionVolume, "", "", "", "", "", "", "", "");
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per tube 1: ", o_arr_intNumberOfReactionsPerTube);
+
+//Determine the aspiration volume and consecutive boolean arrays, with respect to depletion of the partial tube.  Generate o_arr_seqAspiration...1:1 with o_arr_blnConsecutiveAspiration
+for(i = 1;i <= fltNumberOfTips; i++){
+   //Determine the number of reactions per aspiration
+   fltNumberOfReactionsBucket = o_arr_intNumberOfReactionsPerWell.GetAt(i - 1);
+   if(i_blnCreateMultiDispensePattern == 1 && i_intNumberOfIntermediatePlateWells >= 16){
+      fltNumberOfReactionsBucket = fltNumberOfReactionsBucket + o_arr_intNumberOfReactionsPerWell.GetAt(i + 7);
+      fltDeadVolumeBucket = i_fltDeadVolumeOfIntermediatePlate * 2;
+      }
+   if(i_blnCreateMultiDispensePattern == 1 && i_intNumberOfIntermediatePlateWells >= 24){
+      fltNumberOfReactionsBucket = fltNumberOfReactionsBucket + o_arr_intNumberOfReactionsPerWell.GetAt(i + 15);
+      fltDeadVolumeBucket = i_fltDeadVolumeOfIntermediatePlate * 3;
+      }	
+   TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Number of reactions bucket: ", fltNumberOfReactionsBucket, "", "", "", "", "", "", "", "");
+   
+   //Determine the volume per aspiration
+   fltNeededVolumeBucket = fltNumberOfReactionsBucket * i_fltVolumePerSample * fltDeadVolumeTransfer + fltDeadVolumeBucket;
+   TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Volume needed bucket: ", fltNeededVolumeBucket, "", "", "", "", "", "", "", "");
+   if(fltNeededVolumeBucket <= fltActionVolume){
+      //Aspirate from current tube...partial or new
+      o_arr_fltVolumeAspiration.AddAsLast(fltNeededVolumeBucket);
+      o_arr_blnConsecutiveAspiration.AddAsLast(0);
+      seqAspirationBucket.Add(i_seqTemplate.GetLabwareId(), i_seqTemplate.GetPositionId());
+      seqAspirationBucket.SetCurrentPosition(1);
+      o_arr_seqAspiration.AddAsLast(seqAspirationBucket);
+      seqAspirationBucket.RemoveAt(1);
+      //i_seqTemplate.Increment(1);
+      fltNumberOfSamplesBucket = o_arr_intNumberOfReactionsPerTube.GetAt(m - 1) + fltNumberOfReactionsBucket;
+      o_arr_intNumberOfReactionsPerTube.SetAt(m - 1, fltNumberOfSamplesBucket);
+      fltActionVolume = fltActionVolume - fltNeededVolumeBucket;
+      if(fltActionVolume == 0) fltActionVolume = i_fltVolumeOfFullTube - i_fltDeadVolumeOfTube;
+      TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Action volume 2: ", fltActionVolume, "", "", "", "", "", "", "", "");
+      }
+   else{
+      //Deplete partial tube
+      o_arr_fltVolumeAspiration.AddAsLast(fltActionVolume);
+      o_arr_blnConsecutiveAspiration.AddAsLast(0);
+      seqAspirationBucket.Add(i_seqTemplate.GetLabwareId(), i_seqTemplate.GetPositionId());
+      seqAspirationBucket.SetCurrentPosition(1);
+      o_arr_seqAspiration.AddAsLast(seqAspirationBucket);
+      seqAspirationBucket.RemoveAt(1);
+      i_seqTemplate.Increment(1);
+      fltNumberOfSamplesBucket = Floor(fltActionVolume / i_fltVolumePerSample);
+      fltNumberOfReactionsBucket = fltNumberOfReactionsBucket - fltNumberOfSamplesBucket;
+      fltNumberOfSamplesBucket = o_arr_intNumberOfReactionsPerTube.GetAt(m - 1) + fltNumberOfSamplesBucket;
+      o_arr_intNumberOfReactionsPerTube.SetAt(m - 1, fltNumberOfSamplesBucket);
+      //Consecutive aspiration from new tube
+      fltNeededVolumeBucket = fltNeededVolumeBucket - fltActionVolume;
+      fltActionVolume = i_fltVolumeOfFullTube - i_fltDeadVolumeOfTube;
+      TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Action volume 3: ", fltActionVolume, "", "", "", "", "", "", "", "");
+      o_arr_fltVolumeAspiration.AddAsLast(fltNeededVolumeBucket);
+      o_arr_blnConsecutiveAspiration.AddAsLast(1);
+      seqAspirationBucket.Add(i_seqTemplate.GetLabwareId(), i_seqTemplate.GetPositionId());
+      seqAspirationBucket.SetCurrentPosition(1);
+      o_arr_seqAspiration.AddAsLast(seqAspirationBucket);
+      seqAspirationBucket.RemoveAt(1);
+      fltNumberOfSamplesBucket = fltNumberOfReactionsBucket;
+      o_arr_intNumberOfReactionsPerTube.AddAsLast(fltNumberOfReactionsBucket);
+      m++;
+      fltActionVolume = fltActionVolume - fltNeededVolumeBucket;
+      TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Action volume 4: ", fltActionVolume, "", "", "", "", "", "", "", "");
+      }
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per tube 2: ", o_arr_intNumberOfReactionsPerTube);	  
+   }
+
+//Reset template sequence
+i_seqTemplate.SetCurrentPosition(intSequencePositionReset);
+//o_arr_seqAspiration now contains the namesake in [number of source tubes OR number of source tubes +1] elements
+intSize = o_arr_seqAspiration.GetSize();
+for(i = 1; i <= intSize; i++){
+	TRACELEVEL::TraceSequence(TRACE_LEVEL_RELEASE, o_arr_seqAspiration.GetAt(i - 1));
+	}   
+//o_arr_fltVolumeAspiration now contains the namesake in [number of source tubes OR number of source tubes +1] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Volume of aspiration: ", o_arr_fltVolumeAspiration);
+//Calculate the dispense volume array
+for(i = 1;i <= i_intNumberOfIntermediatePlateWells; i++){
+	o_arr_fltVolumeDispense.AddAsLast(o_arr_intNumberOfReactionsPerWell.GetAt(i - 1) * i_fltVolumePerSample * fltDeadVolumeTransfer + i_fltDeadVolumeOfIntermediatePlate);
+	}
+//o_arr_fltVolumeDispense now contains the namesake in [number of wells] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Volume of dispense: ", o_arr_fltVolumeDispense);
+//o_arr_blnConsecutiveAspiration now contains the namesake in [number of source tubes OR number of source tubes +1] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Consecutive aspiration boolean: ", o_arr_blnConsecutiveAspiration);
+//o_arr_intNumberOfReactionsPerTube now contains the namesake in [number of source tubes] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per tube: ", o_arr_intNumberOfReactionsPerTube);
+//o_arr_intNumberOfReactionsPerWell now contains the namesake in [number of wells] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per well: ", o_arr_intNumberOfReactionsPerWell);
+}
+// {{ 26 1 0 "352b2fc5_8ccb_415e_bbf7ad630b1ab234" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 27 1 0 "988906dd_c2e9_4b5e_bc3303b43830b879" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 28 1 0 "5377e9bd_a4e5_4765_90f18749dde16fc7" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{ 29 1 0 "352b2fc5_8ccb_415e_bbf7ad630b1ab234" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "ReagentPlateCreation_WithPartialSourceTubes" "End"
+}
+// }} ""
+// {{{ 5 "_VersionHistory" "Begin"
+private function _VersionHistory(  ) void {
+// }} ""
+// {{ 5 "_VersionHistory" "InitLocals"
+// }} ""
+// {{ 195 1 0 "15692f80_e346_4a4d_9e3c41f8fc637c14" "{F07B0071-8EFC-11d4-A3BA-002035848439}"
+
+// }} ""
+// {{{ 5 "_VersionHistory" "End"
+}
+// }} ""
+// {{{ 5 "ReagentPlateCreation_SpecifyNumberOfSourceTubes" "Begin"
+function ReagentPlateCreation_SpecifyNumberOfSourceTubes( variable i_intNumberOfSamples, variable i_intNumberOfIntermediatePlateWells, variable i_intNumberOfTubes, variable i_fltVolumePerSample, variable i_fltDeadVolumeOfTube, variable i_fltDeadVolumeOfIntermediatePlate, variable i_fltDeadVolumeOfLiquidTransfer, sequence & i_seqTemplate, variable i_intStartPosition, variable i_blnCreateMultiDispensePattern, sequence & o_seqAspiration, variable & o_arr_fltVolumeAspiration[], variable & o_arr_fltVolumeDispense[], variable & o_arr_fltVolumePerTube[], variable & o_arr_intNumberOfReactionsPerTube[], variable & o_arr_intNumberOfReactionsPerWell[] ) void {
+// }} ""
+private variable l_strComment;
+// {{ 5 "ReagentPlateCreation_SpecifyNumberOfSourceTubes" "InitLocals"
+o_arr_fltVolumeAspiration.SetSize( 0);
+o_arr_fltVolumeDispense.SetSize( 0);
+o_arr_fltVolumePerTube.SetSize( 0);
+o_arr_intNumberOfReactionsPerTube.SetSize( 0);
+o_arr_intNumberOfReactionsPerWell.SetSize( 0);
+// }} ""
+// {{ 5 1 0 "ba645de0_13d3_44c2_ae41692fc1457ddd" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 6 1 0 "aac00322_bbcf_4fe2_8b3a805912dd44ba" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+t_strLibraryName = GetFileName();
+// {{{ 8 1 0 "5cd82a4e_01cb_4883_a75d5459e89d0132" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 9 1 0 "ba645de0_13d3_44c2_ae41692fc1457ddd" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+{
+variable fltNumberOfTips, fltNeededVolumeBucket, fltNumberOfReactionsBucket, fltDeadVolumeBucket, fltDeadVolumeTransfer, intSequencePositionReset, i, j(1), k(1);
+
+//Store original sequence position for reset and prepare for input start position
+intSequencePositionReset = i_seqTemplate.GetCurrentPosition();
+i_seqTemplate.SetCurrentPosition(i_intStartPosition);
+
+//Prepare dead volume variables
+fltDeadVolumeTransfer = 1 + i_fltDeadVolumeOfLiquidTransfer / 100.0;
+fltDeadVolumeBucket = i_fltDeadVolumeOfIntermediatePlate;
+
+//Calculate the number of tips used
+fltNumberOfTips = i_intNumberOfIntermediatePlateWells;
+if(i_blnCreateMultiDispensePattern == 1 && i_intNumberOfIntermediatePlateWells >= 16) fltNumberOfTips = 8;
+TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Number of tips: ", fltNumberOfTips, "", "", "", "", "", "", "", "");
+
+//Calculate the number of reactions per intermediate plate well
+o_arr_intNumberOfReactionsPerWell.SetSize(i_intNumberOfIntermediatePlateWells);
+for(i = 1;i <= i_intNumberOfSamples; i++){  
+   o_arr_intNumberOfReactionsPerWell.SetAt(j - 1,k);
+   if(j < i_intNumberOfIntermediatePlateWells) j++;
+   else j = 1;
+   if(i % i_intNumberOfIntermediatePlateWells == 0) k++;
+   }
+
+i_fltDeadVolumeOfLiquidTransfer = 1 + (i_fltDeadVolumeOfLiquidTransfer / 100);
+
+//Calculate the number of reactions per tube
+j = 1;
+k = 1;
+o_arr_intNumberOfReactionsPerTube.SetSize(i_intNumberOfTubes);
+for(i = 1;i <= i_intNumberOfSamples; i++){  
+   o_arr_intNumberOfReactionsPerTube.SetAt(j - 1,k);
+   if(j < i_intNumberOfTubes) j++;
+   else j = 1;
+   if(i % i_intNumberOfTubes == 0) k++;
+   }
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+o_arr_fltVolumePerTube.SetSize(i_intNumberOfTubes);
+//pre-load o_arr_fltVolumePerTube with dead volume
+for(i = 1; i <= i_intNumberOfTubes; i++){
+   o_arr_fltVolumePerTube.SetAt(i - 1, i_fltDeadVolumeOfTube);
+   }
+
+j = 1;
+//Determine the aspiration volume array and sequence
+for(i = 1;i <= fltNumberOfTips; i++){
+   //Determine the number of reactions per aspiration
+   fltNumberOfReactionsBucket = o_arr_intNumberOfReactionsPerWell.GetAt(i - 1);
+   if(i_blnCreateMultiDispensePattern == 1 && i_intNumberOfIntermediatePlateWells >= 16){
+      fltNumberOfReactionsBucket = fltNumberOfReactionsBucket + o_arr_intNumberOfReactionsPerWell.GetAt(i + 7);
+      fltDeadVolumeBucket = i_fltDeadVolumeOfIntermediatePlate * 2;
+      }
+   if(i_blnCreateMultiDispensePattern == 1 && i_intNumberOfIntermediatePlateWells >= 24){
+      fltNumberOfReactionsBucket = fltNumberOfReactionsBucket + o_arr_intNumberOfReactionsPerWell.GetAt(i + 15);
+      fltDeadVolumeBucket = i_fltDeadVolumeOfIntermediatePlate * 3;
+      }	
+   TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Number of reactions bucket: ", fltNumberOfReactionsBucket, "", "", "", "", "", "", "", "");
+   
+   //Determine the volume per aspiration
+   fltNeededVolumeBucket = fltNumberOfReactionsBucket * i_fltVolumePerSample * fltDeadVolumeTransfer + fltDeadVolumeBucket;
+   TRACELEVEL::Trace_10(TRACE_LEVEL_DEBUG, "Volume needed bucket: ", fltNeededVolumeBucket, "", "", "", "", "", "", "", "");
+   o_arr_fltVolumeAspiration.AddAsLast(fltNeededVolumeBucket);
+   o_arr_fltVolumePerTube.SetAt(j - 1, o_arr_fltVolumePerTube.GetAt(j - 1) + fltNeededVolumeBucket);
+   j++;
+   o_seqAspiration.Add(i_seqTemplate.GetLabwareId(), i_seqTemplate.GetPositionId());
+   i_seqTemplate.Increment(1);
+   if(j > i_intNumberOfTubes){
+      j = 1;
+      i_seqTemplate.SetCurrentPosition(i_intStartPosition);
+      }
+   }
+     
+      
+	
+
+	
+
+
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//Reset template sequence
+i_seqTemplate.SetCurrentPosition(intSequencePositionReset);   
+//Set position of output sequence to 1
+o_seqAspiration.SetCurrentPosition(1);
+TRACELEVEL::TraceSequence(TRACE_LEVEL_RELEASE, o_seqAspiration);
+//o_arr_fltVolumeAspiration now contains the namesake in [number of source tubes] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Volume of aspiration: ", o_arr_fltVolumeAspiration);
+//Calculate the dispense volume array
+for(i = 1;i <= i_intNumberOfIntermediatePlateWells; i++){
+	o_arr_fltVolumeDispense.AddAsLast(o_arr_intNumberOfReactionsPerWell.GetAt(i - 1) * i_fltVolumePerSample * fltDeadVolumeTransfer + i_fltDeadVolumeOfIntermediatePlate);
+	}
+//o_arr_fltVolumeDispense now contains the namesake in [number of wells] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Volume of dispense: ", o_arr_fltVolumeDispense);
+//o_arr_fltVolumePerTube now contains the namesake in [number of source tubes] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Volume per tube: ", o_arr_fltVolumePerTube);
+//o_arr_intNumberOfReactionsPerTube now contains the namesake in [number of source tubes] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per tube: ", o_arr_intNumberOfReactionsPerTube);
+//o_arr_intNumberOfReactionsPerWell now contains the namesake in [number of wells] elements
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, "Number of reactions per well: ", o_arr_intNumberOfReactionsPerWell);
+}
+// {{ 11 1 0 "7036adc0_9c2e_47ae_998ebf0f5a7c4c37" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 12 1 0 "43e07fde_1e90_4da6_a3c3e3be63dba893" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 13 1 0 "f0331e6d_ee98_4515_8e0ec240bb56b33f" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{ 14 1 0 "7036adc0_9c2e_47ae_998ebf0f5a7c4c37" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "ReagentPlateCreation_SpecifyNumberOfSourceTubes" "End"
+}
+// }} ""
+// {{{ 5 "ReagentPlateLoadInformation_WithPartialSourceTubes" "Begin"
+function ReagentPlateLoadInformation_WithPartialSourceTubes( variable i_strReagentName, variable i_fltPartialTubeVolume, variable i_fltPartialTubeDeadVolume, variable i_strTubeType, variable i_intStartPosition, variable i_intNumberOfTubes, variable & o_arr_strReagentName[], variable & o_arr_strVolume[], variable & o_arr_strTubeType[] ) void {
+// }} ""
+private variable l_strVolume;
+private variable l_strReagentName;
+private variable loopCounter1;
+private variable l_intSize;
+private variable l_strComment;
+// {{ 5 "ReagentPlateLoadInformation_WithPartialSourceTubes" "InitLocals"
+o_arr_strReagentName.SetSize( 0);
+o_arr_strVolume.SetSize( 0);
+o_arr_strTubeType.SetSize( 0);
+// }} ""
+// {{ 62 1 0 "7872ab13_0902_44ce_8a62cd34462e177a" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 63 1 0 "10ad735b_4be4_4924_bdd24da5cdb624dc" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+t_strLibraryName = GetFileName();
+// {{{ 65 1 0 "e95f78cb_dbf6_4616_8d191f1d5f40714b" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 66 1 0 "7872ab13_0902_44ce_8a62cd34462e177a" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 67 1 0 "466c9d60_b110_4cc5_8159b6de775f24c2" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+o_arr_strReagentName.SetSize(0);
+// }} ""
+// {{ 68 1 0 "a35d9fca_6fe3_49c2_98f4234b0fc52dc7" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+o_arr_strVolume.SetSize(0);
+// }} ""
+// {{ 69 1 0 "555480ab_23b1_43c3_b1962cb657ef606a" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+o_arr_strTubeType.SetSize(0);
+// }} ""
+// {{ 70 1 0 "88eb14c3_d635_4ad7_ae58ee508df3e946" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strReagentName = Translate("");
+// }} ""
+// {{ 71 1 0 "47e48e23_b245_4584_9beccaac2fcca0a0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_fltPartialTubeVolume == 0)
+{
+// }} ""
+l_strReagentName = "Position " + StrIStr(i_intStartPosition) + ": " + i_strReagentName + "-Partial Tube (zero volume - do not load)";
+i_intStartPosition++;
+// {{ 73 1 0 "47e48e23_b245_4584_9beccaac2fcca0a0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+// {{ 74 1 0 "bdb16553_e446_41d3_87fd5f24fcf6b226" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (i_fltPartialTubeVolume <= i_fltPartialTubeDeadVolume)
+{
+// }} ""
+l_strReagentName = "Position " + StrIStr(i_intStartPosition) + ": " + i_strReagentName + "-Partial Tube (insufficient volume to process)";
+i_intStartPosition++;
+// {{ 76 1 0 "bdb16553_e446_41d3_87fd5f24fcf6b226" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+else
+{
+// }} ""
+l_strReagentName = "Position " + StrIStr(i_intStartPosition) + ": " + i_strReagentName + "-Partial Tube";
+i_intStartPosition++;
+// {{ 78 1 0 "bdb16553_e446_41d3_87fd5f24fcf6b226" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 79 1 0 "47e48e23_b245_4584_9beccaac2fcca0a0" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 80 1 0 "a6b73dbc_d857_4361_8b12f893c949dc1c" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strReagentName.AddAsLast(l_strReagentName);
+// }} ""
+// {{ 81 1 0 "c7ea57ac_2eaf_4498_9f3153e51fd31e55" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strVolume = Translate("");
+// }} ""
+{
+variable intLength;
+intLength = StrFind(StrFStr(i_fltPartialTubeVolume * 1.0), ".") + 2;
+l_strVolume = StrLeft(StrFStr(i_fltPartialTubeVolume * 1.0), intLength) + " µL";
+}
+// {{ 83 1 0 "92134c7d_1da4_428e_a614b6d1827c1e25" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strVolume.AddAsLast(l_strVolume);
+// }} ""
+// {{ 84 1 0 "5d058481_56d0_4add_a105b5630dcfb0c1" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strTubeType.AddAsLast(i_strTubeType);
+// }} ""
+// {{ 85 1 0 "20b46639_a50f_47ea_94facf6ce14e7944" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+l_intSize = i_intNumberOfTubes - 1;
+// }} ""
+// {{ 86 1 0 "efa3389a_f56f_4e11_b8050d7568d72dce" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intSize;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+l_strReagentName = "Position " + StrIStr(i_intStartPosition) + ": " + i_strReagentName;
+i_intStartPosition++;
+// {{ 88 1 0 "32eb5b1f_e187_4d30_8eb7c7c8a8876063" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strReagentName.AddAsLast(l_strReagentName);
+// }} ""
+// {{ 89 1 0 "6218261f_1a64_43b5_819c8ea2af9a73a7" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strVolume.AddAsLast(Translate("Full Tube"));
+// }} ""
+// {{ 90 1 0 "bbc815b3_3250_461d_b29bbf07af31ec30" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strTubeType.AddAsLast(i_strTubeType);
+// }} ""
+// {{ 91 1 0 "efa3389a_f56f_4e11_b8050d7568d72dce" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 92 1 0 "60346d14_8ff7_49f9_b4c0331225ddfe83" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, Translate("Reagent Name and Position: "), o_arr_strReagentName);
+// }} ""
+// {{{ 93 1 0 "7d96e296_34d3_4e90_9d1fc41348b69e17" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, Translate("Volume: "), o_arr_strVolume);
+// }} ""
+// {{{ 94 1 0 "6780bcfe_99ba_4c5b_b66f0456f5188c13" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, Translate("Tube Type: "), o_arr_strTubeType);
+// }} ""
+// {{ 95 1 0 "a22845b2_c353_4d63_ba8fe612c541f8af" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 96 1 0 "4cf7c84d_0393_4373_b558de3d28662e83" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 97 1 0 "a5dd8e66_7a6d_4a4b_8baf0cfe4301a057" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{ 98 1 0 "a22845b2_c353_4d63_ba8fe612c541f8af" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "ReagentPlateLoadInformation_WithPartialSourceTubes" "End"
+}
+// }} ""
+// {{{ 5 "ReagentPlateLoadInformation_SpecifyNumberOfSourceTubes" "Begin"
+function ReagentPlateLoadInformation_SpecifyNumberOfSourceTubes( variable i_strReagentName, variable i_strTubeType, variable i_intStartPosition, variable & i_arr_fltVolumes[], variable & o_arr_strReagentName[], variable & o_arr_strVolume[], variable & o_arr_strTubeType[] ) void {
+// }} ""
+private variable l_strVolume;
+private variable l_strReagentName;
+private variable l_intPosition;
+private variable loopCounter1;
+private variable l_intSize;
+private variable l_strComment;
+// {{ 5 "ReagentPlateLoadInformation_SpecifyNumberOfSourceTubes" "InitLocals"
+o_arr_strReagentName.SetSize( 0);
+o_arr_strVolume.SetSize( 0);
+o_arr_strTubeType.SetSize( 0);
+// }} ""
+// {{ 31 1 0 "94daee56_1825_4c1e_a8d3934eca3a8f18" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 32 1 0 "e597ee93_625e_49e3_871853e52aeb9bff" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strComment = Translate("");
+// }} ""
+t_strFunctionName = GetFunctionName();
+t_strLibraryName = GetFileName();
+// {{{ 34 1 0 "9bfd5098_b2c6_4a86_99d3f51f03cc4171" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::START, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 35 1 0 "94daee56_1825_4c1e_a8d3934eca3a8f18" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{ 36 1 0 "3205d340_d777_4cf7_b7d5cb8fb99d94c1" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+o_arr_strReagentName.SetSize(0);
+// }} ""
+// {{ 37 1 0 "c9295d13_7750_429e_a5f6f463e9c708f9" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+o_arr_strVolume.SetSize(0);
+// }} ""
+// {{ 38 1 0 "12dcdbdb_df7b_4389_b28fcd65536f2497" "{4900C1F7-0FB7-4033-8253-760BDB9354DC}"
+o_arr_strTubeType.SetSize(0);
+// }} ""
+// {{ 39 1 0 "3db9562e_b2d2_43bb_ba4bd5ca6969ea41" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strReagentName = Translate("");
+// }} ""
+// {{ 40 1 0 "e763d1b9_719c_4879_b696227ac7864270" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+l_strVolume = Translate("");
+// }} ""
+// {{ 41 1 0 "8160326f_1ffd_45bf_be427b72fa531abc" "{72EACF88-8D49-43e3-92C8-2F90E81E3260}"
+l_intSize=i_arr_fltVolumes.GetSize();
+// }} ""
+// {{ 42 1 0 "c8426d9d_e275_4b76_bab72cbef64f7158" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter1 = 0; loopCounter1 < l_intSize;)
+{
+loopCounter1 = loopCounter1 + 1;
+// }} ""
+l_strReagentName = "Position " + StrIStr(i_intStartPosition) + ": " + i_strReagentName;
+i_intStartPosition++;
+// {{ 44 1 0 "36b11733_1b77_49a9_94f0311b5492ee0d" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strReagentName.AddAsLast(l_strReagentName);
+// }} ""
+// {{{ 45 1 0 "df2f744b_7a93_492a_b74d2a87b30a70ee" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strVolume = StrFStr(i_arr_fltVolumes.ElementAt( loopCounter1 -1));
+// }} ""
+// {{{ 46 1 0 "a763ae36_1749_4204_afcdafb7ef6db797" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_intPosition = StrFind(l_strVolume, Translate("."));
+// }} ""
+// {{ 47 1 0 "352c9e3a_4276_42c8_a7f4eaf606e8d57d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intPosition != -1)
+{
+// }} ""
+// {{ 48 1 0 "9b060919_f704_48ee_9368f3618937c114" "{B31F3544-5D80-11d4-A5EB-0050DA737D89}"
+l_intPosition = l_intPosition + 2;
+// }} ""
+// {{{ 49 1 0 "ce7a96d7_74dc_4208_b9e213203abb63dc" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strVolume = StrLeft(l_strVolume, l_intPosition);
+// }} ""
+// {{ 50 1 0 "352c9e3a_4276_42c8_a7f4eaf606e8d57d" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 51 1 0 "d2ece6c9_fc30_42c5_9f21be45437d1dd0" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strVolume.AddAsLast(l_strVolume);
+// }} ""
+// {{ 52 1 0 "507ada5c_fc42_461d_bae2050c155f758c" "{F17B7626-27CB-47f1-8477-8C4158339A6D}"
+o_arr_strTubeType.AddAsLast(i_strTubeType);
+// }} ""
+// {{ 53 1 0 "c8426d9d_e275_4b76_bab72cbef64f7158" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{{ 54 1 0 "fe90fa4f_1203_4219_9233934a7770f0cb" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, Translate("Reagent Name and Position: "), o_arr_strReagentName);
+// }} ""
+// {{{ 55 1 0 "4861ced9_f9a0_4d63_b35237088d10a7c6" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, Translate("Volume: "), o_arr_strVolume);
+// }} ""
+// {{{ 56 1 0 "795139b0_689f_4970_89678b35492eed4a" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceArray(TRACE_LEVEL_RELEASE, Translate("Tube Type: "), o_arr_strTubeType);
+// }} ""
+// {{ 57 1 0 "ad18ed84_e96e_4911_b5e4e6f42aad9dc8" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 58 1 0 "0203952b_a606_4169_b2b561ba997bb0a8" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+TRACELEVEL::TraceAction(TRACE_LEVEL_RELEASE, TRACELEVEL::ACTION::COMPLETE, t_strFunctionName, t_strLibraryName, l_strComment);
+// }} ""
+// {{ 59 1 0 "3a8e9749_1c14_4075_9f51291f1171658a" "{B31F3543-5D80-11d4-A5EB-0050DA737D89}"
+t_strFunctionName = Translate("");
+// }} ""
+// {{ 60 1 0 "ad18ed84_e96e_4911_b5e4e6f42aad9dc8" "{586C3429-F931-405f-9938-928E22C90BFA}"
+
+// }} ""
+// {{{ 5 "ReagentPlateLoadInformation_SpecifyNumberOfSourceTubes" "End"
+}
+// }} ""
+// {{{ 5 "_FormatSequenceForSize" "Begin"
+private function _FormatSequenceForSize( device & i_instrument, sequence & i_seqTemplate, variable i_intStartPoint, variable i_intSize, sequence & o_seqFormattedForSize ) void {
+// }} ""
+private variable l_intCurrentPosition;
+private sequence i_seqTemplateAspirate;
+private variable l_strPositionID;
+private variable loopCounter3;
+private variable l_strLabwareID;
+private variable l_intNext;
+// {{ 5 "_FormatSequenceForSize" "InitLocals"
+{ sequence __temp; o_seqFormattedForSize = __temp; }
+// }} ""
+// {{ 180 1 0 "960645fa_2084_4733_b06f564349c09f6d" "{B31F353B-5D80-11d4-A5EB-0050DA737D89}"
+l_intCurrentPosition = i_seqTemplate.GetCurrentPosition();
+// }} ""
+// {{ 181 1 0 "e3e790c4_bfa9_4144_91ec5336da07de35" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+i_seqTemplate.SetCurrentPosition(i_intStartPoint);
+// }} ""
+// {{ 182 1 0 "016d1ff6_290e_4a1e_852684734bd1b46d" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+{
+for(loopCounter3 = 0; loopCounter3 < i_intSize;)
+{
+loopCounter3 = loopCounter3 + 1;
+// }} ""
+// {{{ 183 1 0 "385bb006_47e5_43d5_8e2815c819482635" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strLabwareID = SeqGetLabwareId(i_seqTemplate);
+// }} ""
+// {{{ 184 1 0 "a6c4e252_7fa3_42aa_9bda73e6e4b09916" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_strPositionID = SeqGetPositionId(i_seqTemplate);
+// }} ""
+// {{{ 185 1 0 "d0fbdbfb_c519_4c05_9025aa641edf259c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqAdd(o_seqFormattedForSize, l_strLabwareID, l_strPositionID);
+// }} ""
+// {{{ 186 1 0 "7cb14a5c_d422_4327_88f103517b2a7c41" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+SeqIncrement(i_seqTemplateAspirate, 1);
+// }} ""
+// {{{ 187 1 0 "60cd401a_74f3_46c4_ae587a1a50ea741c" "{C1F3C015-47B3-4514-9407-AC2E65043419}"
+l_intNext = SeqGetNext(i_seqTemplate);
+// }} ""
+// {{ 188 1 0 "502106ac_3ade_475f_bb734ceee22cb0be" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+if (l_intNext == 0)
+{
+// }} ""
+// {{ 189 1 0 "424ae177_083a_44d3_b348ecba7fd2bb0e" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+i_seqTemplate.SetCurrentPosition(i_intStartPoint);
+// }} ""
+// {{ 190 1 0 "502106ac_3ade_475f_bb734ceee22cb0be" "{B31F3531-5D80-11d4-A5EB-0050DA737D89}"
+}
+// }} ""
+// {{ 191 1 0 "016d1ff6_290e_4a1e_852684734bd1b46d" "{B31F3532-5D80-11d4-A5EB-0050DA737D89}"
+}
+}
+// }} ""
+// {{ 192 1 0 "275cf782_2918_429d_8010f0265388b3cc" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+i_seqTemplate.SetCurrentPosition(l_intCurrentPosition);
+// }} ""
+// {{ 193 1 0 "2da617de_2c1c_4fd2_9d9a04ff13299836" "{B31F353A-5D80-11d4-A5EB-0050DA737D89}"
+o_seqFormattedForSize.SetCurrentPosition(1);
+// }} ""
+// {{{ 5 "_FormatSequenceForSize" "End"
+}
+// }} ""
+/* {{ 2 "SubmethodInsertLine" "" */ // }} ""
+// {{{ 2 "LibraryNamespace" "End"
+} // library namespace
+// }} ""
+// $$author=Orr_B$$valid=0$$time=2025-04-24 21:46$$checksum=7f82df54$$length=084$$

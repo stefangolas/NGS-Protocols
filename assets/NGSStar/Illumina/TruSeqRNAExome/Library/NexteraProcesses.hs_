@@ -1,0 +1,41 @@
+
+// this ALWAYS GENERATED file contains the sub-method library header
+// Generated at 3/16/2017 3:33:22 PM
+
+#pragma once
+#ifndef HSL_RUNTIME
+namespace NEXTERAPROCESSES {
+function _InitLibrary() { }
+function _ExitLibrary() { }
+function Add_AmpureSingle( device & ML_STAR, sequence & seq_AmpureBeads, sequence & seq_Destination, sequence & seq_Tips, variable var_NumberSamples, variable var_BeadVolumePerWell, variable var_LLD_On, variable var_TipUsage ) void { }
+function Add_BeadFromTub( device & ML_STAR, sequence & seq_Beads, sequence & seq_Destination, sequence & seq_Tips, variable var_NumberSamples, variable var_BeadVolumePerWell, variable var_LLD_On, variable var_TipUsage ) void { }
+function Add_BeadsFromVial( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, sequence & seq_TipsToUse1000ul, sequence & seq_TipsToUse50ul, variable var_VolPerSampleWell, variable var_LiquidClass1ml_Premix, variable var_LiquidClass50F ) void { }
+function Add_BeadsFromVial_wNewTips( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, sequence & seq_TipsToUse1000ul, sequence & seq_TipsToUseForTransfer, variable var_VolPerSampleWell, variable var_LiquidClass1ml_Premix, variable var_LiquidClassForTransfer ) void { }
+function Add_BeadsFromVial_wNewTips_14samples_per_vial( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, sequence & seq_TipsToUse1000ul, sequence & seq_TipsToUseForTransfer, variable var_VolPerSampleWell, variable var_LiquidClass1ml_Premix, variable var_LiquidClassForTransfer ) void { }
+function Add_CEX_EEX( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, sequence & seq_TipsToUse, variable var_VolPerSampleWell, variable var_LiquidClass50F, variable var_RetractHeight ) void { }
+function Add_EWS( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, sequence & seq_TipsToUse, variable var_VolPerSampleWell, variable var_LiquidClass50F, variable var_RetractHeight ) void { }
+function Add_EWS_FromTub( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, sequence & seq_TipsToUse, variable var_VolPerSampleWell, variable var_LiquidClass50F, variable var_RetractHeight ) void { }
+function Add_Ethanol( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_TipsToUse1000ul, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable var_LiquidClassEthanol, variable & var_TrackingEthanolVolume ) void { }
+function Add_PrimersViaVials( device & ML_STAR, sequence & seq_Tips50, sequence & seq_Adapters, sequence & seq_ALP, variable var_NumberOfIndexTypes, variable & arr_Index1Positions[], variable & arr_Index2Positions[], variable & arr_ALPpositions[] ) void { }
+function Add_ReagentFromHalfHeightVial( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, sequence & seq_TipsToUse50ul, variable var_VolPerSampleWell, variable var_LiquidClass50F, variable var_RetractHeight_Disp ) void { }
+function Add_ReagentFromVial( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, sequence & seq_TipsToUse, variable var_VolPerSampleWell, variable var_LiquidClass50F, variable var_RetractHeight ) void { }
+function Create_EnrichmentMixture( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_AspirationPosition_Buffer, sequence & seq_AspirationPosition_NaOH, sequence & seq_DispensePosition, sequence & seq_TipsToUseBuffer, sequence & seq_TipsToUseForTransfer, variable var_VolPerSampleBuffer, variable var_VolPerSampleNaOH, variable var_LiquidClassBuffer, variable var_LiquidClassNaOH ) void { }
+function Create_EnrichmentMixture_SingleMIDIwell( device & ML_STAR, variable var_NumberOfSamples, sequence & seq_AspirationPosition_Buffer, sequence & seq_AspirationPosition_NaOH, sequence & seq_DispensePosition, sequence & seq_TipsToUseBuffer, sequence & seq_TipsToUseForTransfer, variable var_VolPerSampleBuffer, variable var_VolPerSampleNaOH, variable var_LiquidClassBuffer, variable var_LiquidClassNaOH ) void { }
+function ErrorHandling_TipPickup( device & ML_STAR, sequence & seq_TipsToUse ) void { }
+function MoveHSP( device & ML_STAR, sequence & seq_HSP_StartingPosition, sequence & seq_HSP_Destination, variable var_TrackToReadBC, variable var_ParkAfterMove ) void { }
+function MoveMIDI( device & ML_STAR, sequence & seq_MIDI_Source, sequence & seq_MIDI_Destination, variable var_TrackToReadBC, variable var_Side, variable var_ParkAfterMove ) void { }
+function Normalize( device & ML_STAR, variable var_NormalizationFile, sequence & seq_Buffer, sequence & seq_SourcePlate, sequence & seq_DestinationPlate, sequence & seq_BufferTips, variable var_LC_Buffer, variable var_LC_Sample, sequence & seq_PlateSeqForJustBuffer, sequence & seq_PoolingPlate ) void { }
+function Pool( device & ML_STAR, sequence & seq_NormPlate, sequence & seq_PoolingPlate, sequence & seq_Tips300ul, variable var_LC_Pooling, variable var_cLLDSetting, variable var_Height ) void { }
+function Remove_ResidualEWS( device & ML_STAR, sequence & seq_TipsToUse50ul, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable var_VolumeToTransfer, variable var_LiquidClass ) void { }
+function Remove_ResidualEtOH( device & ML_STAR, sequence & seq_TipsToUse50ul, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable var_VolumeToTransfer, variable var_LiquidClass ) void { }
+function Transfer_EnrichmentMixture( device & ML_STAR, sequence & seq_TipsToUse, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable var_VolumeToTransfer ) void { }
+function Transfer_EnrichmentMixture_SingleSource( device & ML_STAR, sequence & seq_TipsToUse, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable var_VolumeToTransfer ) void { }
+function Transfer_PlateToPlate( device & ML_STAR, sequence & seq_TipsToUse, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable var_VolumeToTransfer, variable var_LiquidClass, variable var_AspirationHeight, variable var_DispenseHeight ) void { }
+function Transfer_PlatetoWaste( device & ML_STAR, sequence & seq_TipsToUse, sequence & seq_AspirationPosition, sequence & seq_DispensePosition, variable var_VolumeToTransfer, variable var_LiquidClass ) void { }
+} // namespace
+#endif
+
+#ifdef HSL_RUNTIME
+#include __filename__ ".hsi"
+#endif
+// $$author=pares_r$$valid=0$$time=2017-03-16 15:33$$checksum=87bd894d$$length=084$$
