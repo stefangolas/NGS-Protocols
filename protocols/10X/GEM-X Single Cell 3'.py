@@ -178,9 +178,6 @@ class TenXGEXLibraryPrepProtocol(Protocol):
         self.ligation_mix_volume = 50       # µL per sample
         self.amp_mix_volume = 50            # µL per sample
         self.index_volume = 20              # µL per sample
-        
-        # Calculated volumes with excess
-        self.excess_factor = 1.1
 
     def initialize(self):
         """Initialize Hamilton system and CPAC for cold reagents."""
