@@ -637,7 +637,7 @@ class QIAseqRNAFusionProtocol(Protocol):
                        self.MIDI_OnMagnet, self.HSP_Pipette2,
                        liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                        volume=self.post_shear_elution_volume,
-                       aspiration_height=0.3, dispense_height=1)
+                       aspiration_height=0.8, dispense_height=1)
             
             # Clean up - move used plates to waste
             transport_resource(ham_int, self.MIDI_OnMagnet, self.MIDI_Waste,
@@ -919,14 +919,5 @@ if __name__ == "__main__":
         device_simulation=True
     )
     
-    # Run complete protocol
-    # protocol.run_complete_protocol()
-    
-    # Or run individual steps
-    # protocol.initialize()
-    # protocol.first_strand_dna_synthesis()
-    # etc...
-    
-    # Generate consumables report
     protocol.run_protocol()
     generate_tadm_report()
