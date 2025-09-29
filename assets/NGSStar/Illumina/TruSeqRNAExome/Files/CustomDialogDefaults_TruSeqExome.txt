@@ -1,2 +1,0 @@
-"AnswerStartPoint";"AnswerStopPoint";"File_SampleSheet";"AnswerAdapterLabware";"AnswerSampleQuality";"AnswerPooling";"FFPE";"Samples_NonFFPE";"Samples_FFPE"
-4;4;"C:\NGSStarInputFiles\Illumina\TruSeqRNAExome\Example Plate File - 48 samples - RAP columns 1-6.txt";1;1;12;2;48;0

@@ -1,2 +1,0 @@
-"AnswerStartPoint";"AnswerStopPoint";"File_SampleSheet";"AnswerOdtcIswap"
-5;5;"C:\NGSStarInputFiles\KitProvider\KitName\InputFile_43samples_DblIndex Plate.xls";1

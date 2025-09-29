@@ -1,3 +1,0 @@
-"AnswerStartPoint";"AnswerStopPoint";"File_SampleSheet";"AnswerOdtcIswap"
-3;3;"C:\NGSStarInputFiles\NEB\NEBNext®UltraIIDNALibraryPrepKit\InputFile_7samples_DoubleIndexVials.xls";1
-
