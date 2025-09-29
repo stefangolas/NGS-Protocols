@@ -3,7 +3,7 @@
 The protocol GUI provides an interface for operators to select steps and input parameters, run simulations,
 and displays loading dialogues that visually indicate the required positions and volumes of reagents.
 
-![Protocol GUI](assets/protocol_gui.gif)
+<img src="assets/protocol_gui.gif" width="300"/>
 
 
 To create a new protocol, create a subclass of the `Protocol` class with the relevant input parameters,
@@ -71,21 +71,24 @@ resource names as they appear in the layfile. The deck annotation tool should be
 in a `loading` subdirectory of the protocol directory containing a png screenshot of the
 associated layfile.
 
-![Deck Annotator](assets/deck_annotator.gif)
+<img src="assets/deck_annotator.gif" width="300"/>
 
-
+```text
 project/
 ├── protocol.py
 └── loading/
     └── deck.png
+```
 
 ```bash
 cd loading
 deck-annotator deck.png
 ```
 
+```text
 project/
 ├── protocol.py
 └── loading/
     └── deck.png
     └── deck_regions.json
+```
