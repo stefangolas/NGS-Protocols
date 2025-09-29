@@ -66,26 +66,22 @@ self.stacked_resources = [self.HSP_Stack, self.Lid_Stack, self.MIDI_Stack]
 
 ## Deck Annotation Tool
 
-The deck annotation tool is used for labeling a screenshot of a layfile with the appropriate
+The deck annotation tool (run with `deck-annotator`) is used for labeling a screenshot of a layfile with the appropriate
 resource names as they appear in the layfile. The deck annotation tool should be run
 in a `loading` subdirectory of the protocol directory containing a png screenshot of the
 associated layfile.
 
-<img src="assets/deck_annotator.gif" width="300"/>
+<img src="assets/deck_annotator.gif" width="600"/>
 
 ```text
 project/
 ├── protocol.py
 └── loading/
     └── deck.png
-```
 
-```bash
 cd loading
 deck-annotator deck.png
-```
 
-```text
 project/
 ├── protocol.py
 └── loading/
