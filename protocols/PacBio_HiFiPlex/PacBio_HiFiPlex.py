@@ -264,7 +264,7 @@ class PacBioHiFiPlexProtocol(Protocol):
 
             double_aspirate_supernatant_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples, self.MIDI_OnMagnet, 
                                           self.LiquidWaste, first_volume=270, second_volume=30, 
-                                          second_aspiration_height=0, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
+                                          second_aspiration_height=0.8, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
             # Ethanol wash
             ethanol_wash(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,

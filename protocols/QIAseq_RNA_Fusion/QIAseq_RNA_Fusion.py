@@ -764,7 +764,7 @@ class QIAseqRNAFusionProtocol(Protocol):
                                           self.num_samples, self.MIDI_OnMagnet, self.MIDI_Waste,
                                           self.first_supernatant_removal_volume, 30,
                                           liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
-                                          second_aspiration_height=0)
+                                          second_aspiration_height=0.8)
             
             # Ethanol wash (2x)
             for _ in range(2):

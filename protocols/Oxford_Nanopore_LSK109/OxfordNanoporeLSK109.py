@@ -315,9 +315,8 @@ class OxfordNanoporeLSK109Protocol(Protocol):
             double_aspirate_supernatant_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                                           self.MIDI_OnMagnet, self.MPH_Waste,
                                           first_volume=self.first_supernatant_removal_volume,
-                                          second_volume=20,
-                                          liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
-                                          first_aspiration_height=0.5)
+                                          second_volume=20, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
+                                          second_aspiration_height=0.8)
 
             # 2x Ethanol washes
             for wash_num in range(2):
@@ -449,7 +448,7 @@ class OxfordNanoporeLSK109Protocol(Protocol):
                                           first_volume=self.supernatant_removal_volume,
                                           second_volume=30,
                                           liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
-                                          first_aspiration_height=0.5)
+                                          second_aspiration_height=0.8)
 
             # 2x Fragment buffer washes
             for wash_cycle in range(2):
@@ -475,7 +474,7 @@ class OxfordNanoporeLSK109Protocol(Protocol):
                                               first_volume=self.fragment_buffer_volume + 20,
                                               second_volume=30,
                                               liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
-                                              first_aspiration_height=0.5)
+                                              second_aspiration_height=0.8)
 
             # Air dry beads
             dry_timer = start_timer(120)

@@ -382,7 +382,7 @@ class KAPAHyperPlusProtocol(Protocol):
                transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                            self.ethanol_plate, self.MIDI_OnMagnet, volume=self.ethanol_wash_volume,
                            liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                           aspiration_height=0.3)
+                           aspiration_height=0.8)
                
                # Wait 30 seconds
                wait_timer = start_timer(30)
@@ -392,7 +392,7 @@ class KAPAHyperPlusProtocol(Protocol):
                transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                            self.MIDI_OnMagnet, self.MIDI_OffMagnet, volume=self.ethanol_wash_volume,
                            liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                           aspiration_height=0.3)
+                           aspiration_height=0.8)
            
            # Air dry for 2 minutes
            dry_timer = start_timer(120)
@@ -429,7 +429,7 @@ class KAPAHyperPlusProtocol(Protocol):
            transfer_96(ham_int, self.tracked_tips_50uL, self.tip_support, self.num_samples,
                        self.MIDI_OnMagnet, self.HSP_Plate_2, volume=self.post_ligation_elution_volume - 2,
                        liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
-                       aspiration_height=0.3)
+                       aspiration_height=0.8)
 
            print("Post-Ligation Cleanup completed.")
 
