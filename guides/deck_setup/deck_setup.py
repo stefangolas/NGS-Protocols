@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """10X GEX Library Prep - Standalone Test Script"""
 
 import os
@@ -9,7 +8,7 @@ from pyhamilton.consumables import (ReagentTrackedReservoir60mL, ReagentTrackedB
                                    ReagentTrackedEppiCarrier32, ReagentTrackedPlate96)
 from pyhamilton.resources import Plate96, Tip96, Lid, Waste96, TrackedTips, TipSupportTracker, StackedResources
 from pyhamilton.transport import transport_resource, GrippedResource
-from pyhamilton.hhs import (hhs_set_simulation, hhs_create_usb_device,
+from pyhamilton.devices import (hhs_set_simulation, hhs_create_usb_device,
                             hhs_start_shaker, hhs_stop_shaker)
 
 
@@ -23,8 +22,6 @@ def get_parent_lay_file():
 
 def deck_setup(simulating=True):
     """
-    Run 10X GEX Library Prep test protocol.
-    
     Args:
         simulating (bool): Run Hamilton in simulation mode
         device_simulation (bool): Simulate HHS devices

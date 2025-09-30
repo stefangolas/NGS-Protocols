@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Thermal Cycling Test"""
 
 from pyhamilton import HamiltonInterface, LayoutManager, layout_item

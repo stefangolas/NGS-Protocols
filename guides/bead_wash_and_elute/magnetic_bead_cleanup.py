@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Sample Cleanup 1 Test - Complete Protocol with HHS Support"""
 
 import os
