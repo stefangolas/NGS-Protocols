@@ -174,6 +174,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
 
     def _setup_volumes(self):
         """Setup volume parameters based on sample volume."""
+        self.excess_factor = 1.1  # 10% excess to account for pipetting losses
         self.fragmentation_mix_volume = 40  # µL per sample
         self.ligation_mix_volume = 50       # µL per sample
         self.amp_mix_volume = 50            # µL per sample
@@ -203,8 +204,8 @@ class TenXGEXLibraryPrepProtocol(Protocol):
 
     def _prepare_fragmentation_mix(self, ham_int):
         """Prepare fragmentation mix with 10% excess."""
+
         total_reactions = int(self.num_samples * self.excess_factor)
-        
         buffer_eb_vol = 20 * total_reactions
         frag_buffer_vol = 5 * total_reactions
         frag_enzyme_vol = 10 * total_reactions
