@@ -4,6 +4,14 @@ This library provides 5 complete automated sequencing prep protocols for the Ham
 These protocols make extensive use of new PyHamilton features specifically designed to allow for easy development of NGS protocols.
 Here are some of the main features that have been added to support these protocols:
 
+The five protocols provided in this library are:
+-   [10X GEM-X Single Cell 3' sequencing prep](protocols/10X)
+-   [PacBio HiFi Plex](protocols/PacBio_HiFiPlex)
+-   [Oxford Nanopore LSK109/LSK114](protocols/Oxford_Nanopore_LSK109)
+-   [QIAseq RNA Fusion](protocols/QIAseq_RNA_Fusion)
+-   [KAPA Roche HyperPrep HyperPlus](protocols/KAPA_HyperPrep)
+
+
 -   Tip tracking
 -   Reagent consumption tracking
 -   User prompts for protocol step selection and deck loading
@@ -17,12 +25,6 @@ Here are some of the main features that have been added to support these protoco
 -   Expanded device library including ODTC, CPAC, and heater shakers
 
 
-The five protocols provided in this library are:
--   10X GEM-X Single Cell 3' sequencing prep
--   PacBio HiFi Plex
--   Oxford Nanopore LSK109/LSK114
--   QIAseq RNA Fusion
--   KAPA Roche HyperPrep HyperPlus
 
 These protocols are intended to reproduce the exact functionality of validated methods written in
 Venus, but they were not directly tested using biological samples. They are intended to be illustrative
