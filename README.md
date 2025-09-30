@@ -30,6 +30,14 @@ guides and starting points for writing NGS sequencing prep protocols in PyHamilt
 fully functional protocols that work out-of-the-box. Please make sure to fully understand
 and test any code in this library before deploying it in production.
 
+## Installation
+
+To use the scripts in this library
+
+1. Install the latest version of PyHamilton.
+2. Run the asset import script with `install_assets.py`. Note that this will copy files from `/assets` into your `Hamilton` directory. Feel free to do this manually instead.
+
+
 ## PyHamilton NGS Features
 
 This library contains examples of many new PyHamilton features. Here are explanations and simple tutorials for how to use them.
