@@ -4,6 +4,32 @@ This library provides 5 complete automated sequencing prep protocols for the Ham
 These protocols make extensive use of new PyHamilton features specifically designed to allow for easy development of NGS protocols.
 Here are some of the main features that have been added to support these protocols:
 
+The five protocols provided in this library are:
+-   [10X GEM-X Single Cell 3' sequencing prep](protocols/10X)
+-   [PacBio HiFi Plex](protocols/PacBio_HiFiPlex)
+-   [Oxford Nanopore LSK109/LSK114](protocols/Oxford_Nanopore_LSK109)
+-   [QIAseq RNA Fusion](protocols/QIAseq_RNA_Fusion)
+-   [KAPA Roche HyperPrep HyperPlus](protocols/KAPA_HyperPrep)
+
+
+These protocols are intended to reproduce the exact functionality of validated methods written in
+Venus, but they were not directly tested using biological samples. They are intended to be illustrative
+guides and starting points for writing NGS sequencing prep protocols in PyHamilton, rather than
+fully functional protocols that work out-of-the-box. Please make sure to fully understand
+and test any code in this library before deploying it in production.
+
+## Installation
+
+To use the scripts in this library
+
+1. Install the latest version of PyHamilton.
+2. Run the asset import script with `install_assets.py`. Note that this will copy files from `/assets` into your `Hamilton` directory. Feel free to do this manually instead.
+
+
+## PyHamilton NGS Features
+
+This library contains examples of many new PyHamilton features. Here are explanations and simple tutorials for how to use them.
+
 -   Tip tracking
 -   Reagent consumption tracking
 -   User prompts for protocol step selection and deck loading
@@ -16,23 +42,6 @@ Here are some of the main features that have been added to support these protoco
 -   Transport controller with pre-defined gripper parameters for different resources
 -   Expanded device library including ODTC, CPAC, and heater shakers
 
-
-The five protocols provided in this library are:
--   10X GEM-X Single Cell 3' sequencing prep
--   PacBio HiFi Plex
--   Oxford Nanopore LSK109/LSK114
--   QIAseq RNA Fusion
--   KAPA Roche HyperPrep HyperPlus
-
-These protocols are intended to reproduce the exact functionality of validated methods written in
-Venus, but they were not directly tested using biological samples. They are intended to be illustrative
-guides and starting points for writing NGS sequencing prep protocols in PyHamilton, rather than
-fully functional protocols that work out-of-the-box. Please make sure to fully understand
-and test any code in this library before deploying it in production.
-
-## PyHamilton NGS Features
-
-This library contains examples of many new PyHamilton features. Here are explanations and simple tutorials for how to use them.
 
 ### Tip tracking
 The new `TrackedTips` class lets us define a set of tip racks that we can draw from incrementally with `tracked_tip_pick_up`, without having
