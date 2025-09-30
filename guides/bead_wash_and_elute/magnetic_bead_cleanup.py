@@ -79,7 +79,7 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
     
     MIDI_Stack = StackedResources.from_prefix(
         tracker_id="ABGENE_MIDI_Stack1", prefix="ABGENE_MIDI_Stack1",
-        count=4, lmgr=lmgr, resource_type=Plate96
+        count=3, lmgr=lmgr, resource_type=Plate96
     )
     
     # Setup tips
@@ -159,7 +159,7 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
         double_aspirate_supernatant_96(ham_int, tracked_tips_300uL, tip_support, num_samples,
                                      source_plate=MIDI_OnMagnet, destination_plate=MPH_Waste,
                                      first_volume=200, second_volume=50, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
-                                     aspiration_height=0, dispense_height=5)
+                                     second_aspiration_height=0.8, dispense_height=5)
         
         # Ethanol wash (2x) - Round 1
         print("Step 8: Performing ethanol washes (Round 1)...")

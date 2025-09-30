@@ -45,12 +45,13 @@ num_samples = 32
 mix_position = [(MIDI_CPAC, idx) for idx in range(num_samples)]
 ```
 
-Calculate volumes based on your sample count:
+Assign protocol volumes
 
 ```python
-buffer_eb_vol = 20 * num_samples
-frag_buffer_vol = 5 * num_samples
-frag_enzyme_vol = 10 * num_samples
+# Volume calculations
+buffer_eb_vol = 20
+frag_buffer_vol = 5
+frag_enzyme_vol = 10
 ```
 
 Add each reagent using multi-dispense. This aspirates once from the source and dispenses to all destinations:

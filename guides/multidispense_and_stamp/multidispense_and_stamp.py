@@ -18,10 +18,10 @@ def multidispense_and_transfer(simulating=True):
 
     # Setup resources exactly as in protocol
     CAR_VIALS_SMALL = layout_item(lmgr, ReagentTrackedEppiCarrier32, 'CAR_VIALS_SMALL')
-    CPAC_Reagents = layout_item(lmgr, ReagentTrackedPlate96, 'CPAC_HSP_0001')
-    MIDI_CPAC = layout_item(lmgr, Plate96, 'MIDI_CPAC')
-    MIDI_Plate = layout_item(lmgr, Plate96, 'MIDI_Plate')
-    HSP_Plate2 = layout_item(lmgr, Plate96, 'HSP_Plate2')
+    CPAC_Reagents = layout_item(lmgr, ReagentTrackedPlate96, 'HSP_CPAC')
+    HHS5_MIDI = layout_item(lmgr, Plate96, 'HHS5_MIDI')
+    MIDI_Plate = layout_item(lmgr, Plate96, 'MIDI_Pipette')
+    HSP_Plate2 = layout_item(lmgr, Plate96, 'HSP_Pipette2')
 
     # Reagent mapping
     fragmentation_buffer_positions = CAR_VIALS_SMALL.assign_reagent_map('FragmentationBuffer', [0])
@@ -30,11 +30,11 @@ def multidispense_and_transfer(simulating=True):
 
     # Tips
     tracked_tips_50uL = TrackedTips.from_prefix(
-        tracker_id="TIP_50uLF_L", volume_capacity=50, prefix="TIP_50uLF_L",
+        tracker_id="TIP_50ulF_L", volume_capacity=50, prefix="TIP_50ulF_L",
         count=8, tip_type=Tip96, lmgr=lmgr
     )
     tracked_tips_300uL = TrackedTips.from_prefix(
-        tracker_id="STF_L", volume_capacity=300, prefix="STF_L",
+        tracker_id="stf_l", volume_capacity=300, prefix="stf_l",
         count=8, tip_type=Tip96, lmgr=lmgr
     )
     tip_support = TipSupportTracker(layout_item(lmgr, Tip96, 'TipSupport_0001'))
@@ -43,10 +43,10 @@ def multidispense_and_transfer(simulating=True):
     num_samples = 32
 
     # Volume calculations
-    buffer_eb_vol = 20 * num_samples
-    frag_buffer_vol = 5 * num_samples
-    frag_enzyme_vol = 10 * num_samples
-    
+    buffer_eb_vol = 20
+    frag_buffer_vol = 5
+    frag_enzyme_vol = 10
+
     windowed = not simulating
     with HamiltonInterface(simulating=simulating, windowed=windowed) as ham_int:
         ham_int.initialize()
@@ -56,8 +56,8 @@ def multidispense_and_transfer(simulating=True):
                 mix_volume=200, mix_cycles=10,
                 liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty')
 
-        # Step 2: Setup mix positions in MIDI plate on CPAC
-        mix_position = [(MIDI_CPAC, idx) for idx in range(num_samples)]
+        # Step 2: Setup mix positions in HHS5 MIDI plate
+        mix_position = [(HHS5_MIDI, idx) for idx in range(num_samples)]
 
         # Step 3: Add Buffer EB (room temp)
         multi_dispense(ham_int, tips=tracked_tips_300uL, source_positions=buffer_eb_positions,
@@ -80,8 +80,8 @@ def multidispense_and_transfer(simulating=True):
                 mix_cycles=3, mix_volume=25, liquid_height=0,
                 liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
-        # Step 7: Transport MIDI plate from CPAC to MIDI_Plate
-        transport_resource(ham_int, MIDI_CPAC, MIDI_Plate,
+        # Step 7: Transport HHS5 MIDI plate from CPAC to MIDI_Plate
+        transport_resource(ham_int, HHS5_MIDI, MIDI_Plate,
                             resource_type=GrippedResource.MIDI, core_gripper=True)
 
         # Step 8: Transfer fragmentation mix to HSP_Plate2
