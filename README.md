@@ -12,20 +12,6 @@ The five protocols provided in this library are:
 -   [KAPA Roche HyperPrep HyperPlus](protocols/KAPA_HyperPrep)
 
 
--   Tip tracking
--   Reagent consumption tracking
--   User prompts for protocol step selection and deck loading
--   JSON-defined liquid class import tool
--   In-method liquid class parameter updates for iterative liquid class development
--   Type checking for command parameters
--   Flexible liquid handling wrapper functions for precise transfers
--   TADM curve report generation
--   Partial rack tip-pickups with the MPH (96-channel head) using column offsets
--   Transport controller with pre-defined gripper parameters for different resources
--   Expanded device library including ODTC, CPAC, and heater shakers
-
-
-
 These protocols are intended to reproduce the exact functionality of validated methods written in
 Venus, but they were not directly tested using biological samples. They are intended to be illustrative
 guides and starting points for writing NGS sequencing prep protocols in PyHamilton, rather than
@@ -43,6 +29,19 @@ To use the scripts in this library
 ## PyHamilton NGS Features
 
 This library contains examples of many new PyHamilton features. Here are explanations and simple tutorials for how to use them.
+
+-   Tip tracking
+-   Reagent consumption tracking
+-   User prompts for protocol step selection and deck loading
+-   JSON-defined liquid class import tool
+-   In-method liquid class parameter updates for iterative liquid class development
+-   Type checking for command parameters
+-   Flexible liquid handling wrapper functions for precise transfers
+-   TADM curve report generation
+-   Partial rack tip-pickups with the MPH (96-channel head) using column offsets
+-   Transport controller with pre-defined gripper parameters for different resources
+-   Expanded device library including ODTC, CPAC, and heater shakers
+
 
 ### Tip tracking
 The new `TrackedTips` class lets us define a set of tip racks that we can draw from incrementally with `tracked_tip_pick_up`, without having
