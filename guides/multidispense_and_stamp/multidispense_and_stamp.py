@@ -62,16 +62,19 @@ def multidispense_and_transfer(simulating=True):
         # Step 3: Add Buffer EB (room temp)
         multi_dispense(ham_int, tips=tracked_tips_300uL, source_positions=buffer_eb_positions,
                         dispense_positions=mix_position, volumes=[buffer_eb_vol] * num_samples,
+                        pre_aspirate_volume=5, post_dispense_volume=5,
                         aspiration_height=0, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 
         # Step 4: Add Fragmentation Buffer (room temp)
         multi_dispense(ham_int, tips=tracked_tips_300uL, source_positions=fragmentation_buffer_positions,
                         dispense_positions=mix_position, volumes=[frag_buffer_vol] * num_samples,
+                        pre_aspirate_volume=5, post_dispense_volume=5,
                         aspiration_height=0, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 
         # Step 5: Add Fragmentation Enzyme (cold reagent from CPAC)
         multi_dispense(ham_int, tracked_tips_300uL, fragmentation_enzyme_positions, mix_position,
                         volumes=[frag_enzyme_vol] * num_samples, aspiration_height=0,
+                        pre_aspirate_volume=5, post_dispense_volume=5,
                         liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 
         # Step 6: Mix the prepared fragmentation mix

@@ -54,23 +54,33 @@ frag_buffer_vol = 5
 frag_enzyme_vol = 10
 ```
 
-Add each reagent using multi-dispense. This aspirates once from the source and dispenses to all destinations:
+Add each reagent using multi-dispense. This aspirates once from the source and dispenses to all destinations.
+Note the use of pre_aspirate_volume and post_dispense_volume. These are both useful for increasing the
+consistency of multidispenses.
+
+* `pre_aspirate_volume` causes an additional volume to be aspirated that is dispensed back into the source container before multidispensing.
+* `post_dispense_volume` causes an additional volume to be aspirated that is not dispensed to the source container or destination.
+
+Both of these ensure that there is minimal bias for either the first or last of the dispenses in the multidispense.
 
 ```python
-# Add Buffer EB (room temp)
+# Step 3: Add Buffer EB (room temp)
 multi_dispense(ham_int, tips=tracked_tips_300uL, source_positions=buffer_eb_positions,
-               dispense_positions=mix_position, volumes=[buffer_eb_vol] * num_samples,
-               aspiration_height=0, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
+                dispense_positions=mix_position, volumes=[buffer_eb_vol] * num_samples,
+                pre_aspirate_volume=5, post_dispense_volume=5,
+                aspiration_height=0, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 
-# Add Fragmentation Buffer (room temp)
+# Step 4: Add Fragmentation Buffer (room temp)
 multi_dispense(ham_int, tips=tracked_tips_300uL, source_positions=fragmentation_buffer_positions,
-               dispense_positions=mix_position, volumes=[frag_buffer_vol] * num_samples,
-               aspiration_height=0, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
+                dispense_positions=mix_position, volumes=[frag_buffer_vol] * num_samples,
+                pre_aspirate_volume=5, post_dispense_volume=5,
+                aspiration_height=0, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 
-# Add Fragmentation Enzyme (cold reagent from CPAC)
+# Step 5: Add Fragmentation Enzyme (cold reagent from CPAC)
 multi_dispense(ham_int, tracked_tips_300uL, fragmentation_enzyme_positions, mix_position,
-               volumes=[frag_enzyme_vol] * num_samples, aspiration_height=0,
-               liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
+                volumes=[frag_enzyme_vol] * num_samples, aspiration_height=0,
+                pre_aspirate_volume=5, post_dispense_volume=5,
+                liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 ```
 
 ## Mix the Master Mix
