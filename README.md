@@ -22,7 +22,7 @@ and test any code in this library before deploying it in production.
 
 To use the scripts in this library
 
-1. Install the latest version of PyHamilton.
+1. Install the latest version of [PyHamilton](https://github.com/dgretton/pyhamilton).
 2. Run the asset import script with `install_assets.py`. Note that this will copy files from `/assets` into your `Hamilton` directory. Feel free to do this manually instead.
 
 
