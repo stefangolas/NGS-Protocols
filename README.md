@@ -70,6 +70,8 @@ ER_Mix_positions = CPAC_Reagent_Plate.assign_reagent_map('ER_Mix', [0])
 ### User interface for running protocols
 Protocols can be run via a step-selection interface that allows for simulated testing, reagent consumption calculations, and deck loading dialogues.
 
+[See this guide for more details.](/guides/protocol_gui)
+
 ### Flexible liquid handling wrapper functions for precise transfers
 We now have several wrappers for frequently used transfer operations. Refer to the scripts in the `examples/pipetting` folder
 for a thorough exploration of use-cases and parameters.
