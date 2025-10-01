@@ -18,6 +18,15 @@ guides and starting points for writing NGS sequencing prep protocols in PyHamilt
 fully functional protocols that work out-of-the-box. Please make sure to fully understand
 and test any code in this library before deploying it in production.
 
+## Guides
+
+This library contains several guides to help you get started writing PyHamilton scripts for NGS protocols and other experiments.
+
+*[Magnetic bead washing](guides/bead_wash_and_elute)
+*[Multidispensing and stamping reagents](guides/multidispense_and_stamp)
+*[Thermal cycler operation](guides/multidispense_and_stamp)
+*[Deck setup](guides/multidispense_and_stamp)
+
 ## Installation
 
 To use the scripts in this library
