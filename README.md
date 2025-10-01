@@ -27,6 +27,8 @@ This library contains several guides to help you get started writing PyHamilton 
 - [Thermal cycler operation](guides/multidispense_and_stamp)
 - [Deck setup](guides/multidispense_and_stamp)
 
+- See the [guides](/guides) folder for a complete list
+
 ## Installation
 
 To use the scripts in this library
