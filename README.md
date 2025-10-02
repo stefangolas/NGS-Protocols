@@ -29,6 +29,11 @@ This library contains several guides to help you get started writing PyHamilton 
 
 See the [guides](/guides) folder for a complete list
 
+The Hamilton NGS platform consists of a Hamilton STAR along with several integrated devices and deck resources:
+- Inheco On-Deck Thermal Cycler
+- Hamilton CPAC
+- 5x Hamilton HHS
+
 ## Installation
 
 To use the scripts in this library
