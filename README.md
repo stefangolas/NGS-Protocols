@@ -31,9 +31,9 @@ See the [guides](/guides) folder for a complete list
 
 ### Integrated Devices
 The Hamilton NGS platform consists of a Hamilton STAR along with several integrated devices and deck resources:
-- Inheco On-Deck Thermal Cycler
-- Hamilton CPAC
-- 5x Hamilton HHS
+- [Inheco On-Deck Thermal Cycler](https://www.inheco.com/odtc.html)
+- [Inheco CPAC](https://www.inheco.com/cpac.html)
+- [5x Hamilton HHS](https://www.hamiltoncompany.com/temperature-control/hamilton-heater-shaker?srsltid=AfmBOorZ583CRhHbfN0LuY0jz8TCOi3LGr6SMETl-p_xWTEcFiKzCwIg)
 
 ## Installation
 
