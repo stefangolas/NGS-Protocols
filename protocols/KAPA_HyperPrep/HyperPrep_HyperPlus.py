@@ -85,14 +85,13 @@ class KAPAHyperPlusProtocol(Protocol):
        self.CPAC_Reagents = layout_item(self.lmgr, ReagentTrackedPlate96, 'CPAC_HSP_0001') # Use this plate for cold reagents
        self.EthanolReservoir = layout_item(self.lmgr, ReagentTrackedBulkPlate, 'RGT_Ethanol') # Use this plate for ethanol
        self.BeadMix_Container = layout_item(self.lmgr, ReagentTrackedReservoir60mL, 'rgt_cont_60ml_BC_A00_0002')
+       self.nuclease_free_water_positions = layout_item(self.lmgr, ReagentTrackedReservoir60mL, 'rgt_cont_60ml_BC_A00_0003')
 
        # Reagent mapping and positions
        # Pre-mixed reagents (enzymes and buffers combined manually before protocol)
-       self.fragmentation_mastermix_positions = self.CAR_VIALS_SMALL.assign_reagent_map('FragmentationMasterMix', [0])
        self.end_repair_mastermix_positions = self.CAR_VIALS_SMALL.assign_reagent_map('EndRepairMasterMix', [1])
        self.ligation_mastermix_positions = self.CAR_VIALS_SMALL.assign_reagent_map('LigationMasterMix', [2])
        self.kapa_adapters_positions = self.CAR_VIALS_SMALL.assign_reagent_map('KAPA_Adapters', [3])
-       self.nuclease_free_water_positions = self.CAR_VIALS_SMALL.assign_reagent_map('NucleaseFreeWater', [4])
        
        # Assign index primers to an untracked HSP plate
        self.index_primer_positions = [(self.HSP_Plate_2, i) for i in range(self.num_samples)]
@@ -100,6 +99,7 @@ class KAPAHyperPlusProtocol(Protocol):
 
        # Cold-sensitive reagents in CPAC (4°C)
        self.kapa_hifi_mix_positions = self.CPAC_Reagents.assign_reagent_map('KAPA_HiFi_Mix', [0])
+       self.fragmentation_mastermix_positions = self.CPAC_Reagents.assign_reagent_map('FragmentationMasterMix', [1])
 
        # Bulk reagents with proper trough naming
        self.ethanol_plate = self.EthanolReservoir.assign_reagent_map('Ethanol80', range(96))
@@ -158,8 +158,8 @@ class KAPAHyperPlusProtocol(Protocol):
        self.index_primer_volume = 5              # µL
        
        # Bead volumes for cleanups
-       self.post_ligation_bead_volume = 50       # 1.0X ratio
-       self.final_cleanup_bead_volume = 45       # 0.9X ratio for size selection
+       self.post_ligation_bead_volume = 88       # 1.0X ratio
+       self.final_cleanup_bead_volume = 50       # 0.9X ratio for size selection
        self.ethanol_wash_volume = 200            # µL per wash
        
        # Elution volumes
@@ -227,6 +227,7 @@ class KAPAHyperPlusProtocol(Protocol):
            
            # Run fragmentation protocol (37°C for specified time)
            odtc_execute_protocol(ham_int, device_id=1, method_name='Enzymatic_Fragmentation', simulating=self.device_simulation)
+           odtc_wait_for_idle(ham_int, device_id=1, check_interval=30, max_wait=3600, simulating=self.device_simulation)
            
            # Remove from thermal cycler
            odtc_open_door(ham_int, device_id=1)
@@ -323,8 +324,8 @@ class KAPAHyperPlusProtocol(Protocol):
                      liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty')
            
            # Incubate at room temperature for 15 minutes
-           incubation_timer = start_timer(900)  # 15 minutes
-           incubation_timer.wait(skip=self.device_simulation)
+           self.incubation_timer = start_timer(900)  # 15 minutes
+           self.incubation_timer.wait(skip=self.device_simulation)
 
            print("Adapter Ligation completed.")
 
@@ -395,7 +396,7 @@ class KAPAHyperPlusProtocol(Protocol):
                            aspiration_height=0.8)
            
            # Air dry for 2 minutes
-           dry_timer = start_timer(120)
+           dry_timer = start_timer(180)
            dry_timer.wait(skip=self.device_simulation)
            
            # Move off magnet for elution
@@ -427,7 +428,7 @@ class KAPAHyperPlusProtocol(Protocol):
            
            # Transfer eluted library to HSP_Plate_2 for PCR
            transfer_96(ham_int, self.tracked_tips_50uL, self.tip_support, self.num_samples,
-                       self.MIDI_OnMagnet, self.HSP_Plate_2, volume=self.post_ligation_elution_volume - 2,
+                       self.MIDI_OnMagnet, self.HSP_Plate_2, volume=20,
                        liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
                        aspiration_height=0.8)
 
@@ -495,7 +496,7 @@ class KAPAHyperPlusProtocol(Protocol):
            # Transfer PCR products to MIDI plate
            pcr_volume = (self.post_ligation_elution_volume - 2 + self.pcr_mix_volume + self.index_primer_volume)
            
-           self.tracked_tips_300uL.reset_all()  # Reset tips to ensure enough volume
+           self.tracked_tips_300uL.reset_all()  # Reset tips to ensure enough in the tracker
            transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                        self.HSP_Plate_2, self.MIDI_OffMagnet, volume=pcr_volume,
                        liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
@@ -518,6 +519,69 @@ class KAPAHyperPlusProtocol(Protocol):
            # Move to magnet
            transport_resource(ham_int, self.MIDI_OffMagnet, self.MIDI_OnMagnet,
                              resource_type=GrippedResource.MIDI, core_gripper=True)
+           
+           settle_timer = start_timer(120)
+           settle_timer.wait(skip=self.device_simulation)
+           # Remove supernatant
+           transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
+                    self.MIDI_OnMagnet, self.MIDI_OffMagnet, 
+                    volume=pcr_volume + self.final_cleanup_bead_volume,
+                    liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
+                    aspiration_height=0.75)
+           
+
+           for wash in range(2):
+               # Add ethanol
+               transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
+                           self.ethanol_plate, self.MIDI_OnMagnet, volume=self.ethanol_wash_volume,
+                           liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
+                           aspiration_height=0.8)
+               
+               # Wait 30 seconds
+               wait_timer = start_timer(30)
+               wait_timer.wait(skip=self.device_simulation)
+               
+               # Remove ethanol
+               transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
+                           self.MIDI_OnMagnet, self.MIDI_OffMagnet, volume=self.ethanol_wash_volume,
+                           liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
+                           aspiration_height=0.8)
+
+           # Air dry for 2 minutes
+           dry_timer = start_timer(180)
+           dry_timer.wait(skip=self.device_simulation)
+           
+           # Move off magnet for elution
+           transport_resource(ham_int, self.MIDI_OnMagnet, self.MIDI_OffMagnet,
+                              resource_type=GrippedResource.MIDI, core_gripper=True)
+           
+           # Add nuclease-free water for elution
+           offmagnet_positions = [(self.MIDI_OffMagnet, i) for i in range(self.num_samples)]
+           pip_transfer(ham_int, self.tracked_tips_50uL, self.nuclease_free_water_positions, offmagnet_positions,
+                              volumes=[self.final_elution_volume] * self.num_samples,
+                              liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty')
+           
+           
+           mix_plate(ham_int, self.tracked_tips_50uL, self.tip_support, self.num_samples,
+                        self.MIDI_OffMagnet, mixing_volume=20, mix_cycles=15,
+                        liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty')
+           
+           # Incubate 2 minutes
+           incubate_timer = start_timer(120)
+           incubate_timer.wait(skip=self.device_simulation)
+
+           # Move to magnet
+           transport_resource(ham_int, self.MIDI_OffMagnet, self.MIDI_OnMagnet,
+                             resource_type=GrippedResource.MIDI, core_gripper=True)
+           settle_timer = start_timer(120)   
+           settle_timer.wait(skip=self.device_simulation)
+           # Transfer final cleaned library to HSP_Plate
+           transfer_96(ham_int, self.tracked_tips_50uL, self.tip_support, self.num_samples,
+                       self.MIDI_OnMagnet, self.HSP_Plate, volume=20,
+                       liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
+                       aspiration_height=0.8)
+
+
 
 
 if __name__ == "__main__":
