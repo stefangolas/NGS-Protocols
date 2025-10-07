@@ -59,7 +59,8 @@ class QIAseqRNAFusionProtocol(Protocol):
             ("Sample Cleanup 1", "sample_cleanup_1"),
             ("SPE Target Enrichment", "spe_target_enrichment"),
             ("Sample Cleanup 2", "sample_cleanup_2"),
-            ("Universal PCR", "universal_pcr")
+            ("Universal PCR", "universal_pcr"),
+            ("Sample Cleanup 3", "sample_cleanup_3")
         ]
         
         super().__init__()
@@ -178,27 +179,23 @@ class QIAseqRNAFusionProtocol(Protocol):
     
     def _setup_volumes(self):
         """Setup volume parameters based on sample volume."""
-        self.fast_select_volume = 50
+        self.fast_select_volume = 1
+        self.first_strand_mix_volume = 4
+        self.second_strand_mix_volume = 10
+        self.ligation_mix_volume = 45
         self.magbead_mix_volume = 1000
-        self.post_shear_magbead_volume = self.sample_volume
+        self.post_shear_magbead_volume = 80
+        self.sample_cleanup_1_magbead_volume = 145
+        self.sample_cleanup_1_ethanol_wash_volume = 220
+        self.qiaseq_enrichment_mix_volume = 9.6
         self.first_supernatant_removal_volume = self.sample_volume * 2
         self.supernatant_removal_volume = self.sample_volume + self.post_shear_magbead_volume
-        self.m1_mix_volume = self.sample_volume * 1.6
+        self.m1_mix_volume = 30
         self.post_shear_etoh_wash_volume = 200
         self.post_shear_elution_buffer_volume = 30
         self.post_shear_elution_volume = 25.5
         
-        # Calculate total reagent volumes needed (with 10% excess)
-        total_samples_with_excess = self.num_samples * 1.1
         
-        # Small volume reagents (<2mL total)
-        self.fast_select_total = self.fast_select_volume * total_samples_with_excess / 1000  # mL
-        self.rp_primer_total = 5 * total_samples_with_excess / 1000  # mL
-        
-        # Bulk reagents (>5mL total)
-        self.ethanol_total = self.post_shear_etoh_wash_volume * 4 * total_samples_with_excess / 1000  # mL (2 washes x 2 cleanups)
-        self.beads_total = self.post_shear_magbead_volume * 2 * total_samples_with_excess / 1000  # mL (2 cleanups)
-        self.water_total = self.post_shear_elution_buffer_volume * 2 * total_samples_with_excess / 1000  # mL
     
     def _setup_hhs_devices(self):
         """Setup HHS (Hamilton Heater Shaker) devices."""
@@ -282,21 +279,43 @@ class QIAseqRNAFusionProtocol(Protocol):
             # Run thermal cycling protocol
             odtc_execute_protocol(ham_int, device_id=1, method_name='FirstStrandDNASynthesis', simulating=self.device_simulation)
 
-            # Mix First Strand Synthesis Mix
-            pip_mix(ham_int, tips=self.tracked_tips_50uL, positions_to_mix=self.First_Strand_Synthesis_Mix_position,
-                   mix_volume=self.m1_mix_volume, mix_cycles=10,
-                   liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
-                   liquid_height=1)
+            # Wait for thermal cycler
+            odtc_wait_for_idle(ham_int, device_id=1, simulating=self.device_simulation, check_interval=5)
+            
+            # Remove from thermal cycler
+            odtc_open_door(ham_int, device_id=1)
+            transport_resource(ham_int, self.HSP_ODTC_Lid, self.Lid_Stack.put_back(),
+                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.LID, iswap=True)
+            transport_resource(ham_int, self.HSP_ODTC, self.HSP_Pipette2,
+                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.PCR, iswap=True)
+            odtc_close_door(ham_int, device_id=1)
+
+            # Transport HSP_Pipette2 to HSP_CPAC for reagent addition
+            transport_resource(ham_int, self.HSP_Pipette2, self.HSP_CPAC,
+                             resource_type=GrippedResource.PCR, core_gripper=True)
+
 
             # Add First Strand Synthesis Mix to samples
+            volumes = [self.first_strand_mix_volume] * self.num_samples
             pip_transfer(ham_int, self.tracked_tips_50uL, self.First_Strand_Synthesis_Mix_position,
-                        HSP_CPAC_positions, volumes,
+                        HSP_CPAC_positions, volumes, mix_cycles=7, vol_mix_dispense=5,
                         liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
-                        aspiration_height=1, dispense_height=1)
+                        aspiration_height=1, dispense_height=0)
 
 
+            odtc_open_door(ham_int, device_id=1)
+            transport_resource(ham_int, self.HSP_Pipette2, self.HSP_ODTC,
+                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.PCR, iswap=True)
             
+            # Add lid
+            transport_resource(ham_int, self.Lid_Stack.fetch_next(), self.HSP_ODTC_Lid,
+                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.LID, iswap=True)
+
+            odtc_close_door(ham_int, device_id=1)
             
+            # Run thermal cycling protocol
+            odtc_execute_protocol(ham_int, device_id=1, method_name='FirstStrandDNASynthesis', simulating=self.device_simulation)
+
             # Wait for thermal cycler
             odtc_wait_for_idle(ham_int, device_id=1, simulating=self.device_simulation, check_interval=5)
             
@@ -323,19 +342,20 @@ class QIAseqRNAFusionProtocol(Protocol):
             transport_resource(ham_int, self.HSP_Pipette2, self.HSP_CPAC,
                              resource_type=GrippedResource.PCR, core_gripper=True)
             
-            # Mix Second Strand Synthesis Mix
-            pip_mix(ham_int, tips=self.tracked_tips_50uL, positions_to_mix=self.Second_Strand_Synthesis_Mix_position,
-                   mix_volume=self.m1_mix_volume, mix_cycles=10,
-                   liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
-                   liquid_height=1)
-            
+            # Mix Second Strand Mix
+            pip_mix(ham_int, self.tracked_tips_300uL, 
+                    positions_to_mix=self.Second_Strand_Synthesis_Mix_position,
+                    mix_volume=5, mix_cycles=5,
+                    liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
+                    liquid_height=1)
+
             # Add Second Strand Synthesis Mix
             HSP_CPAC_positions = [(self.HSP_CPAC, idx) for idx in range(self.num_samples)]
-            volumes = [self.m1_mix_volume] * self.num_samples
+            volumes = [self.second_strand_mix_volume] * self.num_samples
             pip_transfer(ham_int, self.tracked_tips_300uL, self.Second_Strand_Synthesis_Mix_position,
-                        HSP_CPAC_positions, volumes,
-                        liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                        aspiration_height=1, dispense_height=1)
+                        HSP_CPAC_positions, volumes, mix_cycles=7, vol_mix_dispense=5,
+                        liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
+                        aspiration_height=1, dispense_height=0)
 
             # Move plate from CPAC to HSP_Pipette2
             transport_resource(ham_int, self.HSP_CPAC, self.HSP_Pipette2,
@@ -354,7 +374,7 @@ class QIAseqRNAFusionProtocol(Protocol):
             
             # Run thermal cycling protocol
             odtc_execute_protocol(ham_int, device_id=1, method_name='SecondStrandDNASynthesis', simulating=self.device_simulation)
-            
+            odtc_wait_for_idle(ham_int, device_id=1, simulating=self.device_simulation)
             # Remove from thermal cycler
             odtc_open_door(ham_int, device_id=1)
 
@@ -390,9 +410,9 @@ class QIAseqRNAFusionProtocol(Protocol):
             HSP_CPAC_positions = [(self.HSP_CPAC, idx) for idx in range(self.num_samples)]
             volumes = [self.m1_mix_volume] * self.num_samples
             pip_transfer(ham_int, self.tracked_tips_300uL, self.ERAT_Mix_position,
-                        HSP_CPAC_positions, volumes,
-                        liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                        aspiration_height=1, dispense_height=1)
+                        HSP_CPAC_positions, volumes, mix_cycles=7, vol_mix_dispense=30,
+                        liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
+                        aspiration_height=1, dispense_height=0)
 
             # Move plate from CPAC to HSP_Pipette2
             transport_resource(ham_int, self.HSP_CPAC, self.HSP_Pipette2,
@@ -411,6 +431,7 @@ class QIAseqRNAFusionProtocol(Protocol):
             
             # Run thermal cycling protocol
             odtc_execute_protocol(ham_int, device_id=1, method_name='EndRepairATailing', simulating=self.device_simulation)
+            odtc_wait_for_idle(ham_int, device_id=1, simulating=self.device_simulation)
 
             # Remove from thermal cycler
             odtc_open_door(ham_int, device_id=1)
@@ -436,12 +457,11 @@ class QIAseqRNAFusionProtocol(Protocol):
             
             # Prepare positions
             HSP_CPAC_positions = [(self.HSP_CPAC, idx) for idx in range(self.num_samples)]
-            volumes = [self.sample_volume] * self.num_samples
             QIAseqIndexAdapter = self.HHS1_HSP.resource
             
             # Transfer QIAseq Index Adapters
             transfer_96(ham_int, tips=self.tracked_tips_50uL, tip_support=self.tip_support, source_plate=QIAseqIndexAdapter,
-                        target_plate=self.HSP_CPAC, volume=self.sample_volume, num_samples=self.num_samples,
+                        target_plate=self.HSP_CPAC, volume=5, num_samples=self.num_samples, dispense_mix_cycles=5, dispense_mix_volume=20,
                         liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
                         aspiration_height=1)
             
@@ -452,8 +472,9 @@ class QIAseqRNAFusionProtocol(Protocol):
                    liquid_height=1)
             
             # Add Ligation Mix
+            volumes = [self.ligation_mix_volume] * self.num_samples
             pip_transfer(ham_int, self.tracked_tips_50uL, self.Ligation_Mix_position,
-                        HSP_CPAC_positions, volumes,
+                        HSP_CPAC_positions, volumes, mix_cycles=7, vol_mix_dispense=30,
                         liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
                         aspiration_height=1, dispense_height=1)
 
@@ -474,14 +495,6 @@ class QIAseqRNAFusionProtocol(Protocol):
             
             # Run thermal cycling protocol
             odtc_execute_protocol(ham_int, device_id=1, method_name='AdapterLigation', simulating=self.device_simulation)
-
-            # Remove from thermal cycler
-            odtc_open_door(ham_int, device_id=1)
-            transport_resource(ham_int, self.HSP_ODTC_Lid, self.Lid_Stack.put_back(),
-                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.LID, iswap=True)
-            transport_resource(ham_int, self.HSP_ODTC, self.HSP_CPAC,
-                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.PCR, iswap=True)
-            odtc_close_door(ham_int, device_id=1)
             
             print("Adapter Ligation completed.")
     
@@ -499,14 +512,25 @@ class QIAseqRNAFusionProtocol(Protocol):
             
             # Add QIAseq Beads to HHS position
             HHS3_MIDI_positions = [(self.HHS3_MIDI.resource, idx) for idx in range(self.num_samples)]
-            volumes = [self.post_shear_magbead_volume] * self.num_samples
-            pip_transfer(ham_int, self.tracked_tips_300uL, self.QIAseq_Beads_positions,
-                        HHS3_MIDI_positions, volumes,
-                        liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                        aspiration_height=1, dispense_height=1)
+            volumes = [self.sample_cleanup_1_magbead_volume+5] * self.num_samples
+            multi_dispense(ham_int, self.tracked_tips_300uL, self.QIAseq_Beads_positions,
+                           HHS3_MIDI_positions, volumes,
+                           liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
+                           aspiration_height=1, dispense_height=1)
+            
+            odtc_wait_for_idle(ham_int, device_id=1, simulating=self.device_simulation)
+
+            # Remove from thermal cycler
+            odtc_open_door(ham_int, device_id=1)
+            transport_resource(ham_int, self.HSP_ODTC_Lid, self.Lid_Stack.put_back(),
+                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.LID, iswap=True)
+            transport_resource(ham_int, self.HSP_ODTC, self.HSP_CPAC,
+                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.PCR, iswap=True)
+            odtc_close_door(ham_int, device_id=1)
+
 
             transfer_96(ham_int, self.tracked_tips_300uL, tip_support=self.tip_support,num_samples=self.num_samples,
-                        target_plate=self.HSP_CPAC, source_plate=self.HHS3_MIDI.resource, volume=self.sample_volume,
+                        source_plate=self.HSP_CPAC, target_plate=self.HHS3_MIDI.resource, volume=self.sample_volume,
                         liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                         aspiration_height=1, dispense_height=1)
             
@@ -529,8 +553,8 @@ class QIAseqRNAFusionProtocol(Protocol):
             for _ in range(2):
                 ethanol_wash(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                             ethanol_plate=self.EthanolReservoir, magnet_plate=self.MIDI_OnMagnet,
-                            waste_plate=self.MIDI_Waste, wash_volume=self.post_shear_etoh_wash_volume,
-                            first_removal_volume=200, second_removal_volume=50,
+                            waste_plate=self.MIDI_Waste, wash_volume=200,
+                            first_removal_volume=175, second_removal_volume=35,
                             liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
                         
@@ -541,7 +565,7 @@ class QIAseqRNAFusionProtocol(Protocol):
             # Add Nuclease-Free Water
             MIDI_OnMagnet_positions = [(self.MIDI_OnMagnet, idx) for idx in range(self.num_samples)]
             pip_transfer(ham_int, self.tracked_tips_300uL, self.Nuclease_Free_Water_positions,
-                        MIDI_OnMagnet_positions, [self.post_shear_elution_buffer_volume]*self.num_samples,
+                        MIDI_OnMagnet_positions, [50]*self.num_samples,
                         liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                         aspiration_height=1, dispense_height=1)
 
@@ -581,18 +605,18 @@ class QIAseqRNAFusionProtocol(Protocol):
             for _ in range(2):
                 ethanol_wash(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                             ethanol_plate=self.EthanolReservoir, magnet_plate=self.MIDI_OnMagnet,
-                            waste_plate=self.MIDI_Waste, wash_volume=self.post_shear_etoh_wash_volume,
-                            first_removal_volume=200, second_removal_volume=50,
+                            waste_plate=self.MIDI_Waste, wash_volume=220,
+                            first_removal_volume=175, second_removal_volume=50,
                             liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
                         
             # Air dry
-            dry_timer = start_timer(60)
+            dry_timer = start_timer(600)
             dry_timer.wait(skip=self.device_simulation)
 
             # Final elution buffer
             pip_transfer(ham_int, self.tracked_tips_300uL, self.Nuclease_Free_Water_positions,
-                        MIDI_OnMagnet_positions, [self.post_shear_elution_volume]*self.num_samples,
+                        MIDI_OnMagnet_positions, [12.4]*self.num_samples,
                         liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
                         aspiration_height=1, dispense_height=1)
 
@@ -627,18 +651,13 @@ class QIAseqRNAFusionProtocol(Protocol):
             transport_resource(ham_int, self.HHS5_MIDI.resource, self.MIDI_OnMagnet,
                              resource_type=GrippedResource.MIDI, core_gripper=True)
             
-            # Get fresh HSP plate from stack
-            transport_resource(ham_int, self.HSP_Stack.fetch_next(), self.HSP_Pipette2,
-                             resource_type=GrippedResource.PCR, core_gripper=True)
             
             # Transfer eluted samples to HSP plate
-            HSP_Pipette2_positions = [(self.HSP_Pipette2, idx) for idx in range(self.num_samples)]
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                        self.MIDI_OnMagnet, self.HSP_Pipette2,
                        liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                       volume=self.post_shear_elution_volume,
-                       aspiration_height=0.8, dispense_height=1)
-            
+                       volume=10.4, aspiration_height=0.8, dispense_height=1)
+                        
             # Clean up - move used plates to waste
             transport_resource(ham_int, self.MIDI_OnMagnet, self.MIDI_Waste,
                              resource_type=GrippedResource.MIDI, core_gripper=True)
@@ -661,13 +680,13 @@ class QIAseqRNAFusionProtocol(Protocol):
             
             # Mix SPE Master Mix
             pip_mix(ham_int, tips=self.tracked_tips_50uL, positions_to_mix=self.SPE_MasterMix,
-                   mix_volume=self.m1_mix_volume, mix_cycles=10,
+                   mix_volume=self.qiaseq_enrichment_mix_volume, mix_cycles=10,
                    liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
                    liquid_height=1)
             
             # Add SPE Master Mix
             HSP_CPAC_positions = [(self.HSP_CPAC, idx) for idx in range(self.num_samples)]
-            volumes = [self.m1_mix_volume] * self.num_samples
+            volumes = [self.qiaseq_enrichment_mix_volume] * self.num_samples
             pip_transfer(ham_int, self.tracked_tips_300uL, self.SPE_MasterMix,
                         HSP_CPAC_positions, volumes,
                         liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
@@ -691,6 +710,9 @@ class QIAseqRNAFusionProtocol(Protocol):
             # Run thermal cycling protocol
             odtc_execute_protocol(ham_int, device_id=1, method_name='SPE_Target_Enrichment', simulating=self.device_simulation)
 
+            # Wait for thermal cycler
+            odtc_wait_for_idle(ham_int, device_id=1, simulating=self.device_simulation)
+
             # Remove from thermal cycler
             odtc_open_door(ham_int, device_id=1)
             transport_resource(ham_int, self.HSP_ODTC_Lid, self.Lid_Stack.put_back(),
@@ -713,6 +735,11 @@ class QIAseqRNAFusionProtocol(Protocol):
             transport_resource(ham_int, self.HSP_Pipette2, self.HSP_CPAC,
                              resource_type=GrippedResource.PCR, core_gripper=True)
             
+            # Transfer 30uL of water to HSP_CPAC to bring volume to 50uL
+            HSP_CPAC_positions = [(self.HSP_CPAC, idx) for idx in range(self.num_samples)]
+            pip_transfer(ham_int, self.tracked_tips_300uL, self.Nuclease_Free_Water_positions,
+                        HSP_CPAC_positions, [30]*self.num_samples, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
+            
             # Mix beads
             pip_mix(ham_int, tips=self.tracked_tips_300uL, positions_to_mix=self.QIAseq_Beads_positions,
                    mix_volume=self.magbead_mix_volume, mix_cycles=10,
@@ -720,25 +747,22 @@ class QIAseqRNAFusionProtocol(Protocol):
                    liquid_height=1)
 
             # Dispense beads to MIDI_Pipette
-            MIDI_Pipette_positions = [(self.MIDI_Pipette, idx) for idx in range(self.num_samples)]
+            MIDI_bead_positions = [(self.MIDI_Pipette, idx) for idx in range(self.num_samples)]
             multi_dispense(ham_int, self.tracked_tips_300uL, self.QIAseq_Beads_positions,
-                          MIDI_Pipette_positions, [self.post_shear_magbead_volume]*self.num_samples,
+                          MIDI_bead_positions, [55]*self.num_samples,
                           liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                           aspiration_height=1, dispense_height=1)
 
-            # Add water
-            multi_dispense(ham_int, self.tracked_tips_300uL, self.Nuclease_Free_Water_positions,
-                          MIDI_Pipette_positions, [self.post_shear_elution_buffer_volume]*self.num_samples,
-                          liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                          aspiration_height=1, dispense_height=1)
+            # Move plate from CPAC to HSP_Pipette2
+            transport_resource(ham_int, self.HSP_CPAC, self.HSP_Pipette2,
+                             resource_type=GrippedResource.PCR, core_gripper=True)
 
-            # Transfer samples with 96 channel head
+            # Transfer samples to MIDI beads with 96 channel head
             HSP_Pipette2_positions = [(self.HSP_Pipette2, idx) for idx in range(self.num_samples)]
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                        self.HSP_Pipette2, self.MIDI_Pipette,
                        liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                       volume=self.post_shear_elution_volume,
-                       aspiration_height=0.3, dispense_height=1)
+                       volume=50, aspiration_height=0.3, dispense_height=1)
             
             # Transport to HHS3 for mixing
             transport_resource(ham_int, self.MIDI_Pipette, self.HHS3_MIDI.resource,
@@ -770,7 +794,7 @@ class QIAseqRNAFusionProtocol(Protocol):
             for _ in range(2):
                 ethanol_wash(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                             ethanol_plate=self.EthanolReservoir, magnet_plate=self.MIDI_OnMagnet,
-                            waste_plate=self.MIDI_Waste, wash_volume=self.post_shear_etoh_wash_volume,
+                            waste_plate=self.MIDI_Waste, wash_volume=220,
                             first_removal_volume=200, second_removal_volume=50,
                             liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
             
@@ -780,7 +804,7 @@ class QIAseqRNAFusionProtocol(Protocol):
             
             # Add elution buffer
             pip_transfer(ham_int, self.tracked_tips_300uL, self.Nuclease_Free_Water_positions,
-                        MIDI_OnMagnet_positions, [self.post_shear_elution_volume]*self.num_samples,
+                        MIDI_OnMagnet_positions, [15.4]*self.num_samples,
                         liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                         aspiration_height=1, dispense_height=1)
 
@@ -802,8 +826,7 @@ class QIAseqRNAFusionProtocol(Protocol):
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                        self.MIDI_OnMagnet, self.HHS1_HSP.resource,
                        liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                       volume=self.post_shear_elution_volume,
-                       aspiration_height=0.3, dispense_height=1)
+                       volume=13.4, aspiration_height=0.75, dispense_height=1)
             
             # Clean up
             transport_resource(ham_int, self.MIDI_OnMagnet, self.MIDI_Waste,
@@ -822,6 +845,15 @@ class QIAseqRNAFusionProtocol(Protocol):
             
             # Run final enrichment
             odtc_execute_protocol(ham_int, device_id=1, method_name='SecondStrandDNASynthesis', simulating=self.device_simulation)
+
+            odtc_wait_for_idle(ham_int, device_id=1, simulating=self.device_simulation)
+            # Remove from thermal cycler
+            odtc_open_door(ham_int, device_id=1)
+            transport_resource(ham_int, self.HSP_ODTC_Lid, self.Lid_Stack.put_back(),
+                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.LID, iswap=True)
+            transport_resource(ham_int, self.HSP_ODTC, self.HSP_Pipette2,
+                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.PCR, iswap=True)
+            odtc_close_door(ham_int, device_id=1)
             
             print("Sample Cleanup 2 completed.")
     
@@ -842,14 +874,14 @@ class QIAseqRNAFusionProtocol(Protocol):
             print("Adding Universal PCR mix to adapter positions...")
             print(QIAseqIndexAdapter_positions)
             pip_transfer(ham_int, self.tracked_tips_300uL, self.UniversalPCR_position,
-                        QIAseqIndexAdapter_positions, [self.m1_mix_volume]*self.num_samples,
+                        QIAseqIndexAdapter_positions, [20]*self.num_samples,
                         liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                         aspiration_height=1, dispense_height=1)
 
             print("Universal PCR mix added.")
             # Mix
             mix_plate(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                     self.HHS1_HSP.resource, mixing_volume=self.m1_mix_volume, mix_cycles=10,
+                     self.HHS1_HSP.resource, mixing_volume=10, mix_cycles=10,
                      liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
             # Get fresh HSP plate from stack
@@ -857,17 +889,16 @@ class QIAseqRNAFusionProtocol(Protocol):
                              resource_type=GrippedResource.PCR, core_gripper=True)
             
             # Transfer Universal PCR mix to HSP_CPAC
-            HSP_CPAC_positions = [(self.HSP_CPAC, idx) for idx in range(self.num_samples)]
-            volumes = [self.m1_mix_volume] * self.num_samples
-            pip_transfer(ham_int, self.tracked_tips_300uL, self.UniversalPCR_position,
-                        HSP_CPAC_positions, volumes,
-                        liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
-                        aspiration_height=1, dispense_height=1)
+            transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
+                       self.HHS1_HSP.resource, self.HSP_CPAC, volume=13.4, 
+                       liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
+                       aspiration_height=0, dispense_height=1)
 
             # Move plate from CPAC to HSP_Pipette2
             transport_resource(ham_int, self.HSP_CPAC, self.HSP_Pipette2,
                              resource_type=GrippedResource.PCR, core_gripper=True)
             
+
             # Move to thermal cycler
             odtc_open_door(ham_int, device_id=1)
             transport_resource(ham_int, self.HSP_Pipette2, self.HSP_ODTC,
@@ -882,8 +913,101 @@ class QIAseqRNAFusionProtocol(Protocol):
             # Run Universal PCR protocol
             odtc_execute_protocol(ham_int, device_id=1, method_name='UniversalPCR', simulating=self.device_simulation)
 
-            print("Universal PCR completed.")
-    
+
+    def sample_cleanup_3(self):
+        with HamiltonInterface(simulating=self.simulation, windowed=self.windowed, server_mode=False, persistent=self.persistent) as ham_int:
+            ham_int.initialize()
+            normal_logging(ham_int, os.getcwd())
+            # Write sample cleanup 3 just like sample cleanup 1 and 2
+
+            # Get fresh MIDI plate from stack
+            transport_resource(ham_int, self.MIDI_Stack.fetch_next(), self.HHS3_MIDI.resource,
+                             resource_type=GrippedResource.MIDI, core_gripper=True)
+            
+            # Multidispense beads to HHS3 position
+            HHS3_MIDI_positions = [(self.HHS3_MIDI.resource, idx) for idx in range(self.num_samples)]
+            volumes = [55] * self.num_samples
+            multi_dispense(ham_int, self.tracked_tips_300uL, self.QIAseq_Beads_positions,
+                          HHS3_MIDI_positions, volumes,
+                          liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
+                          aspiration_height=1, dispense_height=1)
+
+            odtc_wait_for_idle(ham_int, device_id=1, simulating=self.device_simulation)
+            # Remove from thermal cycler
+            odtc_open_door(ham_int, device_id=1)
+            transport_resource(ham_int, self.HSP_ODTC_Lid, self.Lid_Stack.put_back(),
+                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.LID, iswap=True)
+            transport_resource(ham_int, self.HSP_ODTC, self.HSP_Pipette2,
+                             grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.PCR, iswap=True)
+            odtc_close_door(ham_int, device_id=1)
+
+            # Add 30uL of water to HSP_Pipette2 to bring volume to 50uL
+            HSP_Pipette2_positions = [(self.HSP_Pipette2, idx) for idx in range(self.num_samples)]
+            pip_transfer(ham_int, self.tracked_tips_300uL, self.Nuclease_Free_Water_positions,
+                        HSP_Pipette2_positions, [30]*self.num_samples, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
+
+            # Transfer PCR products to beads with 96 channel head
+            HSP_Pipette2_positions = [(self.HSP_Pipette2, idx) for idx in range(self.num_samples)]
+            transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
+                       self.HSP_Pipette2, self.HHS3_MIDI.resource, HSP_Pipette2_positions, HHS3_MIDI_positions, 55)
+            
+            # Shake plate
+            hhs_start_shaker(ham_int, self.HHS3_MIDI.node, 1000)
+            shake_timer = start_timer(300)
+            shake_timer.wait(skip=self.device_simulation)
+            hhs_stop_shaker(ham_int, self.HHS3_MIDI.node)
+
+            # Transport to magnet
+            transport_resource(ham_int, self.HHS3_MIDI.resource, self.MIDI_OnMagnet,
+                             resource_type=GrippedResource.MIDI, core_gripper=True)
+            # Let beads settle
+            settle_timer = start_timer(60)
+            settle_timer.wait(skip=self.device_simulation)
+
+            # Remove supernatant
+            MIDI_OnMagnet_positions = [(self.MIDI_OnMagnet, idx) for idx in range(self.num_samples)]
+            transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
+                       self.MIDI_OnMagnet, self.MIDI_Waste, volume=100, source_positions=MIDI_OnMagnet_positions)
+            
+            # Ethanol wash (2x)
+            for _ in range(2):
+                ethanol_wash(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
+                            ethanol_plate=self.EthanolReservoir, magnet_plate=self.MIDI_OnMagnet,
+                            waste_plate=self.MIDI_Waste, wash_volume=220,
+                            first_removal_volume=200, second_removal_volume=50,
+                            liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
+                
+            # Air dry
+            dry_timer = start_timer(450)
+            dry_timer.wait(skip=self.device_simulation)
+
+            # Add elution buffer
+            pip_transfer(ham_int, self.tracked_tips_300uL, self.Nuclease_Free_Water_positions,
+                        MIDI_OnMagnet_positions, [25]*self.num_samples, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
+            
+            # Move to HHS5 for mixing
+            transport_resource(ham_int, self.MIDI_OnMagnet, self.HHS5_MIDI.resource,
+                             resource_type=GrippedResource.MIDI, core_gripper=True)
+            # Shake
+            hhs_start_shaker(ham_int, self.HHS5_MIDI.node, 1000)
+            shake_timer = start_timer(10)
+            shake_timer.wait(skip=self.device_simulation)
+            hhs_stop_shaker(ham_int, self.HHS5_MIDI.node)
+
+            # Back to magnet
+            transport_resource(ham_int, self.HHS5_MIDI.resource, self.MIDI_OnMagnet,
+                             resource_type=GrippedResource.MIDI, core_gripper=True)
+            
+            # Elute to HHS1_HSP
+            transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
+                       self.MIDI_OnMagnet, self.HHS1_HSP.resource,
+                       liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
+                       volume=23, aspiration_height=0.75, dispense_height=1)
+
+            
+
+
+
     def run_complete_protocol(self):
         """Run the complete QIAseq RNA Fusion protocol."""
         print(f"Starting QIAseq RNA Fusion XP protocol for {self.num_samples} samples...")
@@ -901,6 +1025,7 @@ class QIAseqRNAFusionProtocol(Protocol):
             self.spe_target_enrichment()
             self.sample_cleanup_2()
             self.universal_pcr()
+            self.sample_cleanup_3()
             
             print("QIAseq RNA Fusion XP protocol completed successfully!")
             

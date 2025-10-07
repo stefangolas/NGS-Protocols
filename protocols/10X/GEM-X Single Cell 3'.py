@@ -187,7 +187,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             normal_logging(ham_int, os.getcwd())
             
             # Initialize CPAC for cold reagent storage
-            initialize_cpac(ham_int, controller_id=1, simulating=self.simulation)
+            initialize_cpac(ham_int, controller_id=1, simulating=self.device_simulation)
             set_temperature_target_cpac(ham_int, controller_id=1, device_id=1, target_temp=4)
             start_temperature_control_cpac(ham_int, controller_id=1, device_id=1)
             
@@ -255,7 +255,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             # Prepare fragmentation mix
             self._prepare_fragmentation_mix(ham_int)
             
-            # Transport MIDI plate from the TEC to MIDI_Pipette3
+            # Transport MIDI plate from the CPAC to MIDI_Pipette3
             transport_resource(ham_int, self.MIDI_CPAC, self.MIDI_Plate,
                                resource_type=GrippedResource.MIDI, core_gripper=True)
             
@@ -320,10 +320,10 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             transport_resource(ham_int, self.MIDI_Stack.fetch_next(), self.MIDI_Plate,
                                resource_type=GrippedResource.MIDI, core_gripper=True)
 
-            # Multidispense SPRI beads to MIDI_Plate (0.7x)
+            # Multidispense SPRI beads to MIDI_Plate for intermediate storage
             midi_positions = [(self.MIDI_Plate, i) for i in range(self.num_samples)]
             multi_dispense(ham_int, self.tracked_tips_300uL, self.spriselect_positions, midi_positions,
-                           volumes=[21] * self.num_samples,
+                           volumes=[45] * self.num_samples,
                            liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 
             # Transport MIDI_Plate with beads to CPAC while we wait for ODTC protocol to finish
@@ -352,7 +352,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
                       self.MIDI_Plate, mixing_volume=75, mix_cycles=15,
                       liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
             
-            # Transfer 30 uL pre-plated beads from MIDI_Plate to HSP_Plate2
+            # Transfer 30 uL pre-plated beads from MIDI_Plate to HSP_Plate2 (0.6x)
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                         self.MIDI_Plate, self.HSP_Plate2, volume=30, dispense_mix_cycles=15,
                         dispense_mix_volume=75, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
@@ -369,9 +369,9 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             settle_timer = start_timer(180)
             settle_timer.wait(skip=self.device_simulation)
 
-            # Remove supernatant (70μl) and transfer to HSP_Plate
+            # Remove supernatant (75μl) and transfer to HSP_Plate
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                        self.HSP_Magnet, self.HSP_Plate, volume=70, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
+                        self.HSP_Magnet, self.HSP_Plate, volume=75, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
             # Mix beads (15x at 75μl)
             mix_plate(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
@@ -404,9 +404,9 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             # Incubate 3 minutes
             settle_timer.wait(skip=self.device_simulation)
             
-            # Remove supernatant (150μl) and transfer to HSP_Plate
+            # Remove supernatant (80μl) and transfer to HSP_Plate
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                        self.HSP_Magnet, self.Liquid_Waste, volume=150, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
+                        self.HSP_Magnet, self.Liquid_Waste, volume=80, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 
             # Ethanol washes (2x with 125μl)
             for wash in range(2):
@@ -434,7 +434,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
 
             # Add EB buffer (32μl)
             sample_positions = [(self.HSP_Plate2, i) for i in range(self.num_samples)]
-            pip_transfer(ham_int, self.tracked_tips_300uL, self.buffer_eb_positions, sample_positions, volumes=[32]*self.num_samples,
+            pip_transfer(ham_int, self.tracked_tips_300uL, self.buffer_eb_positions, sample_positions, volumes=[50.5]*self.num_samples,
                         liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
             # Transport HSP_Plate2 to HHS1_HSP
@@ -459,9 +459,9 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             settle_timer = start_timer(180)
             settle_timer.wait(skip=self.device_simulation)
 
-            # Transfer supernatant (32μl) to HSP_Plate
+            # Transfer supernatant (50μl) to HSP_Plate
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                        self.HSP_Magnet, self.HSP_Plate, volume=32, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
+                        self.HSP_Magnet, self.HSP_Plate, volume=50, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
             print("Post Fragmentation SPRIselect cleanup completed.")
 
     def _prepare_ligation_mix(self, ham_int):
@@ -507,7 +507,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
                                resource_type=GrippedResource.MIDI, core_gripper=True)
 
 
-            # Transport MIDI plate from CPAC_02 to MIDI_Pipette3 because otherwise it will be in the way of HSP ODTC
+            # Transport MIDI plate from CPAC_02 to MIDI_Pipette3
             transport_resource(ham_int, self.MIDI_CPAC, self.MIDI_Plate,
                                resource_type=GrippedResource.MIDI, core_gripper=True)
             
@@ -538,6 +538,9 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             
             # Run ligation protocol (20°C for 15 min)
             odtc_execute_protocol(ham_int, device_id=1, method_name='odtc_protocols/10x_adapter_ligation_protocol.xml', simulating=self.device_simulation)
+
+            # Wait for ODTC protocol to finish
+            odtc_wait_for_idle(ham_int, device_id=1, simulating=self.device_simulation)
 
             # Remove from thermal cycler
             odtc_open_door(ham_int, device_id=1)
@@ -583,7 +586,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             # Add SPRIselect (0.8X = 80μl)
             midi_positions = [(self.MIDI_Plate, i) for i in range(self.num_samples)]
             multi_dispense(ham_int, self.tracked_tips_300uL, self.spriselect_positions, midi_positions,
-                           volumes=[80] * self.num_samples,
+                           volumes=[85] * self.num_samples,
                            liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
             
             # Mix (15x at 150μl)
@@ -624,24 +627,24 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             
             # Double aspirate supernatant from HSP_Magnet
             double_aspirate_supernatant_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                                          self.HSP_Magnet, self.MIDI_Waste, first_volume=100, second_volume=100,
-                                          liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
+                                          self.HSP_Magnet, self.MIDI_Waste, first_volume=100, second_volume=80,
+                                          second_aspiration_height=0.75, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
             
             # Ethanol washes (2x with 180μl)
             magnet_positions = [(self.HSP_Magnet, i) for i in range(self.num_samples)]
             for wash in range(2):
                 transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                            self.EthanolReservoir, self.HSP_Magnet, volume=180,
+                            self.EthanolReservoir, self.HSP_Magnet, volume=200,
                             liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
                 
                 wait_timer = start_timer(30)
                 wait_timer.wait(skip=self.device_simulation)
                 
                 transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                            self.HSP_Magnet, self.MIDI_Waste, volume=180,
+                            self.HSP_Magnet, self.MIDI_Waste, volume=200,
                             liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                            aspiration_height=0.3)
+                            aspiration_height=0.5)
             
             # Drying timer
             settle_timer = start_timer(120)
@@ -693,28 +696,16 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             ham_int.initialize()
             normal_logging(ham_int, os.getcwd())
 
-            # Move HSP_Plate2 to HHS1_HSP
-            transport_resource(ham_int, self.HSP_Plate2, self.HHS1_HSP,
-                               resource_type=GrippedResource.PCR, core_gripper=True)
-
-            # Get MIDI plate from stack and move it to MIDI_CPAC
-            transport_resource(ham_int, self.MIDI_Stack.fetch_next(), self.MIDI_CPAC,
-                               resource_type=GrippedResource.MIDI, core_gripper=True)
-
-            # Multidispense Library Amp Mix (50μl) to intermediate HSP plate
-            intermediate_positions = [(self.HSP_Plate2, i) for i in range(self.num_samples)]
-            multi_dispense(ham_int, self.tracked_tips_300uL, self.library_amp_mix_positions,
-                            intermediate_positions, volumes=[self.amp_mix_volume] * self.num_samples,
-                            liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
-
-            # Move MIDI plate from CPAC to MIDI_Pipette3
-            transport_resource(ham_int, self.MIDI_CPAC, self.MIDI_Plate,
-                               resource_type=GrippedResource.MIDI, core_gripper=True)
+            
+            # Multidispense Library Amp Mix (50μl) to sample positions
+            sample_positions = [(self.HSP_Plate2, i) for i in range(self.num_samples)]
+            pip_transfer(ham_int, self.tracked_tips_300uL, self.library_amp_mix_positions,
+                            sample_positions, volumes=[self.amp_mix_volume] * self.num_samples,
+                            liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
             # Pip transfer from index plate on HHS1 to sample plate
-            pip_transfer(ham_int, self.tracked_tips_50uL, self.index_positions, intermediate_positions,
-                         volumes=[self.index_volume] * self.num_samples,
-                         liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty')
+            transfer_96(ham_int, self.tracked_tips_50uL, self.HHS1_HSP, sample_positions,
+                         volumes=self.index_volume, liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty')
 
             
             # Move to thermal cycler
@@ -731,14 +722,6 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             # Run PCR protocol (cycles based on cDNA input)
             odtc_execute_protocol(ham_int, device_id=1, method_name='odtc_protocols/10x_sample_index_pcr.xml', simulating=self.device_simulation)
 
-            # Remove from thermal cycler
-            odtc_open_door(ham_int, device_id=1)
-            transport_resource(ham_int, self.HSP_ODTC_Lid, self.Lid_Stack.put_back(),
-                              grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.LID, iswap=True)
-            transport_resource(ham_int, self.HSP_ODTC, self.HSP_Plate2,
-                              grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.PCR, iswap=True)
-            odtc_close_door(ham_int, device_id=1)
-
             print("Sample Index PCR completed.")
 
     def final_size_selection(self):
@@ -749,9 +732,6 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             ham_int.initialize()
             normal_logging(ham_int, os.getcwd())
 
-            # Move HSP_Plate to HHS1_HSP
-            transport_resource(ham_int, self.HSP_Plate2, self.HHS1_HSP,
-                               resource_type=GrippedResource.PCR, core_gripper=True)
 
             # Get HSP plate from stack and move it to HSP_Plate
             transport_resource(ham_int, self.HSP_Stack.fetch_next(), self.HSP_Plate,
@@ -772,7 +752,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             # Multi-dispense SPRI beads to MIDI_Plate (0.6x)
             midi_positions = [(self.MIDI_Plate, i) for i in range(self.num_samples)]
             multi_dispense(ham_int, self.tracked_tips_300uL, self.spriselect_positions, midi_positions,
-                           volumes=[60] * self.num_samples, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
+                           volumes=[85] * self.num_samples, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
             
 
             # Transport MIDI_Plate to CPAC_03
@@ -780,13 +760,16 @@ class TenXGEXLibraryPrepProtocol(Protocol):
                                resource_type=GrippedResource.PCR, core_gripper=True)
             
             # Wait for ODTC protocol to complete
-            odtc_ready = False
-            while not odtc_ready:
-                status = odtc_get_status(ham_int, device_id=1, simulating=self.device_simulation)
-                if status.state == 'idle':
-                    odtc_ready = True
-                else:
-                    time.sleep(5)
+            odtc_wait_for_idle(ham_int, device_id=1, simulating=self.device_simulation)
+
+            # Remove from thermal cycler
+            odtc_open_door(ham_int, device_id=1)
+            transport_resource(ham_int, self.HSP_ODTC_Lid, self.Lid_Stack.put_back(),
+                              grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.LID, iswap=True)
+            transport_resource(ham_int, self.HSP_ODTC, self.HSP_Plate2,
+                              grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.PCR, iswap=True)
+            odtc_close_door(ham_int, device_id=1)
+
 
             # Move MIDI plate from CPAC_02 to MIDI_Pipette3
             transport_resource(ham_int, self.MIDI_CPAC, self.MIDI_Plate,
@@ -798,7 +781,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
 
             # Transfer beads to HSP plate
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                        self.MIDI_Plate, self.HSP_Plate2, volume=150,
+                        self.MIDI_Plate, self.HSP_Plate2, volume=60,
                         liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
             # Incubate 5 minutes
@@ -815,7 +798,8 @@ class TenXGEXLibraryPrepProtocol(Protocol):
 
             # Aspirate supernatant (150μl) and transfer to HSP_Plate
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                        self.HSP_Magnet, self.HSP_Plate, volume=150, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
+                        self.HSP_Magnet, self.HSP_Plate, volume=150, aspiration_height=0.75,
+                        liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
 
             # Transport HSP_Magnet to HSP_Waste
@@ -826,7 +810,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             # Add second SPRI beads (0.2x = 20μl)
             transfer_96(ham_int, self.tracked_tips_300uL,self.tip_support, self.num_samples,
                         self.MIDI_Plate, self.HSP_Plate,
-                        volume=20, dispense_mix_cycles=10, dispense_mix_volume=15,
+                        volume=20, dispense_mix_cycles=10, dispense_mix_volume=150,
                         liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
             # Incubate beads 2 minutes
@@ -841,9 +825,9 @@ class TenXGEXLibraryPrepProtocol(Protocol):
             settle_timer = start_timer(180)
             settle_timer.wait(skip=self.device_simulation)
 
-            # Transfer supernatant (150μl) to waste
+            # Transfer supernatant (165μl) to waste
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                        self.HSP_Magnet, self.HSP_Waste, volume=150,
+                        self.HSP_Magnet, self.HSP_Waste, volume=165, aspiration_height=0.75,
                         liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
             
             # Ethanol washes (2x with 200μl)
@@ -908,9 +892,9 @@ class TenXGEXLibraryPrepProtocol(Protocol):
 
 
             # Remove supernatant (165μl)
-            transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                        self.HSP_Magnet, self.HSP_Plate2, volume=165,
-                        liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
+            transfer_96(ham_int, self.tracked_tips_50uL, self.tip_support, self.num_samples,
+                        self.HSP_Magnet, self.HSP_Plate2, volume=35, aspiration_height=0.75,
+                        liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty')
 
             print("Final libraries ready for QC and sequencing!")
             print("Final Size Selection completed.")
