@@ -2,7 +2,6 @@
 
 This library provides 5 complete automated sequencing prep protocols for the Hamilton NGS platform written in PyHamilton.
 These protocols make extensive use of new PyHamilton features specifically designed to allow for easy development of NGS protocols.
-Here are some of the main features that have been added to support these protocols:
 
 The five protocols provided in this library are:
 -   [10X GEM-X Single Cell 3' sequencing prep](protocols/10X)
@@ -41,7 +40,11 @@ To use the scripts in this library
 
 1. Install the latest version of [PyHamilton](https://github.com/dgretton/pyhamilton).
 2. Run the asset import script with `install_assets.py`. Note that this will copy files from `/assets` into your `Hamilton` directory. Feel free to do this manually instead.
+3. Download the repo with `git clone https://github.com/stefangolas/ngs-protocols` and navigate to a protocol in the `Protocols` folder to get started.
 
+### Recommendations
+It's recommended that you use [VSCode](https://code.visualstudio.com/download) with the Python extension installed. Using the Github Copilot extension
+in VSCode is also extremely useful for development.
 
 ## PyHamilton NGS Features
 
