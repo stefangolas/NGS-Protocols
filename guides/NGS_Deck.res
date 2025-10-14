@@ -14,4 +14,4 @@ namespace ResourceUnit {
      variable Res_HxFan;
      variable Res_ML_STAR;
 }
-// $$author=Stefan.Golas$$valid=0$$time=2025-10-01 13:40$$checksum=318b40e3$$length=089$$
+// $$author=Stefan.Golas$$valid=0$$time=2025-10-13 23:50$$checksum=17e3c64f$$length=089$$

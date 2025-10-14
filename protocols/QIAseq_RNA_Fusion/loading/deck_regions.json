@@ -159,5 +159,31 @@
             255
         ],
         "resource_type": "32-tube rack"
+    },
+    "HSP_Pipette2": {
+        "points": [
+            [
+                592,
+                72
+            ],
+            [
+                654,
+                73
+            ],
+            [
+                657,
+                102
+            ],
+            [
+                594,
+                101
+            ]
+        ],
+        "color": [
+            0,
+            0,
+            128
+        ],
+        "resource_type": "96-well plate"
     }
 }

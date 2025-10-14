@@ -82,7 +82,6 @@ class QIAseqRNAFusionProtocol(Protocol):
         
         # Deck Resources - HSP Plates (only 2 available for general pipetting)
         self.HSP_Pipette = layout_item(self.lmgr, Plate96, 'HSP_Pipette')
-        self.HSP_Pipette2 = layout_item(self.lmgr, Plate96, 'HSP_Pipette2')
         self.HSP_CPAC = layout_item(self.lmgr, Plate96, 'HSP_CPAC')
         self.HSP_Waste = layout_item(self.lmgr, Plate96, 'HSP_Waste')
         self.HSP_ODTC = layout_item(self.lmgr, Plate96, 'HSP_ODTC')
@@ -93,6 +92,11 @@ class QIAseqRNAFusionProtocol(Protocol):
         self.MIDI_OnMagnet = layout_item(self.lmgr, Plate96, 'MIDI_OnMagnet')
         self.MIDI_Waste = layout_item(self.lmgr, Plate96, 'MIDI_Waste')
         
+        # Sample Plate
+        self.HSP_Pipette2 = layout_item(self.lmgr, Plate96, 'HSP_Pipette2')
+        self.HSP_Pipette2.assign_label('Samples')
+
+
         # Small volume reagents (<2mL) - Use EppiCarrier32
         self.CAR_VIALS_SMALL = layout_item(self.lmgr, ReagentTrackedEppiCarrier32, 'CAR_VIALS_SMALL')
         
@@ -173,7 +177,7 @@ class QIAseqRNAFusionProtocol(Protocol):
         self.tip_support = TipSupportTracker(self.tip_support_resource)
         
         # Batch tracked objects for resource consumption
-        self.tracked_reagent_vessels = [self.CAR_VIALS_SMALL, self.RGT_01, self.SPE_MasterMix_Container]
+        self.tracked_reagent_vessels = [self.CAR_VIALS_SMALL, self.RGT_01, self.SPE_MasterMix_Container, self.HSP_Pipette2]
         self.tracked_tips = [self.tracked_tips_50uL, self.tracked_tips_300uL, self.tracked_tips_1000uL]
         self.stacked_resources = [self.HSP_Stack, self.MIDI_Stack]
     

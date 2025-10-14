@@ -57,29 +57,29 @@ def multidispense_and_transfer(simulating=True):
                 liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty')
 
         # Step 2: Setup mix positions in HHS5 MIDI plate
-        mix_position = [(HHS5_MIDI, idx) for idx in range(num_samples)]
+        mix_positions = [(HHS5_MIDI, idx) for idx in range(num_samples)]
 
         # Step 3: Add Buffer EB (room temp)
         multi_dispense(ham_int, tips=tracked_tips_300uL, source_positions=buffer_eb_positions,
-                        dispense_positions=mix_position, volumes=[buffer_eb_vol] * num_samples,
+                        dispense_positions=mix_positions, volumes=[buffer_eb_vol] * num_samples,
                         pre_aspirate_volume=5, post_dispense_volume=5,
                         aspiration_height=0, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 
         # Step 4: Add Fragmentation Buffer (room temp)
         multi_dispense(ham_int, tips=tracked_tips_300uL, source_positions=fragmentation_buffer_positions,
-                        dispense_positions=mix_position, volumes=[frag_buffer_vol] * num_samples,
+                        dispense_positions=mix_positions, volumes=[frag_buffer_vol] * num_samples,
                         pre_aspirate_volume=5, post_dispense_volume=5,
                         aspiration_height=0, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 
         # Step 5: Add Fragmentation Enzyme (cold reagent from CPAC)
-        multi_dispense(ham_int, tracked_tips_300uL, fragmentation_enzyme_positions, mix_position,
+        multi_dispense(ham_int, tracked_tips_300uL, fragmentation_enzyme_positions, mix_positions,
                         volumes=[frag_enzyme_vol] * num_samples, aspiration_height=0,
                         pre_aspirate_volume=5, post_dispense_volume=5,
                         liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty')
 
         # Step 6: Mix the prepared fragmentation mix
         total_vol = buffer_eb_vol + frag_buffer_vol + frag_enzyme_vol
-        pip_mix(ham_int, tips=tracked_tips_300uL, positions_to_mix=mix_position,
+        pip_mix(ham_int, tips=tracked_tips_300uL, positions_to_mix=mix_positions,
                 mix_cycles=3, mix_volume=25, liquid_height=0,
                 liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
