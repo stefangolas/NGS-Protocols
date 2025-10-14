@@ -14,7 +14,7 @@ def get_parent_lay_file():
         return str(file)  # return first match
     return None  # if no .lay file found
 
-def thermal_cycling_with_transport(simulating):
+def thermal_cycling_with_transport(simulating, device_simulation):
     lmgr = LayoutManager(get_parent_lay_file())
 
     HSP_Pipette2 = layout_item(lmgr, Plate96, 'HSP_Pipette2')
@@ -23,7 +23,7 @@ def thermal_cycling_with_transport(simulating):
     HSP_ODTC_Lid = layout_item(lmgr, Lid, 'Ham_ComfortLid_ODTC')
     
     Lid_Stack = StackedResources.from_prefix(
-        tracker_id="Ham_ComfortLid_ParkPos", prefix="Ham_ComfortLid_ParkPos",
+        tracker_id="Ham_ComfortLid_Stack_ParkPos", prefix="Ham_ComfortLid_Stack_ParkPos",
         count=4, lmgr=lmgr, resource_type=Lid
     )
 
@@ -52,10 +52,10 @@ def thermal_cycling_with_transport(simulating):
         
         # Run protocol
         odtc_execute_protocol(ham_int, device_id=device_id,
-                            method_name='FirstStrandDNASynthesis.xml', simulating=True)
+                            method_name='FirstStrandDNASynthesis.xml', simulating=device_simulation)
         
         # Wait for thermal cycler
-        odtc_wait_for_idle(ham_int, device_id=device_id, simulating=simulating, check_interval=5)
+        odtc_wait_for_idle(ham_int, device_id=device_id, simulating=device_simulation, check_interval=5)
 
         # Unload plate
         odtc_open_door(ham_int, device_id=device_id)
@@ -69,4 +69,4 @@ def thermal_cycling_with_transport(simulating):
             
 
 if __name__ == "__main__":
-    thermal_cycling_with_transport(simulating=False)
+    thermal_cycling_with_transport(simulating=False, device_simulation=True)

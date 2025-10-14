@@ -872,7 +872,6 @@ class QIAseqRNAFusionProtocol(Protocol):
             # Add Universal PCR mix to adapter positions
             QIAseqIndexAdapter_positions = [(self.HHS1_HSP.resource, idx) for idx in range(self.num_samples)]
             print("Adding Universal PCR mix to adapter positions...")
-            print(QIAseqIndexAdapter_positions)
             pip_transfer(ham_int, self.tracked_tips_300uL, self.UniversalPCR_position,
                         QIAseqIndexAdapter_positions, [20]*self.num_samples,
                         liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
@@ -949,7 +948,8 @@ class QIAseqRNAFusionProtocol(Protocol):
             # Transfer PCR products to beads with 96 channel head
             HSP_Pipette2_positions = [(self.HSP_Pipette2, idx) for idx in range(self.num_samples)]
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                       self.HSP_Pipette2, self.HHS3_MIDI.resource, HSP_Pipette2_positions, HHS3_MIDI_positions, 55)
+                       self.HSP_Pipette2, self.HHS3_MIDI.resource, 55, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
+                       aspiration_height=0.3, dispense_height=1)
             
             # Shake plate
             hhs_start_shaker(ham_int, self.HHS3_MIDI.node, 1000)
@@ -967,7 +967,8 @@ class QIAseqRNAFusionProtocol(Protocol):
             # Remove supernatant
             MIDI_OnMagnet_positions = [(self.MIDI_OnMagnet, idx) for idx in range(self.num_samples)]
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                       self.MIDI_OnMagnet, self.MIDI_Waste, volume=100, source_positions=MIDI_OnMagnet_positions)
+                       self.MIDI_OnMagnet, self.MIDI_Waste, volume=100, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
+                       aspiration_height=0.75, dispense_height=1)
             
             # Ethanol wash (2x)
             for _ in range(2):
@@ -1040,7 +1041,6 @@ if __name__ == "__main__":
     protocol = QIAseqRNAFusionProtocol(
         num_samples=24,
         sample_volume=50,
-        simulation=True,
         device_simulation=True
     )
     

@@ -704,8 +704,8 @@ class TenXGEXLibraryPrepProtocol(Protocol):
                             liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
             # Pip transfer from index plate on HHS1 to sample plate
-            transfer_96(ham_int, self.tracked_tips_50uL, self.HHS1_HSP, sample_positions,
-                         volumes=self.index_volume, liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty')
+            transfer_96(ham_int, self.tracked_tips_50uL, self.tip_support, source_plate=self.HHS1_HSP, target_plate=self.HSP_Plate2, 
+                        num_samples=self.num_samples, volume=self.index_volume, liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty')
 
             
             # Move to thermal cycler

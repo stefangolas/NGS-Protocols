@@ -4,7 +4,7 @@ import os
 from pyhamilton import HamiltonInterface, LayoutManager, layout_item, start_timer, normal_logging
 from pyhamilton.pipetting import pip_transfer, transfer_96, pip_mix, double_aspirate_supernatant_96, ethanol_wash
 from pyhamilton.consumables import ReagentTrackedReservoir60mL, ReagentTrackedBulkPlate
-from pyhamilton.resources import Plate96, Tip96, TrackedTips, TipSupportTracker, StackedResources
+from pyhamilton.resources import Plate96, Tip96, TrackedTips, TipSupportTracker, StackedResources, Waste96
 from pyhamilton.transport import transport_resource, GrippedResource
 from pyhamilton.devices import (hhs_set_simulation, hhs_create_usb_device, 
                             hhs_start_shaker, hhs_stop_shaker)
@@ -58,7 +58,7 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
     MIDI_Waste = layout_item(lmgr, Plate96, 'MIDI_Waste')
 
     # MPH Waste
-    MPH_Waste = layout_item(lmgr, Plate96, 'MPH_Waste')
+    MPH_Waste = layout_item(lmgr, Waste96, 'MPH_Waste')
     
     # Setup HHS devices
     HHS3_MIDI = HHS(node=3, sequence="HHS3_MIDI", lmgr=lmgr)
@@ -66,7 +66,7 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
     
     # Setup reagents
     RGT_01 = layout_item(lmgr, ReagentTrackedReservoir60mL, 'RGT_01')
-    EthanolReservoir = layout_item(lmgr, ReagentTrackedBulkPlate, 'RGT_Ethanol')
+    EthanolReservoir = layout_item(lmgr, ReagentTrackedBulkPlate, 'Ethanol_Reservoir')
     
     QIAseq_Beads_positions = RGT_01.assign_reagent_map('QIAseq_Beads', range(8))
     Nuclease_Free_Water_positions = RGT_01.assign_reagent_map('Nuclease_Free_Water', range(8))
