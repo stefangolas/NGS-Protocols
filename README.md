@@ -2,7 +2,6 @@
 
 This library provides 5 complete automated sequencing prep protocols for the Hamilton NGS platform written in PyHamilton.
 These protocols make extensive use of new PyHamilton features specifically designed to allow for easy development of NGS protocols.
-Here are some of the main features that have been added to support these protocols:
 
 The five protocols provided in this library are:
 -   [10X GEM-X Single Cell 3' sequencing prep](protocols/10X)
