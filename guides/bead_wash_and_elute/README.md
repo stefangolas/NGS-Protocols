@@ -113,7 +113,7 @@ double_aspirate_supernatant_96(ham_int, tracked_tips_300uL, tip_support, num_sam
                                source_plate=MIDI_OnMagnet, destination_plate=MPH_Waste,
                                first_volume=200, second_volume=50, 
                                liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
-                               aspiration_height=0, dispense_height=5)
+                               aspiration_height=0.75, dispense_height=5)
 ```
 
 The `double_aspirate_supernatant_96()` function performs two sequential aspirations:
