@@ -79,7 +79,7 @@ tracked_tips_50uL = TrackedTips.from_prefix(
 tracked_tip_pick_up(ham_int, tip_tracker, num_tips = 8)
 ```
 
-### Reagent consumption tracking
+### Deck setup and reagent consumption tracking
 We can use members of the `TrackedReagentVessel` class to specify the contents of a container, record the total amount of
 volume aspirated during a run, and generate JSON reports about reagent consumption. Note that `tracked_reagent_aspirate`
 must be used in order for the volume of an aspiration command to be tracked.
@@ -88,12 +88,19 @@ must be used in order for the volume of an aspiration command to be tracked.
 # First we define a container using a ReagentTracked... class
 MagBeads_Container = layout_item(lmgr, ReagentTrackedReservoir60mL, 'rgt_cont_60ml_BC_A00_0001')
 
-# Next we assign a reagent to indexes within that container via assign_reagent_map, which returns a positions list ready to be passed to a command
+# Next we assign a reagent to indexes within that container via assign_reagent_map,
+# which returns a positions list ready to be passed to a command
 magbead_positions = MagBeads_Container.assign_reagent_map('MagBeads', range(8))
 
 # Here's an example with a plate instead of a trough
 CPAC_Reagent_Plate = layout_item(lmgr, ReagentTrackedPlate96, 'CPAC_HSP_0001')
 ER_Mix_positions = CPAC_Reagent_Plate.assign_reagent_map('ER_Mix', [0])
+
+# Sometimes we want to highlight a plate in the loading dialogue but not track reagents (like a sample plate).
+# To do that, we call `assign_label(...)` on the resource.
+
+self.HSP_Pipette2 = layout_item(self.lmgr, Plate96, 'HSP_Pipette2')
+self.HSP_Pipette2.assign_label('Samples')
 ```
 
 ### User interface for running protocols
