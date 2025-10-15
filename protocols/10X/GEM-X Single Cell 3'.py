@@ -94,6 +94,9 @@ class TenXGEXLibraryPrepProtocol(Protocol):
         self.EthanolReservoir = layout_item(self.lmgr, ReagentTrackedBulkPlate, 'RGT_Ethanol')
 
         # Reagent mapping and positions
+        # Sample plate
+        self.HSP_Plate2.assign_label('Samples')
+
         # Room temperature small volume reagents
         self.fragmentation_buffer_positions = self.CAR_VIALS_SMALL.assign_reagent_map('FragmentationBuffer', [0])
         self.ligation_mix_positions = self.CAR_VIALS_SMALL.assign_reagent_map('LigationMix', [1])
@@ -108,6 +111,7 @@ class TenXGEXLibraryPrepProtocol(Protocol):
         self.spriselect_positions = self.RGT_02.assign_reagent_map('SPRIselect', range(8))
 
         # Index positions
+        self.HHS1_HSP.assign_label('Index primers')
         self.index_positions = [(self.HHS1_HSP, i) for i in range(self.num_samples)]
 
         # Liquid waste

@@ -211,5 +211,57 @@
             255
         ],
         "resource_type": "Reservoir"
+    },
+    "HSP_Pipette2": {
+        "points": [
+            [
+                541,
+                55
+            ],
+            [
+                601,
+                55
+            ],
+            [
+                606,
+                82
+            ],
+            [
+                547,
+                81
+            ]
+        ],
+        "color": [
+            64,
+            128,
+            128
+        ],
+        "resource_type": "96-well plate"
+    },
+    "HHS1_HSP": {
+        "points": [
+            [
+                698,
+                61
+            ],
+            [
+                761,
+                61
+            ],
+            [
+                766,
+                82
+            ],
+            [
+                704,
+                87
+            ]
+        ],
+        "color": [
+            255,
+            128,
+            255
+        ],
+        "resource_type": "96-well plate"
     }
 }

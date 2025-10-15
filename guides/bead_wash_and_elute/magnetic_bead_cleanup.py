@@ -69,7 +69,7 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
     EthanolReservoir = layout_item(lmgr, ReagentTrackedBulkPlate, 'Ethanol_Reservoir')
     
     QIAseq_Beads_positions = RGT_01.assign_reagent_map('QIAseq_Beads', range(8))
-    Nuclease_Free_Water_positions = RGT_01.assign_reagent_map('Nuclease_Free_Water', range(8))
+    Nuclease_Free_Water_positions = RGT_02.assign_reagent_map('Nuclease_Free_Water', range(8))
     
     # Setup stacked resources
     HSP_Stack = StackedResources.from_prefix(

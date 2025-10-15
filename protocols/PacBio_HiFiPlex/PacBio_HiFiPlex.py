@@ -95,6 +95,7 @@ class PacBioHiFiPlexProtocol(Protocol):
 
 
         # Reagent mapping and positions
+        self.HSP_Plate.assign_label('Samples')
         self.magbead_positions =  self.MagBeads_Container.assign_reagent_map('MagBeads', range(8))
         self.ethanol_plate = self.EthanolReservoir.assign_reagent_map('Ethanol', range(96))
         self.post_shear_elution_buffer_positions = self.ElutionBuffer_Container.assign_reagent_map('ElutionBuffer', range(8))

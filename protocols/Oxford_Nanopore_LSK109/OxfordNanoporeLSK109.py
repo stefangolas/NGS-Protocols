@@ -88,6 +88,9 @@ class OxfordNanoporeLSK109Protocol(Protocol):
         self.EthanolReservoir = layout_item(self.lmgr, ReagentTrackedBulkPlate, 'Ethanol_Reservoir')  # 80% Ethanol
 
         # Reagent position assignments
+        # Sample plate
+        self.HSP_Pipette.assign_label('Samples')
+
         # Cold-sensitive reagents (CPAC)
         self.endprep_mix_positions = self.CPAC_Reagents.assign_reagent_map('EndPrepMix', [0])
         self.adapter_ligation_mix_positions = self.CPAC_Reagents.assign_reagent_map('AdapterLigationMix', [1])

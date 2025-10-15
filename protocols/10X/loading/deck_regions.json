@@ -185,5 +185,57 @@
             0
         ],
         "resource_type": "32-tube rack"
+    },
+    "HSP_Pipette": {
+        "points": [
+            [
+                548,
+                63
+            ],
+            [
+                615,
+                63
+            ],
+            [
+                620,
+                88
+            ],
+            [
+                553,
+                90
+            ]
+        ],
+        "color": [
+            255,
+            128,
+            192
+        ],
+        "resource_type": "Reservoir"
+    },
+    "HSP_Pipette2": {
+        "points": [
+            [
+                556,
+                94
+            ],
+            [
+                621,
+                93
+            ],
+            [
+                631,
+                122
+            ],
+            [
+                561,
+                124
+            ]
+        ],
+        "color": [
+            235,
+            2,
+            20
+        ],
+        "resource_type": "Reservoir"
     }
 }
