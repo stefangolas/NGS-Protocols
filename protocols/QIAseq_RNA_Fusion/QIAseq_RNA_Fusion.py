@@ -12,7 +12,7 @@ from pyhamilton.ngs import Protocol, LoadingVis, generate_tadm_report
 from pyhamilton.resources import TrackedTips, StackedResources, Plate96, Tip96,Waste96, LayoutManager,TipSupportTracker, layout_item, Lid
 
 from pyhamilton.pipetting import (pip_transfer, multi_dispense, double_aspirate_supernatant_96, ethanol_wash, transfer_96, pip_mix, mix_plate,
-                                  shear_plate_96, transfer_96)
+                                  shear_plate_96, transfer_96, pip_1to1)
 from pyhamilton.transport import (transport_resource, GripDirection, GrippedResource, GripperParams)
 
 import time
@@ -464,10 +464,13 @@ class QIAseqRNAFusionProtocol(Protocol):
             QIAseqIndexAdapter = self.HHS1_HSP.resource
             
             # Transfer QIAseq Index Adapters
-            transfer_96(ham_int, tips=self.tracked_tips_50uL, tip_support=self.tip_support, source_plate=QIAseqIndexAdapter,
-                        target_plate=self.HSP_CPAC, volume=5, num_samples=self.num_samples, dispense_mix_cycles=5, dispense_mix_volume=20,
-                        liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
-                        aspiration_height=1)
+            HSP_CPAC_positions = [(self.HSP_CPAC, idx) for idx in range(self.num_samples)]
+            QIAseqIndexAdapter_positions = [(QIAseqIndexAdapter, idx) for idx in range(self.num_samples)]
+            pip_1to1(ham_int, tips=self.tracked_tips_50uL,
+                    source_positions=QIAseqIndexAdapter_positions, dispense_positions=HSP_CPAC_positions,
+                    volumes=[5]*self.num_samples, mix_cycles=5, vol_mix_dispense=20,
+                    liquid_class='Tip_50ulFilter_Water_DispenseSurface_Empty',
+                    aspiration_height=1)
             
             # Mix Ligation Mix
             pip_mix(ham_int, tips=self.tracked_tips_50uL, positions_to_mix=self.Ligation_Mix_position,
@@ -532,11 +535,12 @@ class QIAseqRNAFusionProtocol(Protocol):
                              grip_direction=GripDirection.RIGHT, resource_type=GrippedResource.PCR, iswap=True)
             odtc_close_door(ham_int, device_id=1)
 
-
-            transfer_96(ham_int, self.tracked_tips_300uL, tip_support=self.tip_support,num_samples=self.num_samples,
-                        source_plate=self.HSP_CPAC, target_plate=self.HHS3_MIDI.resource, volume=self.sample_volume,
-                        liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                        aspiration_height=1, dispense_height=1)
+            HSP_CPAC_positions = [(self.HSP_CPAC, idx) for idx in range(self.num_samples)]
+            HHS3_MIDI_positions = [(self.HHS3_MIDI.resource, idx) for idx in range(self.num_samples)]
+            pip_1to1(ham_int, self.tracked_tips_300uL,
+                    HSP_CPAC_positions, HHS3_MIDI_positions, volumes=[self.sample_volume]*self.num_samples,
+                    liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
+                    aspiration_height=1, dispense_height=1)
             
             # Shake plate
             hhs_start_shaker(ham_int, self.HHS3_MIDI.node, 1000)
@@ -827,10 +831,13 @@ class QIAseqRNAFusionProtocol(Protocol):
                              resource_type=GrippedResource.MIDI, core_gripper=True)
             
             # Elute to HHS1_HSP
-            transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                       self.MIDI_OnMagnet, self.HHS1_HSP.resource,
-                       liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                       volume=13.4, aspiration_height=0.75, dispense_height=1)
+            MIDI_bead_positions = [(self.MIDI_OnMagnet, idx) for idx in range(self.num_samples)]
+            HHS1_HSP_positions = [(self.HHS1_HSP, idx) for idx in range(self.num_samples)]
+
+            pip_1to1(ham_int, self.tracked_tips_300uL,
+                    MIDI_bead_positions, HHS1_HSP_positions,
+                    liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
+                    volumes=[13.4]*self.num_samples)
             
             # Clean up
             transport_resource(ham_int, self.MIDI_OnMagnet, self.MIDI_Waste,
@@ -892,10 +899,12 @@ class QIAseqRNAFusionProtocol(Protocol):
                              resource_type=GrippedResource.PCR, core_gripper=True)
             
             # Transfer Universal PCR mix to HSP_CPAC
-            transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
-                       self.HHS1_HSP.resource, self.HSP_CPAC, volume=13.4, 
-                       liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
-                       aspiration_height=0, dispense_height=1)
+            HHS1_HSP_positions = [(self.HHS1_HSP.resource, idx) for idx in range(self.num_samples)]
+            HSP_CPAC_positions = [(self.HSP_CPAC, idx) for idx in range(self.num_samples)]
+            pip_transfer(ham_int, self.tracked_tips_300uL, self.tip_support, HHS1_HSP_positions,
+                         HSP_CPAC_positions, volumes=[13.4]*self.num_samples,
+                         liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty',
+                         aspiration_height=0.5, dispense_height=1)
 
             # Move plate from CPAC to HSP_Pipette2
             transport_resource(ham_int, self.HSP_CPAC, self.HSP_Pipette2,
@@ -949,11 +958,23 @@ class QIAseqRNAFusionProtocol(Protocol):
             pip_transfer(ham_int, self.tracked_tips_300uL, self.Nuclease_Free_Water_positions,
                         HSP_Pipette2_positions, [30]*self.num_samples, liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
 
+
+            # Transport HHS3_MIDI to MIDI_Pipette
+            transport_resource(ham_int, self.HHS3_MIDI.resource, self.MIDI_Pipette,
+                                resource_type=GrippedResource.MIDI, core_gripper=True)
+
+            # Transfer beads to HHS1_HSP
+            MIDI_bead_positions = [(self.MIDI_OnMagnet, idx) for idx in range(self.num_samples)]
+            HHS1_HSP_positions = [(self.HHS1_HSP, idx) for idx in range(self.num_samples)]
+            pip_transfer(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
+                       MIDI_bead_positions, HHS1_HSP_positions,
+                       volumes=[13.4]*self.num_samples)
+
             # Transfer PCR products to beads with 96 channel head
             HSP_Pipette2_positions = [(self.HSP_Pipette2, idx) for idx in range(self.num_samples)]
             transfer_96(ham_int, self.tracked_tips_300uL, self.tip_support, self.num_samples,
                        self.HSP_Pipette2, self.HHS3_MIDI.resource, 55, liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
-                       aspiration_height=0.3, dispense_height=1)
+                       aspiration_height=0.75, dispense_height=1)
             
             # Shake plate
             hhs_start_shaker(ham_int, self.HHS3_MIDI.node, 1000)

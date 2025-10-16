@@ -25,6 +25,7 @@ class HHS:
         self.node = node
         self.sequence = sequence
         self.resource = layout_item(lmgr, Plate96, sequence)
+        self.device_id = None
 
 
 
@@ -66,6 +67,7 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
     
     # Setup reagents
     RGT_01 = layout_item(lmgr, ReagentTrackedReservoir60mL, 'RGT_01')
+    RGT_02 = layout_item(lmgr, ReagentTrackedReservoir60mL, 'RGT_02')
     EthanolReservoir = layout_item(lmgr, ReagentTrackedBulkPlate, 'Ethanol_Reservoir')
     
     QIAseq_Beads_positions = RGT_01.assign_reagent_map('QIAseq_Beads', range(8))
@@ -99,12 +101,11 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
         # Initialize HHS devices
         print("Initializing HHS devices...")
         hhs_set_simulation(ham_int, 1 if device_simulation else 0)
-        for node in [3, 5]:
-            try:
-                hhs_create_usb_device(ham_int, node)
-                print(f"  HHS node {node}: OK")
-            except Exception as e:
-                print(f"  Warning: Could not initialize HHS node {node}: {e}")
+        try:
+            HHS3_MIDI.device_id = hhs_create_usb_device(ham_int, HHS3_MIDI.node)
+            print(f"  HHS node {HHS3_MIDI.node}: OK")
+        except Exception as e:
+            print(f"  Warning: Could not initialize HHS node {HHS3_MIDI.node}: {e}")
         
         print("\n=== Starting Sample Cleanup 1 Protocol ===\n")
         
@@ -129,10 +130,15 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
                     liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                     aspiration_height=1, dispense_height=1)
         
+        # Transport plate from HSP_CPAC to HSP_Pipette2
+        print("Step 2: Transporting plate from HSP_CPAC to HSP_Pipette2...")
+        transport_resource(ham_int, HSP_CPAC, HSP_Pipette2,
+                         resource_type=GrippedResource.PCR, core_gripper=True)
+
         # Transfer samples from HSP_CPAC to MIDI plate
         print("Step 3: Transferring samples to MIDI plate...")
         transfer_96(ham_int, tracked_tips_300uL, tip_support=tip_support, num_samples=num_samples,
-                   target_plate=HSP_CPAC, source_plate=HHS3_MIDI.resource, volume=sample_volume,
+                   target_plate=HSP_Pipette2, source_plate=HHS3_MIDI.resource, volume=sample_volume,
                    aspiration_mix_cycles=3, aspiration_mix_volume=sample_volume,
                    liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                    aspiration_height=1, dispense_height=1)
@@ -167,7 +173,7 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
             print(f"  Ethanol wash {wash_num + 1}/2...")
             ethanol_wash(ham_int, tracked_tips_300uL, tip_support, num_samples,
                         ethanol_plate=EthanolReservoir, magnet_plate=MIDI_OnMagnet,
-                        waste_plate=MIDI_Waste, wash_volume=post_shear_etoh_wash_volume,
+                        waste_plate=MPH_Waste, wash_volume=post_shear_etoh_wash_volume,
                         first_removal_volume=200, second_removal_volume=50,
                         liquid_class='StandardVolumeFilter_Water_DispenseSurface_Empty')
         
