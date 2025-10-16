@@ -62,7 +62,6 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
     MPH_Waste = layout_item(lmgr, Waste96, 'MPH_Waste')
     
     # Setup HHS devices
-    HHS3_MIDI = HHS(node=3, sequence="HHS3_MIDI", lmgr=lmgr)
     HHS5_MIDI = HHS(node=5, sequence="HHS5_MIDI", lmgr=lmgr)
     
     # Setup reagents
@@ -102,21 +101,21 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
         print("Initializing HHS devices...")
         hhs_set_simulation(ham_int, 1 if device_simulation else 0)
         try:
-            HHS3_MIDI.device_id = hhs_create_usb_device(ham_int, HHS3_MIDI.node)
-            print(f"  HHS node {HHS3_MIDI.node}: OK")
+            HHS5_MIDI.device_id = hhs_create_usb_device(ham_int, HHS5_MIDI.node)
+            print(f"  HHS node {HHS5_MIDI.node}: OK")
         except Exception as e:
-            print(f"  Warning: Could not initialize HHS node {HHS3_MIDI.node}: {e}")
+            print(f"  Warning: Could not initialize HHS node {HHS5_MIDI.node}: {e}")
         
         print("\n=== Starting Sample Cleanup 1 Protocol ===\n")
         
-        # Get fresh MIDI plate from stack and move to HHS3
-        print("Step 1: Preparing MIDI plate on HHS3...")
-        transport_resource(ham_int, MIDI_Stack.fetch_next(), HHS3_MIDI.resource,
+        # Get fresh MIDI plate from stack and move to HHS5
+        print("Step 1: Preparing MIDI plate on HHS5...")
+        transport_resource(ham_int, MIDI_Stack.fetch_next(), HHS5_MIDI.resource,
                          resource_type=GrippedResource.MIDI, core_gripper=True)
         
-        # Add QIAseq Beads to HHS3 position (Round 1)
+        # Add QIAseq Beads to HHS5 position (Round 1)
         print("Step 2: Adding QIAseq Beads (Round 1)...")
-        HHS3_MIDI_positions = [(HHS3_MIDI.resource, idx) for idx in range(num_samples)]
+        HHS5_MIDI_positions = [(HHS5_MIDI.resource, idx) for idx in range(num_samples)]
         volumes = [post_shear_magbead_volume] * num_samples
 
         # Mix beads thoroughly before transfering to MIDI plate
@@ -126,7 +125,7 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
                 liquid_height=1)
 
         pip_transfer(ham_int, tracked_tips_300uL, QIAseq_Beads_positions,
-                    HHS3_MIDI_positions, volumes,
+                    HHS5_MIDI_positions, volumes,
                     liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                     aspiration_height=1, dispense_height=1)
         
@@ -138,21 +137,21 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
         # Transfer samples from HSP_CPAC to MIDI plate
         print("Step 3: Transferring samples to MIDI plate...")
         transfer_96(ham_int, tracked_tips_300uL, tip_support=tip_support, num_samples=num_samples,
-                   target_plate=HSP_Pipette2, source_plate=HHS3_MIDI.resource, volume=sample_volume,
+                   target_plate=HSP_Pipette2, source_plate=HHS5_MIDI.resource, volume=sample_volume,
                    aspiration_mix_cycles=3, aspiration_mix_volume=sample_volume,
                    liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                    aspiration_height=1, dispense_height=1)
         
         # Shake plate
         print("Step 4: Mixing on shaker (10 sec @ 1000 rpm)...")
-        hhs_start_shaker(ham_int, HHS3_MIDI.node, 1000)
+        hhs_start_shaker(ham_int, HHS5_MIDI.node, 1000)
         shake_timer = start_timer(10)
         shake_timer.wait(skip=device_simulation)
-        hhs_stop_shaker(ham_int, HHS3_MIDI.node)
+        hhs_stop_shaker(ham_int, HHS5_MIDI.node)
         
         # Transport to magnet
         print("Step 5: Moving to magnet...")
-        transport_resource(ham_int, HHS3_MIDI.resource, MIDI_OnMagnet,
+        transport_resource(ham_int, HHS5_MIDI.resource, MIDI_OnMagnet,
                          resource_type=GrippedResource.MIDI, core_gripper=True)
         
         # Let beads settle
@@ -190,19 +189,19 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
                     liquid_class='StandardVolumeFilter_Water_DispenseJet_Empty',
                     aspiration_height=1, dispense_height=1)
         
-        # Transport to HHS3 to shake and incubate
-        print("Step 11: Mixing elution on HHS3...")
-        transport_resource(ham_int, MIDI_OnMagnet, HHS3_MIDI.resource,
+        # Transport to HHS5 to shake and incubate
+        print("Step 11: Mixing elution on HHS5...")
+        transport_resource(ham_int, MIDI_OnMagnet, HHS5_MIDI.resource,
                          resource_type=GrippedResource.MIDI, core_gripper=True)
         
-        hhs_start_shaker(ham_int, HHS3_MIDI.device_id, 1000)
+        hhs_start_shaker(ham_int, HHS5_MIDI.device_id, 1000)
         shake_timer = start_timer(30)
         shake_timer.wait(skip=device_simulation)
-        hhs_stop_shaker(ham_int, HHS3_MIDI.device_id)
+        hhs_stop_shaker(ham_int, HHS5_MIDI.device_id)
 
         # Transport to magnet
         print("Step 12: Moving to magnet...")
-        transport_resource(ham_int, HHS3_MIDI.resource, MIDI_OnMagnet,
+        transport_resource(ham_int, HHS5_MIDI.resource, MIDI_OnMagnet,
                          resource_type=GrippedResource.MIDI, core_gripper=True)
         
         # Let beads settle
@@ -228,4 +227,4 @@ if __name__ == "__main__":
     # Run with simulation mode
     # Set simulating=False to run on real hardware
     # Set device_simulation=False to use real HHS devices
-    magnetic_bead_cleanup(simulating=False, device_simulation=True)
+    magnetic_bead_cleanup(simulating=True, device_simulation=True)
