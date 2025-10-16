@@ -195,11 +195,11 @@ def magnetic_bead_cleanup(simulating=True, device_simulation=True):
         transport_resource(ham_int, MIDI_OnMagnet, HHS3_MIDI.resource,
                          resource_type=GrippedResource.MIDI, core_gripper=True)
         
-        hhs_start_shaker(ham_int, HHS3_MIDI.node, 1000)
+        hhs_start_shaker(ham_int, HHS3_MIDI.device_id, 1000)
         shake_timer = start_timer(30)
         shake_timer.wait(skip=device_simulation)
-        hhs_stop_shaker(ham_int, HHS3_MIDI.node)
-        
+        hhs_stop_shaker(ham_int, HHS3_MIDI.device_id)
+
         # Transport to magnet
         print("Step 12: Moving to magnet...")
         transport_resource(ham_int, HHS3_MIDI.resource, MIDI_OnMagnet,
@@ -228,4 +228,4 @@ if __name__ == "__main__":
     # Run with simulation mode
     # Set simulating=False to run on real hardware
     # Set device_simulation=False to use real HHS devices
-    magnetic_bead_cleanup(simulating=True, device_simulation=True)
+    magnetic_bead_cleanup(simulating=False, device_simulation=True)
